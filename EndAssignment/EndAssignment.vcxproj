@@ -153,6 +153,7 @@
   <ItemGroup>
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Core.cpp" />
+    <ClCompile Include="Fireball.cpp" />
     <ClCompile Include="FirePower.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameObject.cpp" />
@@ -170,6 +171,7 @@
     <ClCompile Include="Platform.cpp" />
     <ClCompile Include="PowerStar.cpp" />
     <ClCompile Include="PowerUp.cpp" />
+    <ClCompile Include="Projectile.cpp" />
     <ClCompile Include="SoundEffect.cpp" />
     <ClCompile Include="SoundStream.cpp" />
     <ClCompile Include="SparkPower.cpp" />
@@ -183,6 +185,7 @@
   <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Core.h" />
+    <ClInclude Include="Fireball.h" />
     <ClInclude Include="FirePower.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameObject.h" />
@@ -194,6 +197,7 @@
     <ClInclude Include="Platform.h" />
     <ClInclude Include="PowerStar.h" />
     <ClInclude Include="PowerUp.h" />
+    <ClInclude Include="Projectile.h" />
     <ClInclude Include="SoundEffect.h" />
     <ClInclude Include="SoundStream.h" />
     <ClInclude Include="SparkPower.h" />
@@ -203,6 +207,10 @@
     <ClInclude Include="Texture.h" />
     <ClInclude Include="utils.h" />
     <ClInclude Include="Vector2f.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\..\..\OneDrive - Hogeschool West-Vlaanderen\DAE\Programming\EndAssignment\EndAssignment\Resources\Sprites\Kirby_Ability_Sliding.png" />
+    <Image Include="..\..\..\..\OneDrive - Hogeschool West-Vlaanderen\DAE\Programming\EndAssignment\EndAssignment\Resources\Sprites\Kirby_Sliding.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -10,6 +10,14 @@ class PowerUp;
 
 class Kirby : public GameObject
 {
+	enum class MacroState {
+		basic,
+		inflated,
+		inhalation,
+		bloated,
+		ducking,
+		sliding
+	};
 	enum class ActionState {
 		idle,
 		walking,
@@ -17,6 +25,7 @@ class Kirby : public GameObject
 		flipping,
 		falling,
 		ducking,
+		sliding,
 		inflating,
 		inflated,
 		flapping,
@@ -62,14 +71,10 @@ private:
 
 	float m_JumpTime;
 	bool m_IsOnGround;
-	
-	bool m_IsInflated;
-	bool m_IsInhaling;
-	bool m_IsBloated;
-	bool m_IsDucking;
 
 	Vector2f m_Velocity;
 	ActionState m_ActionState;
+	MacroState m_MacroState;
 
 	PowerUp* m_pPowerup;
 	Sprite* m_pCurrentSprite;
@@ -83,8 +88,6 @@ private:
 	void ProcessMovement(float elapsedSec, const Level& level);
 
 	void Flap();
-	void MoveLeft(float elapsedSec);
-	void MoveRight(float elapsedSec);
 	void Move(float elapsedSec, bool canAccelerate);
 	void SlowDown(float elapsedSec);
 	void Jump(float elapsedSec);

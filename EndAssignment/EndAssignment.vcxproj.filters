@@ -19,6 +19,9 @@
     <Filter Include="Game Files\GameObjects">
       <UniqueIdentifier>{34b0a0ea-cfd8-4244-af2a-262ef6b9f6b2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game Files\Projectiles">
+      <UniqueIdentifier>{6b7072f3-45c5-41a6-ba1b-314c6297e5d4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp">
@@ -90,6 +93,12 @@
     <ClCompile Include="SparkPower.cpp">
       <Filter>Game Files\PowerUps</Filter>
     </ClCompile>
+    <ClCompile Include="Projectile.cpp">
+      <Filter>Game Files\Projectiles</Filter>
+    </ClCompile>
+    <ClCompile Include="Fireball.cpp">
+      <Filter>Game Files\Projectiles</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -158,5 +167,19 @@
     <ClInclude Include="SparkPower.h">
       <Filter>Game Files\PowerUps</Filter>
     </ClInclude>
+    <ClInclude Include="Projectile.h">
+      <Filter>Game Files\Projectiles</Filter>
+    </ClInclude>
+    <ClInclude Include="Fireball.h">
+      <Filter>Game Files\Projectiles</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\..\..\OneDrive - Hogeschool West-Vlaanderen\DAE\Programming\EndAssignment\EndAssignment\Resources\Sprites\Kirby_Ability_Sliding.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\..\..\..\OneDrive - Hogeschool West-Vlaanderen\DAE\Programming\EndAssignment\EndAssignment\Resources\Sprites\Kirby_Sliding.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>
