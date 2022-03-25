@@ -18,6 +18,9 @@ Level::~Level()
 {
 	delete m_pBackground;
 	m_pBackground = nullptr;
+
+	delete m_pLevelMusic;
+	m_pLevelMusic = nullptr;
 }
 
 void Level::Initialize()
