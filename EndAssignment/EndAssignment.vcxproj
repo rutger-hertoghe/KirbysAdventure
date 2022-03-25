@@ -24,6 +24,7 @@
     <ProjectGuid>{49a897ff-16f0-40d5-9066-ec7626b624aa}</ProjectGuid>
     <RootNamespace>EndAssignment</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>KirbysAdventure</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -151,13 +152,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Actor.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Core.cpp" />
+    <ClCompile Include="Enemy.cpp" />
     <ClCompile Include="Fireball.cpp" />
     <ClCompile Include="FirePower.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="HUD.cpp" />
+    <ClCompile Include="HudElement.cpp" />
     <ClCompile Include="Kirby.cpp" />
     <ClCompile Include="Level.cpp" />
     <ClCompile Include="main.cpp" />
@@ -172,24 +176,30 @@
     <ClCompile Include="PowerStar.cpp" />
     <ClCompile Include="PowerUp.cpp" />
     <ClCompile Include="Projectile.cpp" />
+    <ClCompile Include="ProjectileManager.cpp" />
     <ClCompile Include="SoundEffect.cpp" />
     <ClCompile Include="SoundStream.cpp" />
     <ClCompile Include="SparkPower.cpp" />
     <ClCompile Include="Sprite.cpp" />
+    <ClCompile Include="Star.cpp" />
     <ClCompile Include="structs.cpp" />
     <ClCompile Include="SVGParser.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="utils.cpp" />
     <ClCompile Include="Vector2f.cpp" />
+    <ClCompile Include="WaddleDee.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Actor.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Core.h" />
+    <ClInclude Include="Enemy.h" />
     <ClInclude Include="Fireball.h" />
     <ClInclude Include="FirePower.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="HUD.h" />
+    <ClInclude Include="HudElement.h" />
     <ClInclude Include="Kirby.h" />
     <ClInclude Include="Level.h" />
     <ClInclude Include="Matrix2x3.h" />
@@ -198,19 +208,18 @@
     <ClInclude Include="PowerStar.h" />
     <ClInclude Include="PowerUp.h" />
     <ClInclude Include="Projectile.h" />
+    <ClInclude Include="ProjectileManager.h" />
     <ClInclude Include="SoundEffect.h" />
     <ClInclude Include="SoundStream.h" />
     <ClInclude Include="SparkPower.h" />
     <ClInclude Include="Sprite.h" />
+    <ClInclude Include="Star.h" />
     <ClInclude Include="structs.h" />
     <ClInclude Include="SVGParser.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="utils.h" />
     <ClInclude Include="Vector2f.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="..\..\..\..\OneDrive - Hogeschool West-Vlaanderen\DAE\Programming\EndAssignment\EndAssignment\Resources\Sprites\Kirby_Ability_Sliding.png" />
-    <Image Include="..\..\..\..\OneDrive - Hogeschool West-Vlaanderen\DAE\Programming\EndAssignment\EndAssignment\Resources\Sprites\Kirby_Sliding.png" />
+    <ClInclude Include="WaddleDee.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

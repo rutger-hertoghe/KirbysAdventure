@@ -1,11 +1,18 @@
 #include "pch.h"
 #include "FirePower.h"
+#include "ProjectileManager.h"
 #include "utils.h"
+#include "Fireball.h"
 #include <iostream>
+#include "Vector2f.h"
 
 FirePower::FirePower()
 	: PowerUp{PowerUpType::fire, false, true, false}
-	, m_DamageZone{}
+	, m_TimeBetweenSpawns{0.08f}
+	, m_TimeSinceSpawn{0.f}
+	, m_CanSpawn{true}
+	, m_YDirection{0}
+	, m_AngleDifference{1}
 {
 }
 
@@ -13,29 +20,37 @@ FirePower::~FirePower()
 {
 }
 
-void FirePower::OnKeyDownEvent(Rectf shape, float xDirection)
+void FirePower::OnKeyDownEvent(const Rectf& shape, float xDirection)
 {
 	m_IsActive = true;
-	std::cout << "Fire powerup active!\n";
 }
 
-void FirePower::ContinuousKeyEvent(Rectf shape, float xDirection)
+void FirePower::ContinuousKeyEvent(const Rectf& shape, float xDirection)
 {
-	m_DamageZone = Rectf{ shape.left + shape.width, shape.bottom, shape.width, shape.height };
+	if (m_CanSpawn == true)
+	{
+		Rectf spawnLocation{ 0.f, shape.bottom, shape.width, shape.height };
+		spawnLocation.left = shape.left + (xDirection > 0.f ? shape.width : -shape.width);
+		Vector2f directionVector{ xDirection, float(m_YDirection * 3) };
+		if (m_pProjectileManager) m_pProjectileManager->Add(new Fireball{ spawnLocation, directionVector });
+		else std::cout << "PROJECTILE MANAGER NOT FOUND\n";
+		m_CanSpawn = false;
+	}
 }
 
-void FirePower::OnKeyUpEvent(Rectf shape, float xDirection)
+void FirePower::OnKeyUpEvent(const Rectf& shape, float xDirection)
 {
 	m_IsActive = false;
-	std::cout << "Fire power up no longer active!\n";
 }
 
-void FirePower::Draw() const
+void FirePower::Update(float elapsedSec)
 {
-	if (m_IsActive)
+	m_TimeSinceSpawn += elapsedSec;
+	if (m_TimeSinceSpawn > m_TimeBetweenSpawns)
 	{
-		utils::SetColor(Color4f{ 1.f, 0.f, 0.f, 1.f });
-		utils::FillRect(m_DamageZone);
+		m_TimeSinceSpawn = 0.f;
+		m_CanSpawn = true;
+		ChangeFireAngle();
 	}
 }
 
@@ -44,12 +59,20 @@ bool FirePower::IsActive() const
 	return m_IsActive;
 }
 
-bool FirePower::IsOneShot() const
-{
-	return false;
-}
-
 std::string FirePower::GetPowerSuffix() const
 {
 	return "fire_";
+}
+
+void FirePower::ChangeFireAngle()
+{
+	if (m_YDirection > 0)
+	{
+		m_AngleDifference = -1;
+	}
+	else if (m_YDirection < 0)
+	{
+		m_AngleDifference = 1;
+	}
+	m_YDirection += m_AngleDifference;
 }

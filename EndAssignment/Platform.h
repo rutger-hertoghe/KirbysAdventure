@@ -1,5 +1,4 @@
 #pragma once
-#include <vector>
 #include "Vector2f.h"
 
 class Platform
@@ -13,8 +12,6 @@ public:
 
 protected:
 	Rectf m_Rect;
-
-private:
 	std::vector<Point2f> GetRectVertices() const;
 };
 

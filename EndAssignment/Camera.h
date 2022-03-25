@@ -2,7 +2,7 @@
 class Level;
 class HUD;
 
-class Camera
+class Camera final
 {
 public:
 	Camera(float startLocationX, float startLocationY, float windowWidth, float windowHeight, const Level& level, const HUD& hud);
@@ -10,9 +10,12 @@ public:
 
 	void Transform();
 	void Update(float x, float y);
+	void Update(const Point2f& position);
 
 	void TransformHUD();
 	void UpdateBoundaries(const Level& level);
+
+	Point2f GetViewDimensions();
 
 private:
 	const float m_HudHeight;

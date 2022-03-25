@@ -19,8 +19,11 @@
     <Filter Include="Game Files\GameObjects">
       <UniqueIdentifier>{34b0a0ea-cfd8-4244-af2a-262ef6b9f6b2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Game Files\Projectiles">
+    <Filter Include="Game Files\GameObjects\Projectiles">
       <UniqueIdentifier>{6b7072f3-45c5-41a6-ba1b-314c6297e5d4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game Files\GameObjects\Actors">
+      <UniqueIdentifier>{96a293d5-d7db-4d93-8590-163385930016}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -84,20 +87,38 @@
     <ClCompile Include="GameObject.cpp">
       <Filter>Game Files\GameObjects</Filter>
     </ClCompile>
-    <ClCompile Include="Kirby.cpp">
-      <Filter>Game Files\GameObjects</Filter>
-    </ClCompile>
-    <ClCompile Include="PowerStar.cpp">
-      <Filter>Game Files\GameObjects</Filter>
-    </ClCompile>
     <ClCompile Include="SparkPower.cpp">
       <Filter>Game Files\PowerUps</Filter>
     </ClCompile>
     <ClCompile Include="Projectile.cpp">
-      <Filter>Game Files\Projectiles</Filter>
+      <Filter>Game Files\GameObjects\Projectiles</Filter>
     </ClCompile>
     <ClCompile Include="Fireball.cpp">
-      <Filter>Game Files\Projectiles</Filter>
+      <Filter>Game Files\GameObjects\Projectiles</Filter>
+    </ClCompile>
+    <ClCompile Include="ProjectileManager.cpp">
+      <Filter>Game Files\GameObjects\Projectiles</Filter>
+    </ClCompile>
+    <ClCompile Include="Kirby.cpp">
+      <Filter>Game Files\GameObjects\Actors</Filter>
+    </ClCompile>
+    <ClCompile Include="Actor.cpp">
+      <Filter>Game Files\GameObjects\Actors</Filter>
+    </ClCompile>
+    <ClCompile Include="PowerStar.cpp">
+      <Filter>Game Files\GameObjects\Actors</Filter>
+    </ClCompile>
+    <ClCompile Include="Star.cpp">
+      <Filter>Game Files\GameObjects\Projectiles</Filter>
+    </ClCompile>
+    <ClCompile Include="WaddleDee.cpp">
+      <Filter>Game Files\GameObjects\Actors</Filter>
+    </ClCompile>
+    <ClCompile Include="Enemy.cpp">
+      <Filter>Game Files\GameObjects\Actors</Filter>
+    </ClCompile>
+    <ClCompile Include="HudElement.cpp">
+      <Filter>Game Files\GameObjects</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -155,31 +176,41 @@
     <ClInclude Include="FirePower.h">
       <Filter>Game Files\PowerUps</Filter>
     </ClInclude>
-    <ClInclude Include="Kirby.h">
-      <Filter>Game Files\GameObjects</Filter>
-    </ClInclude>
     <ClInclude Include="GameObject.h">
-      <Filter>Game Files\GameObjects</Filter>
-    </ClInclude>
-    <ClInclude Include="PowerStar.h">
       <Filter>Game Files\GameObjects</Filter>
     </ClInclude>
     <ClInclude Include="SparkPower.h">
       <Filter>Game Files\PowerUps</Filter>
     </ClInclude>
     <ClInclude Include="Projectile.h">
-      <Filter>Game Files\Projectiles</Filter>
+      <Filter>Game Files\GameObjects\Projectiles</Filter>
     </ClInclude>
     <ClInclude Include="Fireball.h">
-      <Filter>Game Files\Projectiles</Filter>
+      <Filter>Game Files\GameObjects\Projectiles</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="..\..\..\..\OneDrive - Hogeschool West-Vlaanderen\DAE\Programming\EndAssignment\EndAssignment\Resources\Sprites\Kirby_Ability_Sliding.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="..\..\..\..\OneDrive - Hogeschool West-Vlaanderen\DAE\Programming\EndAssignment\EndAssignment\Resources\Sprites\Kirby_Sliding.png">
-      <Filter>Resource Files</Filter>
-    </Image>
+    <ClInclude Include="ProjectileManager.h">
+      <Filter>Game Files\GameObjects\Projectiles</Filter>
+    </ClInclude>
+    <ClInclude Include="Kirby.h">
+      <Filter>Game Files\GameObjects\Actors</Filter>
+    </ClInclude>
+    <ClInclude Include="Actor.h">
+      <Filter>Game Files\GameObjects\Actors</Filter>
+    </ClInclude>
+    <ClInclude Include="PowerStar.h">
+      <Filter>Game Files\GameObjects\Actors</Filter>
+    </ClInclude>
+    <ClInclude Include="Star.h">
+      <Filter>Game Files\GameObjects\Projectiles</Filter>
+    </ClInclude>
+    <ClInclude Include="WaddleDee.h">
+      <Filter>Game Files\GameObjects\Actors</Filter>
+    </ClInclude>
+    <ClInclude Include="Enemy.h">
+      <Filter>Game Files\GameObjects\Actors</Filter>
+    </ClInclude>
+    <ClInclude Include="HudElement.h">
+      <Filter>Game Files\GameObjects</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

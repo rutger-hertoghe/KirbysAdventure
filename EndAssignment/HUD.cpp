@@ -4,6 +4,7 @@
 #include "Kirby.h"
 #include "Sprite.h"
 #include "PowerUp.h"
+#include "HudElement.h"
 
 HUD::HUD()
 	: m_PosDancingKirby{ 187.f, 32.f }
@@ -15,15 +16,16 @@ HUD::HUD()
 
 	int nrFrames{ 1 };
 	float animationSpeed{ 0.f };
-	m_pHealthLost = new Sprite{ nrFrames, animationSpeed, "resources/ui/hud_health_lost.png" };
+	Sprite* spritePtr{ new Sprite{ nrFrames, animationSpeed, "resources/ui/hud_health_lost.png" } };
+	m_pHealthLost = new HudElement{ spritePtr };
 
 	nrFrames = 2;
 	animationSpeed = 0.5f;
-	m_pHealth = new Sprite{ nrFrames, animationSpeed, "resources/ui/hud_health.png" };
+	spritePtr = new Sprite{ nrFrames, animationSpeed, "resources/ui/hud_health.png" };
+	m_pHealth = new HudElement{ spritePtr };
 
 	nrFrames = 4;
 	animationSpeed = 1.0f;
-	m_pDancingKirby = new Sprite{ nrFrames, animationSpeed, "resources/UI/HUD_Dancing_Kirby.png" };
 }
 
 HUD::~HUD()
@@ -34,8 +36,8 @@ HUD::~HUD()
 	delete m_pPowerTextures;
 	m_pPowerTextures = nullptr;
 
-	delete m_pDancingKirby;
-	m_pDancingKirby = nullptr;
+	// delete m_pDancingKirby;
+	// m_pDancingKirby = nullptr;
 
 	delete m_pHealthLost;
 	m_pHealthLost = nullptr;
@@ -46,32 +48,17 @@ HUD::~HUD()
 
 void HUD::Update(float elapsedSec)
 {
-	m_pDancingKirby->Update(elapsedSec);
+	// m_pDancingKirby->Update(elapsedSec);
 	m_pHealth->Update(elapsedSec);
+
 }
 
 void HUD::Draw(Kirby* kirbyPtr) const
 {
 	m_pMainTexture->Draw();
-	m_pDancingKirby->Draw(m_PosDancingKirby);
-	DrawLives(kirbyPtr);
+	// m_pDancingKirby->Draw();
 	DrawPowerPanel(kirbyPtr);
-}
-
-void HUD::DrawLives(Kirby* kirbyPtr) const
-{
-	const int maxHealth{ 6 };
-	const int health{ kirbyPtr->GetHealth()};
-	Point2f position{ 72.f, 37.f };
-	for (int idx{}; idx < maxHealth; ++idx)
-	{
-		if (idx < health)
-		{
-			m_pHealth->Draw(position);
-		}
-		else m_pHealthLost->Draw(position);
-		position.x += m_pHealth->GetFrameDimensions().x;
-	}
+	DrawHealth(kirbyPtr);
 }
 
 void HUD::DrawPowerPanel(Kirby* kirbyPtr) const
@@ -104,6 +91,27 @@ void HUD::DrawPowerPanel(Kirby* kirbyPtr) const
 		m_pPowerTextures->Draw(powerUpPanel, srcRect);
 	}
 	
+}
+
+void HUD::DrawHealth(Kirby* kirbyPtr) const
+{
+	const int health{ kirbyPtr->GetHealth() };
+	const int maxHealth{ 6 };
+	Point2f location{76.f, 37.f};
+	for (int currentHealthSprite{}; currentHealthSprite < maxHealth; ++currentHealthSprite)
+	{
+		if (currentHealthSprite < health)
+		{
+			m_pHealth->SetPosition(location);
+			m_pHealth->Draw();
+		}
+		else
+		{
+			m_pHealthLost->SetPosition(location);
+			m_pHealthLost->Draw();
+		}
+		location.x += m_pHealth->GetWidth();
+	}
 }
 
 float HUD::GetHeight() const

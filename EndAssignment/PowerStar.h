@@ -1,12 +1,14 @@
 #pragma once
-#include "Gameobject.h"
-
-class PowerStar : public GameObject
+#include "Actor.h"
+class PowerStar final: public Actor
 {
-public:
-	PowerStar(Rectf shape);
+public: 
+	PowerStar(const Point2f& location);
 	~PowerStar();
 
-	void Draw() const;
+	virtual void Update(float elapsedSec) override;
+
+private:
+	
 };
 

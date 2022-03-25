@@ -4,6 +4,10 @@ class Level;
 class HUD;
 class Camera;
 class PowerStar;
+class Projectile;
+class ProjectileManager;
+class Enemy;
+class Actor;
 
 class Game final
 {
@@ -29,9 +33,11 @@ private:
 	// DATA MEMBERS
 	const Window m_Window;
 	Kirby* m_pKirby;
-	Level* m_pLevel;
+	Level* m_pCurrentLevel;
 	HUD* m_pHUD;
 	Camera* m_pCamera;
+	ProjectileManager* m_pProjectileManager;
+	Enemy* m_pTestEnemy;
 	PowerStar* m_pTestStar;
 
 	// FUNCTIONS
@@ -39,4 +45,5 @@ private:
 	void Cleanup( );
 	void ClearBackground( ) const;
 
+	void UpdateEnemy(Enemy*& pEnemy, float elapsedSec);
 };
