@@ -11,24 +11,20 @@ SparkPower::~SparkPower()
 {
 }
 
-void SparkPower::OnKeyDownEvent(Rectf shape, float xDirection)
+void SparkPower::OnKeyDownEvent(const Rectf& shape, float xDirection)
 {
 	m_IsActive = true;
 	std::cout << "Spark power is active\n";
 }
 
-void SparkPower::ContinuousKeyEvent(Rectf shape, float xDirection)
+void SparkPower::ContinuousKeyEvent(const Rectf& shape, float xDirection)
 {
 }
 
-void SparkPower::OnKeyUpEvent(Rectf shape, float xDirection)
+void SparkPower::OnKeyUpEvent(const Rectf& shape, float xDirection)
 {
 	m_IsActive = false;
 	std::cout << "Spark power has been deactivated\n";
-}
-
-void SparkPower::Draw() const
-{
 }
 
 bool SparkPower::IsActive() const
@@ -36,12 +32,11 @@ bool SparkPower::IsActive() const
 	return m_IsActive;
 }
 
-bool SparkPower::IsOneShot() const
-{
-	return false;
-}
-
 std::string SparkPower::GetPowerSuffix() const
 {
 	return "spark_";
+}
+
+void SparkPower::Update(float elapsedSec)
+{
 }

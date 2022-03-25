@@ -3,24 +3,26 @@
 #include "PowerUp.h"
 #include "Sprite.h"
 #include <iostream>
+#include "Level.h"
+#include "ProjectileManager.h"
+#include "Star.h"
+#include "Utils.h"
 
 Kirby::Kirby()
 	: m_ActionState{ ActionState::idle }
-	, m_Gravity{ -500.0f }
 	, m_MaxHorSpeed{ 80.f }
 	, m_HorAcceleration{ 250.f }
 	, m_JumpSpeed{ 180.f }
-	, m_Velocity{ 0.f, 0.f }
 	, m_MaxJumpTime{ 0.15f }
 	, m_JumpTime{ 0.f }
 	, m_MacroState{ MacroState::basic }
-	, m_Health{ 6 }
+	, m_Health{ 4 }
 	, m_Lives{ 5 }
 	, m_MaxHealth{ 6 }
+	, m_IsInvulnerable{false}
+	, m_CanSpitStar{false}
 {
-	InitializeSprites();
-	Point2f kirbySize{ m_pCurrentSprite->GetFrameDimensions() };
-	m_Shape = Rectf{ 100.f, 100.f, kirbySize.x, kirbySize.y };
+	Initialize();
 }
 
 Kirby::~Kirby()
@@ -37,17 +39,18 @@ void Kirby::DeleteSprites()
 	m_pSprites.clear();
 }
 
-void Kirby::Update(float elapsedSec, const Level& level)
+void Kirby::Update(float elapsedSec)
 {
-	m_pCurrentSprite->Update(elapsedSec);
-	SetIsOnGround(level);
-	ProcessInput(elapsedSec, level);
+	UpdateSprite(elapsedSec);
+	SetIsOnGround();
+	ProcessInput(elapsedSec);
 	UpdateState();
-	ProcessMovement(elapsedSec, level);
-	LockToLevel(level);
+	ProcessMovement(elapsedSec);
+	LockToLevel();
+	if (m_pPowerUp) m_pPowerUp->Update(elapsedSec);
 }
 
-void Kirby::ProcessInput(float elapsedSec, const Level& level)
+void Kirby::ProcessInput(float elapsedSec)
 {
 	const Uint8* pStates = SDL_GetKeyboardState(nullptr);
 	const bool isUsingPower{ m_pPowerUp ? m_pPowerUp->IsActive() : false };
@@ -83,7 +86,10 @@ void Kirby::ProcessInput(float elapsedSec, const Level& level)
 	const bool downKeysDown{ pStates[SDL_SCANCODE_DOWN] || pStates[SDL_SCANCODE_S] };
 	if (downKeysDown && m_MacroState == MacroState::basic)
 	{
-		m_MacroState = MacroState::ducking;
+		if (m_pPowerUp && !m_pPowerUp->IsActive())
+		{
+			m_MacroState = MacroState::ducking;
+		}
 	}
 	else if (!downKeysDown && m_MacroState == MacroState::ducking)
 	{
@@ -107,7 +113,7 @@ void Kirby::ProcessInput(float elapsedSec, const Level& level)
 	}
 
 	// R KEY FUNCTIONALITY
-	if (pStates[SDL_SCANCODE_R])
+	if (pStates[SDL_SCANCODE_R] && m_MacroState == MacroState::basic)
 	{
 		if (m_pPowerUp)	m_pPowerUp->ContinuousKeyEvent(m_Shape, m_XDirection);
 	}
@@ -124,8 +130,15 @@ void Kirby::ProcessKeyUp(const SDL_KeyboardEvent& e)
 		--m_Health;
 		break;
 	case SDLK_r:
-		if (m_MacroState == MacroState::inhalation) m_MacroState = MacroState::basic;
-		if (m_pPowerUp)
+		if (m_MacroState == MacroState::bloated)
+		{
+			m_CanSpitStar = true;
+		}
+		else if (m_MacroState == MacroState::inhalation)
+		{
+			m_MacroState = MacroState::basic;
+		}
+		else if (m_pPowerUp && m_MacroState == MacroState::basic)
 		{
 			m_pPowerUp->OnKeyUpEvent(m_Shape, m_XDirection);
 		}
@@ -143,30 +156,30 @@ void Kirby::ProcessKeyDown(const SDL_KeyboardEvent& e)
 			m_Velocity.y = 0.f;
 			m_MacroState = MacroState::basic;
 		}
-		else if (m_pPowerUp)
+		else if (m_pPowerUp && m_MacroState == MacroState::basic)
 		{
 			m_pPowerUp->OnKeyDownEvent(m_Shape, m_XDirection);
 		}
 		else if (m_MacroState == MacroState::bloated)
 		{
-			SetState(ActionState::spitting);
-			m_MacroState = MacroState::basic;
+			if (m_CanSpitStar)
+			{
+				SetState(ActionState::spitting);
+				m_MacroState = MacroState::basic;
+				SpitStar();
+			}
 		}
-		else
+		else if (!m_pPowerUp)
 		{
 			m_MacroState = MacroState::inhalation;
 		}
 		break;
 	// TEST CODE
 	case SDLK_e:
-		if (m_MacroState == MacroState::inhalation)
-		{
-			m_MacroState = MacroState::bloated;
-		}
-		else if (m_MacroState == MacroState::bloated) m_MacroState = MacroState::basic;
+		if (m_MacroState == MacroState::bloated) m_MacroState = MacroState::basic;
 		break;
 	case SDLK_SPACE:
-		if (m_MacroState == MacroState::ducking && m_IsOnGround)
+		if (m_MacroState == MacroState::ducking && m_IsOnGround && !m_pPowerUp->IsActive())
 		{
 			m_Velocity.x = 180.f * m_XDirection;
 			m_MacroState = MacroState::sliding;
@@ -215,7 +228,7 @@ void Kirby::DiscardPower()
 	m_pPowerUp = nullptr;
 }
 
-void Kirby::ProcessMovement(float elapsedSec, const Level& level)
+void Kirby::ProcessMovement(float elapsedSec)
 {
 	float xVelocity{ m_Velocity.x }, yVelocity{ m_Velocity.y };
 	if (m_MacroState == MacroState::inflated)
@@ -224,10 +237,9 @@ void Kirby::ProcessMovement(float elapsedSec, const Level& level)
 		xVelocity *= speedModifier;
 		yVelocity *= speedModifier;
 	}
-	m_Shape.left += xVelocity * elapsedSec;
-	m_Shape.bottom += yVelocity * elapsedSec;
-	m_Velocity.y += m_Gravity * elapsedSec;
-	level.HandleCollision(m_Shape, m_Velocity);
+	ApplyVelocities(elapsedSec, xVelocity, yVelocity);
+	ApplyGravity(elapsedSec);
+	HandleCollisions();
 }
 
 void Kirby::UpdateState()
@@ -240,7 +252,7 @@ void Kirby::UpdateState()
 	const bool isJumping{ isGoingUp && !(m_ActionState == ActionState::inflating || m_ActionState == ActionState::inflated)};
 	const bool isMidAir{ abs(m_Velocity.y) < yVelocityTreshold && !m_IsOnGround };
 	const bool isFalling{!m_IsOnGround && m_ActionState != ActionState::jumping};
-	const bool isLoopDone{ m_pCurrentSprite->HasLooped() };
+	const bool isLoopDone{ m_HasLooped };
 	const bool isUsingPower{ m_pPowerUp?m_pPowerUp->IsActive() : false };
 
 	const bool isInflated{ m_MacroState == MacroState::inflated };
@@ -356,20 +368,11 @@ void Kirby::UpdateState()
 	}
 }
 
-void Kirby::Draw() const
+void Kirby::Initialize()
 {
-	glPushMatrix();
-	Point2f originTranslation(-m_Shape.left, -m_Shape.bottom);
-	glTranslatef(-originTranslation.x, -originTranslation.y, 0.f);
-	if (m_XDirection < 0.f)
-	{
-		glTranslatef(m_Shape.width, 0.f, 0.f);
-	}
-	glScalef(m_XDirection, 1, 0);
-	glTranslatef(originTranslation.x, originTranslation.y, 0.f);
-	m_pCurrentSprite->Draw(m_Shape);
-	if (m_pPowerUp) m_pPowerUp->Draw();
-	glPopMatrix();
+	InitializeSprites();
+	Point2f kirbySize{ m_pCurrentSprite->GetFrameDimensions() };
+	m_Shape = Rectf{ 100.f, 100.f, kirbySize.x, kirbySize.y };
 }
 
 void Kirby::InitializeSprites()
@@ -388,6 +391,8 @@ void Kirby::InitializeSprites()
 	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "resources/sprites/kirby_ability_sliding.png" });
 	animationSpeed = 0.15f;
 	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "resources/sprites/kirby_ability_spark_start.png" });
+	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "resources/sprites/kirby_hurt.png" });
+	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "resources/sprites/kirby_inflated_hurt.png" });
 
 	nrFrames = 2;
 	animationSpeed = 0.05f;
@@ -410,13 +415,13 @@ void Kirby::InitializeSprites()
 	animationSpeed = 0.2f;
 	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "resources/sprites/kirby_flipping.png" });
 	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "resources/sprites/kirby_ability_flipping.png" });
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "resources/sprites/kirby_spitting.png" });
 	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "resources/sprites/kirby_bloat.png" });
 	animationSpeed = 0.4f;
 	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "resources/sprites/kirby_inflating.png" });
 	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "resources/sprites/kirby_deflating.png" });
 	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "resources/sprites/kirby_ability_inflating.png" });
 	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "resources/sprites/kirby_ability_deflating.png" });
+	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "resources/sprites/kirby_spitting.png" });
 	animationSpeed = 0.7f;
 	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "resources/sprites/kirby_walking.png" });
 	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "resources/sprites/kirby_ability_walking.png" });
@@ -444,14 +449,47 @@ Sprite* Kirby::GetSpritePtr(const std::string& spriteName) const
 	return nullptr;
 }
 
-void Kirby::SetIsOnGround(const Level& level)
+void Kirby::SetIsOnGround()
 {
-	if (level.IsOnGround(m_Shape))
+	Actor::SetIsOnGround();
+	if (m_IsOnGround)
 	{
-		m_IsOnGround = true;
 		m_JumpTime = 0.f;
 	}
-	else m_IsOnGround = false;
+}
+
+void Kirby::SpitStar()
+{
+	// Copy shape first to manipulate copied shape properties underneath, then offset to match sprite center and not spawn inside Kirby
+	Rectf spawnRect{ m_Shape };																
+	const float yOffset{ (m_pCurrentSprite->GetFrameDimensions().y - m_Shape.height) / 2 }; 
+	spawnRect.left += m_XDirection * m_Shape.width;	
+	spawnRect.bottom += yOffset;
+	m_pProjectileManager->Add(new Star{ spawnRect, m_XDirection });
+
+	// Spitting out the star should remove the power
+	DiscardPower();
+}
+
+Rectf Kirby::GetInhalationZone() const
+{
+	// Return offscreen rectangle so no enemies get influenced
+	if (m_MacroState != MacroState::inhalation)
+	{
+		return Rectf{ -10.f, -10.f, 0.f, 0.f };
+	}
+
+	Point2f inhalationZoneDims{ 100.f, 200.f };
+	Rectf inhalationZone{ 0.f, m_Shape.bottom, inhalationZoneDims.x, inhalationZoneDims.y };
+	inhalationZone.left = (m_XDirection > 0.f) ? m_Shape.left + m_Shape.width : m_Shape.left - inhalationZoneDims.x;
+	inhalationZone.bottom = (m_Shape.bottom + m_pCurrentSprite->GetFrameDimensions().y / 2) - (inhalationZoneDims.y / 2);
+	return inhalationZone;
+	
+}
+
+void Kirby::SetBloated()
+{
+	m_MacroState = MacroState::bloated;
 }
 
 void Kirby::SetState(const ActionState& state)
@@ -459,21 +497,21 @@ void Kirby::SetState(const ActionState& state)
 	m_ActionState = state;
 	std::string spriteName{ GetSpriteNameFromState(state) };
 	m_pCurrentSprite = GetSpritePtr(spriteName);
-	m_pCurrentSprite->ResetLoop();
+	m_AccumulatedTime = 0;
+	m_CurrentFrame = 0;
+	m_HasLooped = 0;
+	m_LoopProgressTime = 0;
 }
 
-void Kirby::LockToLevel(const Level& level)
+void Kirby::LockToLevel()
 {
 	float& kirbyLeft{ m_Shape.left };
 	float& kirbyBottom{ m_Shape.bottom };
-	float kirbyRight{ kirbyLeft + m_Shape.width };
-	float kirbyTop{ kirbyBottom + m_Shape.height };
-	Rectf boundaries{ level.GetBoundaries() };
-	// HARDCODED VALUE?? v
-	// HARDCODED VALUE?? v
-	// HARDCODED VALUE?? v
-	// HARDCODED VALUE?? v
-	float topBorder{ 1.5f * m_Shape.height };
+	const float kirbyRight{ kirbyLeft + m_Shape.width };
+	const float kirbyTop{ kirbyBottom + m_Shape.height };
+	const float yOffsetScalar{ 1.5f };
+	const float topBorder{ yOffsetScalar * m_Shape.height };
+	Rectf boundaries{ m_pCurrentLevel->GetBoundaries() };
 
 	if (kirbyBottom > boundaries.height - topBorder)
 	{
@@ -558,21 +596,21 @@ std::string Kirby::GetSpriteNameFromState(const ActionState& state) const
 		break;
 	// POWER STATES
 	case ActionState::power_start:
-		if (!(m_pPowerUp->HasCompleteSpriteSet()))
+		if (m_pPowerUp && !(m_pPowerUp->HasCompleteSpriteSet()))
 		{
 			spriteName.append(m_pPowerUp->GetPowerSuffix());
 		}
 		spriteName.append("start");
 		break;
 	case ActionState::power_continuous:
-		if (!(m_pPowerUp->HasCompleteSpriteSet()))
+		if (m_pPowerUp && !(m_pPowerUp->HasCompleteSpriteSet()))
 		{
 			spriteName.append(m_pPowerUp->GetPowerSuffix());
 		}
 		spriteName.append("continuous");
 		break;
 	case ActionState::power_end:
-		if (!(m_pPowerUp->HasCompleteSpriteSet()))
+		if (m_pPowerUp && !(m_pPowerUp->HasCompleteSpriteSet()))
 		{
 			spriteName.append(m_pPowerUp->GetPowerSuffix());
 		}
@@ -593,14 +631,33 @@ int Kirby::GetLives() const
 	return m_Lives;
 }
 
-Point2f Kirby::GetLocation() const
+void Kirby::SetProjectileManager(ProjectileManager* pProjectileMgr)
 {
-	return Point2f(m_Shape.left, m_Shape.bottom);
+	m_pProjectileManager = pProjectileMgr;
 }
 
-PowerUp* Kirby::GetPowerUp() const
+void Kirby::Hit()
 {
-	return m_pPowerUp;
+}
+
+void Kirby::Draw() const
+{
+	if (m_MacroState == MacroState::inhalation)
+	{
+		Color4f transparentCyan{ 0.f, 0.8f, 0.8f, 0.3f };
+		utils::SetColor(transparentCyan);
+		utils::FillRect(GetInhalationZone());
+	}
+	GameObject::Draw();
+}
+
+bool Kirby::IsInhaling() const
+{
+	if (m_MacroState == MacroState::inhalation)
+	{
+		return true;
+	}
+	return false;
 }
 
 void Kirby::EnforceState()
@@ -623,3 +680,4 @@ void Kirby::SetPowerState()
 		SetState(ActionState::power_end);
 	}
 }
+

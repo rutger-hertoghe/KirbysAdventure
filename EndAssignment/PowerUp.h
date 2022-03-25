@@ -1,4 +1,6 @@
 #pragma once
+class ProjectileManager;
+
 class PowerUp
 {
 public:
@@ -16,16 +18,19 @@ public:
 
 	PowerUp(PowerUpType type, bool hasStart, bool hasContinuous, bool hasEnd, bool hasCompleteSpriteSet = false);
 	virtual ~PowerUp();
-	virtual void OnKeyDownEvent(Rectf shape, float xDirection)		= 0;
-	virtual void ContinuousKeyEvent(Rectf shape, float xDirection)	= 0;
-	virtual void OnKeyUpEvent(Rectf shape, float xDirection)		= 0;
+	virtual void OnKeyDownEvent(const Rectf& shape, float xDirection)		= 0;
+	virtual void ContinuousKeyEvent(const Rectf& shape, float xDirection)	= 0;
+	virtual void OnKeyUpEvent(const Rectf& shape, float xDirection)		= 0;
 
-	virtual void Draw() const = 0;
+	virtual void Update(float elapsedSec) = 0;
 
 	virtual bool IsActive() const = 0;
-	virtual bool IsOneShot() const = 0;
+	virtual bool IsOneShot();
 	virtual int GetPowerPanelSlot() const;
 	virtual std::string GetPowerSuffix() const = 0;
+
+	void SetProjectileManager(ProjectileManager* projectileMgrPtr);
+	ProjectileManager* GetProjectileManager();
 
 	bool HasStart() const;
 	bool HasContinuous() const;
@@ -40,5 +45,6 @@ protected:
 
 	bool m_IsActive;
 	PowerUpType m_Type;
+	ProjectileManager* m_pProjectileManager;
 };
 

@@ -2,6 +2,7 @@
 class Texture;
 class Kirby;
 class Sprite;
+class HudElement;
 
 class HUD
 {
@@ -20,12 +21,13 @@ private:
 
 	Texture* m_pMainTexture;
 	Texture* m_pPowerTextures;
-	Sprite* m_pHealth;
-	Sprite* m_pHealthLost;
-	Sprite* m_pDancingKirby;
+	
+	HudElement* m_pHealth;
+	HudElement* m_pHealthLost;
+	HudElement* m_pDancingKirby;
 	Point2f m_Dimensions;
 
-	void DrawLives(Kirby* kirbyPtr) const;
 	void DrawPowerPanel(Kirby* kirbyPtr) const;
+	void DrawHealth(Kirby* kirbyPtr) const;
 };
 

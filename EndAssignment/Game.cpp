@@ -5,12 +5,16 @@
 #include "FirePower.h"
 #include "SparkPower.h"
 #include "GameObject.h"
-#include "PowerStar.h"
 #include "Kirby.h"
 #include "Level.h"
 #include "HUD.h"
 #include "Camera.h"
 #include <iostream>
+#include "Fireball.h"
+#include "Projectile.h"
+#include "ProjectileManager.h"
+#include "WaddleDee.h"
+#include "PowerStar.h"
 
 Game::Game( const Window& window ) 
 	:m_Window{ window }
@@ -26,29 +30,40 @@ Game::~Game( )
 void Game::Initialize( )
 {
 	m_pKirby = new Kirby();
-	m_pTestStar = new PowerStar(Rectf{ 30.f, 30.f, 16.f, 16.f });
-	m_pTestStar->SetPowerUp(new FirePower{});
-	m_pTestStar->TransferPowerUp(m_pKirby);
-	m_pLevel = new Level("resources/backgrounds/part1_full.png");
+	m_pCurrentLevel = new Level("resources/backgrounds/part1_full.png", "resources/music/stagemusic1.mp3");
+	m_pProjectileManager = new ProjectileManager{};
 	m_pHUD = new HUD();
+	m_pCamera = new Camera( m_pKirby->GetLocation(), m_Window.width, m_Window.height, *m_pCurrentLevel, *m_pHUD);
+	m_pTestEnemy = new WaddleDee{ Point2f(200.f, 100.f) };
+	m_pTestStar = new PowerStar{ Point2f(100.f, 100.f) };
 
-	m_pCamera = new Camera(m_pKirby->GetLocation(), m_Window.width, m_Window.height, *m_pLevel, *m_pHUD);
+	m_pKirby->SetCurrentLevel(m_pCurrentLevel);
+	m_pTestEnemy->SetCurrentLevel(m_pCurrentLevel);
+	m_pTestEnemy->SetPowerUp(new FirePower{}, m_pProjectileManager);
+	m_pTestStar->SetCurrentLevel(m_pCurrentLevel);
+	m_pKirby->SetProjectileManager(m_pProjectileManager);
 }
 
 void Game::Cleanup( )
 {
-	delete m_pKirby;
-	delete m_pLevel;
-	delete m_pTestStar;
+	delete m_pCurrentLevel;
 	delete m_pHUD;
 	delete m_pCamera;
+	delete m_pKirby;
+	delete m_pProjectileManager;
+	delete m_pTestStar;
+	if (m_pTestEnemy) delete m_pTestEnemy;
 }
 
 void Game::Update( float elapsedSec )
 {
-	m_pKirby->Update(elapsedSec, *m_pLevel);
 	m_pHUD->Update(elapsedSec);
-	m_pCamera->Update(m_pKirby->GetLocation().x, m_pKirby->GetLocation().y);
+	m_pKirby->Update(elapsedSec);
+	m_pCamera->Update(m_pKirby->GetLocation());
+	m_pProjectileManager->Update(elapsedSec);
+	m_pTestStar->Update(elapsedSec);
+
+	UpdateEnemy(m_pTestEnemy, elapsedSec);
 }
 
 void Game::Draw( ) const
@@ -57,11 +72,14 @@ void Game::Draw( ) const
 	// GAME AREA
 	glPushMatrix();
 	m_pCamera->Transform();
-
-	m_pLevel->Draw();
+	m_pCurrentLevel->Draw();
 	m_pKirby->Draw();
+	m_pProjectileManager->Draw();
+	if (m_pTestEnemy != nullptr)
+	{
+		m_pTestEnemy->Draw();
+	}
 	m_pTestStar->Draw();
-
 	glPopMatrix();
 	
 
@@ -79,9 +97,7 @@ void Game::ProcessKeyDownEvent( const SDL_KeyboardEvent & e )
 	switch (e.keysym.sym)
 	{
 	case SDLK_a:
-		if (m_pKirby->HasPower()) m_pKirby->TransferPowerUp(m_pTestStar);
-		else if (m_pTestStar->HasPower()) m_pTestStar->TransferPowerUp(m_pKirby);
-		m_pKirby->EnforceState();
+		m_pKirby->SetPowerUp(new SparkPower{}, m_pProjectileManager);
 		break;
 	}
 }
@@ -110,4 +126,43 @@ void Game::ClearBackground( ) const
 {
 	glClearColor( 0.0f, 0.0f, 0.3f, 1.0f );
 	glClear( GL_COLOR_BUFFER_BIT );
+}
+
+void Game::UpdateEnemy(Enemy*& pEnemy, float elapsedSec)
+{
+	if (pEnemy)
+	{
+		if (abs(pEnemy->GetRect().left - m_pKirby->GetRect().left) < m_pCamera->GetViewDimensions().x * 2 /3
+			&& abs(pEnemy->GetRect().bottom - m_pKirby->GetRect().bottom) < m_pCamera->GetViewDimensions().y * 2 / 3)
+		{
+			pEnemy->Update(elapsedSec);
+		}
+
+		if (pEnemy->IsInhalable())
+		{
+			pEnemy->ToggleBeingInhaled(m_pKirby->GetInhalationZone());
+		}
+
+		if (pEnemy->IsBeingInhaled())
+		{
+			pEnemy->SetInhalationVelocities(m_pKirby->GetRect());
+		}
+
+		if (m_pProjectileManager->ProjectileHasHit(pEnemy))
+		{
+			delete pEnemy;
+			pEnemy = nullptr;
+		}
+
+		if (pEnemy->CheckCollision(m_pKirby->GetRect()))
+		{
+			m_pKirby->SetBloated();
+			if (pEnemy->GetPowerUp())
+			{
+				pEnemy->TransferPowerUp(m_pKirby);
+			}
+			delete pEnemy;
+			pEnemy = nullptr;
+		}
+	}
 }

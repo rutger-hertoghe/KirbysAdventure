@@ -1,26 +1,33 @@
 #include "pch.h"
 #include "PowerStar.h"
-#include "utils.h"
+#include "Sprite.h"
 
-PowerStar::PowerStar(Rectf shape)
+PowerStar::PowerStar(const Point2f& location)
 {
-	m_Shape = shape;
+	m_Shape.left = location.x;
+	m_Shape.bottom = location.y;
+	m_pCurrentSprite = new Sprite{ 4, 0.5f, "resources/sprites/star.png" };
+	m_Shape.width = m_pCurrentSprite->GetFrameDimensions().x;
+	m_Shape.height = m_pCurrentSprite->GetFrameDimensions().y;
+	SetBaseVelocity( 50.f, 50.f);
 }
 
 PowerStar::~PowerStar()
 {
+	delete m_pCurrentSprite;
+	m_pCurrentSprite = nullptr;
 }
 
-void PowerStar::Draw() const
+void PowerStar::Update(float elapsedSec)
 {
-	if (m_pPowerUp)
+	if (m_IsOnGround)
 	{
-		utils::SetColor(Color4f{ 1.f, 1.f, 1.f, 1.f });
-		utils::FillRect(m_Shape);
+		m_Velocity.y = -m_Gravity / 2;
 	}
-	else
-	{
-		utils::SetColor(Color4f{ 0.5f, 0.5f, 0.5f, 1.f });
-		utils::FillRect(m_Shape);
-	}
+
+	SetIsOnGround();
+	UpdateSprite(elapsedSec);
+	ApplyVelocities(elapsedSec, m_Velocity.x, m_Velocity.y);
+	ApplyGravity(elapsedSec);
+	HandleCollisions();
 }

@@ -58,6 +58,11 @@ void Camera::Update(float x, float y)
 	m_Location.y = y;
 }
 
+void Camera::Update(const Point2f& position)
+{
+	Update(position.x, position.y);
+}
+
 void Camera::TransformHUD()
 {
 	glScalef(m_ScalingFactor.x, m_ScalingFactor.y, 1.f); // Scaling to fit window
@@ -66,4 +71,9 @@ void Camera::TransformHUD()
 void Camera::UpdateBoundaries(const Level& level)
 {
 	m_LevelBoundaries = level.GetBoundaries();
+}
+
+Point2f Camera::GetViewDimensions()
+{
+	return Point2f{ m_WindowSize.x / m_ScalingFactor.x, m_WindowSize.y / m_ScalingFactor.y };
 }

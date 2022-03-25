@@ -7,10 +7,6 @@ Sprite::Sprite(int nrFrames, float loopTime, const std::string& texturePath, int
 	, m_LoopTime{ loopTime }
 	, m_Rows{ rows }
 	, m_FrameDimensions{ Point2f{} }
-	, m_CurrentFrame{ 0 }
-	, m_AccumulatedTime{ 0.f }
-	, m_LoopProgressTime{ 0.f }
-	, m_HasLooped{ false }
 {
 	m_pTexture = new Texture(texturePath);
 
@@ -44,36 +40,16 @@ std::string Sprite::GenerateSpriteName(const std::string& texturePath)
 	return name;
 }
 
-void Sprite::Update(float elapsedSec)
-{
-	if (m_LoopTime < 0.001f) return;
-	m_AccumulatedTime += elapsedSec;
-	m_LoopProgressTime += elapsedSec;
-	if (m_AccumulatedTime >= m_FrameTime)
-	{
-		++m_CurrentFrame;
-		m_CurrentFrame %= m_NrFrames;
-		m_AccumulatedTime = 0;
-	}
-	
-	if (m_LoopProgressTime > m_LoopTime)
-	{
-		m_HasLooped = true;
-		m_LoopProgressTime = 0.f;
-	}
-	else m_HasLooped = false;
-}
-
-void Sprite::Draw(const Point2f& location) const
+void Sprite::Draw(const Point2f& location, int frame) const
 {
 	Rectf dstRect{ location.x, location.y, m_FrameDimensions.x, m_FrameDimensions.y };
-	Draw(dstRect);
+	Draw(dstRect, frame);
 }
 
-void Sprite::Draw(const Rectf& dstRect) const
+void Sprite::Draw(const Rectf& dstRect, int frame) const
 {
-	int row{ m_CurrentFrame / m_FramesPerRow };
-	int col{ m_CurrentFrame % m_FramesPerRow };
+	int row{ frame / m_FramesPerRow };
+	int col{ frame % m_FramesPerRow };
 
 	Rectf srcRect{
 		col * m_FrameDimensions.x,
@@ -105,14 +81,12 @@ Point2f Sprite::GetFrameDimensions() const
 	return m_FrameDimensions;
 }
 
-void Sprite::ResetLoop()
+float Sprite::GetLoopTime() const
 {
-	m_CurrentFrame = 0;
-	m_AccumulatedTime = 0.f;
-	m_LoopProgressTime = 0.f;
+	return m_LoopTime;
 }
 
-bool Sprite::HasLooped() const
+int Sprite::GetNrOfFrames() const
 {
-	return m_HasLooped;
+	return m_NrFrames;
 }

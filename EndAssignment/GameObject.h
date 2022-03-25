@@ -1,23 +1,32 @@
 #pragma once
 class PowerUp;
+class Sprite;
 
 class GameObject
 {
+public:
+	GameObject();
+	virtual ~GameObject();
+
+	virtual void Draw() const;
+	virtual void Update(float elapsedSec) = 0;
+
+	Rectf GetRect() const;
+
 protected:
-	bool m_IsInhalable;
+	int m_CurrentFrame;
+	float m_AccumulatedTime;
+	float m_LoopProgressTime;
+	bool m_HasLooped;
 	
 	float m_XDirection;
 
 	Rectf m_Shape;
 
-	PowerUp* m_pPowerUp;
+	Sprite* m_pCurrentSprite;
 
-public:
-	GameObject();
-	~GameObject();
-	void TransferPowerUp(GameObject* newOwner);
-	bool HasPower();
-	virtual void SetPowerUp(PowerUp* powerUp);
+	std::vector<Sprite*> m_pSprites;
 
+	void UpdateSprite(float elapsedSec);
 };
 

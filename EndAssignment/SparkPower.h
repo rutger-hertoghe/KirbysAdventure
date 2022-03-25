@@ -1,19 +1,18 @@
 #pragma once
 #include "PowerUp.h"
 
-class SparkPower : public PowerUp
+class SparkPower final : public PowerUp
 {
 public:
 	SparkPower();
 	virtual ~SparkPower();
-	virtual void OnKeyDownEvent(Rectf shape, float xDirection) override;
-	virtual void ContinuousKeyEvent(Rectf shape, float xDirection) override;
-	virtual void OnKeyUpEvent(Rectf shape, float xDirection) override;
-
-	virtual void Draw() const override;
+	virtual void OnKeyDownEvent(const Rectf& shape, float xDirection) override;
+	virtual void ContinuousKeyEvent(const Rectf& shape, float xDirection) override;
+	virtual void OnKeyUpEvent(const Rectf& shape, float xDirection) override;
 
 	virtual bool IsActive() const override;
-	virtual bool IsOneShot() const override;
 	virtual std::string GetPowerSuffix() const;
+
+	virtual void Update(float elapsedSec) override;
 };
 

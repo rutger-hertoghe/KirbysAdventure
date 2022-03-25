@@ -18,6 +18,11 @@ Platform::Platform(Rectf rect)
 {
 }
 
+Platform::Platform(float left, float bottom, float width, float height)
+	: Platform{Rectf{left, bottom, width, height}}
+{
+}
+
 void Platform::HandleCollision(Rectf& actorShape, Vector2f& actorVelocity) const
 {
 	Point2f rayStart{ actorShape.left + actorShape.width / 2, actorShape.bottom + actorShape.height };
