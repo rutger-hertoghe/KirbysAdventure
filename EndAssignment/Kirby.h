@@ -64,6 +64,9 @@ public:
 	void SetProjectileManager(ProjectileManager* pProjectileMgr);
 	void Hit();
 
+	void DecrementHealth();
+	void KillKirby();
+
 	virtual void Draw() const override;
 	bool IsInhaling() const;
 	Rectf GetInhalationZone() const;

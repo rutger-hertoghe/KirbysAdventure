@@ -16,6 +16,7 @@ public:
 	virtual void SetPowerUp(PowerUp* powerUp, ProjectileManager* pProjectileMgr);
 	bool HasPower();
 
+	void SetLocation(const Point2f& location);
 	Point2f GetLocation() const;
 	PowerUp* GetPowerUp() const;
 

@@ -38,6 +38,7 @@ void Game::Initialize( )
 	m_pTestStar = new PowerStar{ Point2f(100.f, 100.f) };
 
 	m_pKirby->SetCurrentLevel(m_pCurrentLevel);
+	m_pKirby->SetLocation(m_pCurrentLevel->GetStartLocation());
 	m_pTestEnemy->SetCurrentLevel(m_pCurrentLevel);
 	m_pTestEnemy->SetPowerUp(new FirePower{}, m_pProjectileManager);
 	m_pTestStar->SetCurrentLevel(m_pCurrentLevel);
@@ -75,7 +76,7 @@ void Game::Draw( ) const
 	m_pCurrentLevel->Draw();
 	m_pKirby->Draw();
 	m_pProjectileManager->Draw();
-	if (m_pTestEnemy != nullptr)
+	if (m_pTestEnemy->IsActive())
 	{
 		m_pTestEnemy->Draw();
 	}
@@ -130,13 +131,9 @@ void Game::ClearBackground( ) const
 
 void Game::UpdateEnemy(Enemy*& pEnemy, float elapsedSec)
 {
-	if (pEnemy)
+	if (pEnemy->IsActive())
 	{
-		if (abs(pEnemy->GetRect().left - m_pKirby->GetRect().left) < m_pCamera->GetViewDimensions().x * 2 /3
-			&& abs(pEnemy->GetRect().bottom - m_pKirby->GetRect().bottom) < m_pCamera->GetViewDimensions().y * 2 / 3)
-		{
-			pEnemy->Update(elapsedSec);
-		}
+		pEnemy->Update(elapsedSec);
 
 		if (pEnemy->IsInhalable())
 		{
@@ -147,22 +144,42 @@ void Game::UpdateEnemy(Enemy*& pEnemy, float elapsedSec)
 		{
 			pEnemy->SetInhalationVelocities(m_pKirby->GetRect());
 		}
+		
+		CheckEnemyRemovalConditions(pEnemy);
+	}
+	else if (pEnemy->HasBeenOffScreen()
+		&& abs(pEnemy->GetRect().left - m_pKirby->GetRect().left) < m_pCamera->GetViewDimensions().x * 2 / 3
+		&& abs(pEnemy->GetRect().bottom - m_pKirby->GetRect().bottom) < m_pCamera->GetViewDimensions().y * 2 / 3)
+	{
+		pEnemy->SetActivity(true);
+	}
+	else if (abs(pEnemy->GetRect().left - m_pKirby->GetRect().left) > m_pCamera->GetViewDimensions().x * 2 / 3
+		|| abs(pEnemy->GetRect().bottom - m_pKirby->GetRect().bottom) > m_pCamera->GetViewDimensions().y * 2 / 3)
+	{
+		pEnemy->SetOffScreen(true);
+	}
+}
 
-		if (m_pProjectileManager->ProjectileHasHit(pEnemy))
-		{
-			delete pEnemy;
-			pEnemy = nullptr;
-		}
-
-		if (pEnemy->CheckCollision(m_pKirby->GetRect()))
+void Game::CheckEnemyRemovalConditions(Enemy*& pEnemy)
+{
+	if (m_pProjectileManager->ProjectileHasHit(pEnemy))
+	{
+		pEnemy->Reset();
+	}
+	else if (pEnemy->CheckCollision(m_pKirby->GetRect()))
+	{
+		if (m_pKirby->IsInhaling())
 		{
 			m_pKirby->SetBloated();
 			if (pEnemy->GetPowerUp())
 			{
 				pEnemy->TransferPowerUp(m_pKirby);
 			}
-			delete pEnemy;
-			pEnemy = nullptr;
 		}
+		else
+		{
+			m_pKirby->DecrementHealth();
+		}
+		pEnemy->Reset();
 	}
 }

@@ -371,8 +371,10 @@ void Kirby::UpdateState()
 void Kirby::Initialize()
 {
 	InitializeSprites();
+	m_pCurrentSprite = GetSpritePtr("kirby_idle");
 	Point2f kirbySize{ m_pCurrentSprite->GetFrameDimensions() };
-	m_Shape = Rectf{ 100.f, 100.f, kirbySize.x, kirbySize.y };
+	m_Shape.width = kirbySize.x;
+	m_Shape.height = kirbySize.y;
 }
 
 void Kirby::InitializeSprites()
@@ -431,8 +433,6 @@ void Kirby::InitializeSprites()
 	animationSpeed = 1.6f;
 	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "resources/sprites/kirby_idle.png", 2 });
 	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "resources/sprites/kirby_ability_idle.png", 2 });
-
-	m_pCurrentSprite = GetSpritePtr("kirby_idle");
 }
 
 
@@ -520,6 +520,11 @@ void Kirby::LockToLevel()
 	}
 	if (kirbyLeft < boundaries.left) kirbyLeft = boundaries.left;
 	else if (kirbyRight > boundaries.width) kirbyLeft = boundaries.width - m_Shape.width;
+
+	if (kirbyBottom < -50.f)
+	{
+		KillKirby();
+	}
 }
 
 std::string Kirby::GetSpriteNameFromState(const ActionState& state) const
@@ -638,6 +643,25 @@ void Kirby::SetProjectileManager(ProjectileManager* pProjectileMgr)
 
 void Kirby::Hit()
 {
+}
+
+void Kirby::DecrementHealth()
+{
+	if (m_IsInvulnerable) return;
+
+	--m_Health;
+	if (m_Health <= 0)
+	{
+		KillKirby();
+	}
+	m_IsInvulnerable = true;
+}
+
+void Kirby::KillKirby()
+{
+	--m_Lives;
+	SetLocation(m_pCurrentLevel->GetStartLocation());
+	m_Velocity.y = 0;
 }
 
 void Kirby::Draw() const

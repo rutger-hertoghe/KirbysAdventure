@@ -9,6 +9,7 @@ class Level final
 {
 private:
 	Rectf m_Boundaries;
+	Point2f m_StartLocation;
 
 	std::vector<std::vector<Point2f>> m_WalkablePlatforms;
 
@@ -24,9 +25,10 @@ public:
 	void HandleCollision(Rectf& actorShape, Vector2f& actorVelocity) const;
 	void InitializeVertices();
 
-	bool IsOnGround(Rectf& actorShape) const;
+	bool IsOnGround(const Rectf& actorShape) const;
 
 	Rectf GetBoundaries() const;
 
+	Point2f GetStartLocation() const;
 };
 

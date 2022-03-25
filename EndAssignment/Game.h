@@ -46,4 +46,5 @@ private:
 	void ClearBackground( ) const;
 
 	void UpdateEnemy(Enemy*& pEnemy, float elapsedSec);
+	void CheckEnemyRemovalConditions(Enemy*& pEnemy);
 };

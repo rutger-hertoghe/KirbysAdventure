@@ -7,7 +7,7 @@ WaddleDee::WaddleDee(const Point2f& location)
 {
 	m_IsInhalable = true;
 
-	SetBaseVelocity(50.f, 0.f);
+	SetBaseVelocity(0.f, 0.f);
 	m_pSprites.push_back(new Sprite{ 2, 0.3f, "resources/sprites/waddledee.png" });
 	m_pCurrentSprite = m_pSprites[0];
 	m_Shape.width = m_pCurrentSprite->GetFrameDimensions().x;

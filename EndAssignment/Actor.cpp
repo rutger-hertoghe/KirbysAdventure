@@ -53,6 +53,12 @@ bool Actor::HasPower()
 	return false;
 }
 
+void Actor::SetLocation(const Point2f& location)
+{
+	m_Shape.left = location.x;
+	m_Shape.bottom = location.y;
+}
+
 Point2f Actor::GetLocation() const
 {
 	return Point2f(m_Shape.left, m_Shape.bottom);

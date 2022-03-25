@@ -9,9 +9,17 @@ public:
 
 	virtual void Update(float elapsedSec);
 	bool CheckCollision(const Rectf& kirbyRect);
+	
+	bool IsActive() const;
+	void Reset();
+	void SetActivity(bool active);
+	bool HasBeenOffScreen();
+	void SetOffScreen(bool offscreen);
 
 protected:
 	bool m_IsActive;
+	bool m_HasBeenOffScreen;
+	Point2f m_StartLocation;
 
 	void CorrectVelocities();
 };

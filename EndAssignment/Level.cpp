@@ -4,10 +4,12 @@
 #include "utils.h"
 #include "Kirby.h"
 #include "SoundStream.h"
+#include "SVGParser.h"
 
 Level::Level(std::string texturePath, std::string musicPath)
 	: m_pBackground{ new Texture{ texturePath } }
 	, m_pLevelMusic{ new SoundStream{ musicPath } }
+	, m_StartLocation{100.f, 100.f}
 {
 	m_Boundaries = Rectf{ 0.f, 0.f, m_pBackground->GetWidth(), m_pBackground->GetHeight() };
 	InitializeVertices();
@@ -36,8 +38,8 @@ void Level::Draw() const
 
 void Level::HandleCollision(Rectf& actorShape, Vector2f& actorVelocity) const
 {
-	Point2f verticalRayStart{actorShape.left + actorShape.width / 2, actorShape.bottom + actorShape.height};
-	Point2f verticalRayEnd{ actorShape.left + actorShape.width / 2, actorShape.bottom};
+	Point2f rayStart{ actorShape.left + actorShape.width / 2, actorShape.bottom + actorShape.height / 4 };
+	Point2f rayEnd{ actorShape.left + actorShape.width / 2, actorShape.bottom - 1.f };
 
 	Point2f horizontalRayStart{ actorShape.left, actorShape.bottom + actorShape.height / 2 };
 	Point2f horizontalRayEnd{ actorShape.left + actorShape.width, actorShape.bottom + actorShape.height / 2 };
@@ -45,7 +47,8 @@ void Level::HandleCollision(Rectf& actorShape, Vector2f& actorVelocity) const
 	utils::HitInfo hitInfo{};
 	for (std::vector<Point2f> platform : m_WalkablePlatforms) {
 		// Vertical collision
-		if (utils::Raycast(platform, verticalRayStart, verticalRayEnd, hitInfo) && actorVelocity.y < 0.f)
+		if (actorVelocity.y < 0.f
+			&& utils::Raycast(platform, rayStart, rayEnd, hitInfo))
 		{
 			actorShape.bottom = hitInfo.intersectPoint.y;
 			actorVelocity.y = 0;
@@ -63,27 +66,12 @@ void Level::HandleCollision(Rectf& actorShape, Vector2f& actorVelocity) const
 
 void Level::InitializeVertices()
 {
-	std::vector<Point2f> mainPlatform;
-	mainPlatform.push_back(Point2f{ m_Boundaries.left, m_Boundaries.bottom });
-	mainPlatform.push_back(Point2f{ m_Boundaries.left, m_Boundaries.bottom + 10.f });
-	mainPlatform.push_back(Point2f{ 100.f, m_Boundaries.bottom + 10.f });
-	mainPlatform.push_back(Point2f{ 100.f, 200.f });
-	mainPlatform.push_back(Point2f{ 100.f, m_Boundaries.bottom + 10.f });
-	mainPlatform.push_back(Point2f{ m_Boundaries.left + m_Boundaries.width, m_Boundaries.bottom + 10.f });
-	mainPlatform.push_back(Point2f{ m_Boundaries.left + m_Boundaries.width, m_Boundaries.bottom });
-
-	m_WalkablePlatforms.push_back(mainPlatform);
-
-	std::vector<Point2f>platform1;
-	platform1.push_back(Point2f{ 272.f, 88.f });
-	platform1.push_back(Point2f{ 304.f, 88.f });
-	m_WalkablePlatforms.push_back(platform1);
-
+	SVGParser::GetVerticesFromSvgFile("resources/SVG/part1.svg", m_WalkablePlatforms);
 }
 
-bool Level::IsOnGround(Rectf& actorShape) const
+bool Level::IsOnGround(const Rectf& actorShape) const
 {
-	Point2f rayStart{ actorShape.left + actorShape.width / 2, actorShape.bottom + actorShape.height};
+	Point2f rayStart{ actorShape.left + actorShape.width / 2, actorShape.bottom + actorShape.height / 4 };
 	Point2f rayEnd{ actorShape.left + actorShape.width / 2, actorShape.bottom - 1.f};
 
 	utils::HitInfo hitInfo{};
@@ -100,5 +88,10 @@ bool Level::IsOnGround(Rectf& actorShape) const
 Rectf Level::GetBoundaries() const
 {
 	return m_Boundaries;
+}
+
+Point2f Level::GetStartLocation() const
+{
+	return m_StartLocation;
 }
 
