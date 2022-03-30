@@ -16,10 +16,6 @@ FirePower::FirePower()
 {
 }
 
-FirePower::~FirePower()
-{
-}
-
 void FirePower::OnKeyDownEvent(const Rectf& shape, float xDirection)
 {
 	m_IsActive = true;

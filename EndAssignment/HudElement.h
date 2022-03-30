@@ -5,7 +5,9 @@
 class HudElement final : public GameObject
 {
 public:
-	HudElement(Sprite* pSprite);
+	explicit HudElement(Sprite* pSprite);
+	HudElement(const HudElement& other) = delete;
+	HudElement& operator=(const HudElement& other) = delete;
 	~HudElement();
 
 	void Update(float elapsedSec);

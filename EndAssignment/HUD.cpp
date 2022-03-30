@@ -8,6 +8,7 @@
 
 HUD::HUD()
 	: m_PosDancingKirby{ 187.f, 32.f }
+	, m_pDancingKirby{nullptr}
 {
 	m_pMainTexture = new Texture{ "resources/UI/HUD_Normal.png" };
 	m_pPowerTextures = new Texture{ "resources/UI/HUD_Powers.png"};

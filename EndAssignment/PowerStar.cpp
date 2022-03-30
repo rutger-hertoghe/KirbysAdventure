@@ -4,8 +4,7 @@
 
 PowerStar::PowerStar(const Point2f& location)
 {
-	m_Shape.left = location.x;
-	m_Shape.bottom = location.y;
+	SetLocation(location);
 	m_pCurrentSprite = new Sprite{ 4, 0.5f, "resources/sprites/star.png" };
 	m_Shape.width = m_pCurrentSprite->GetFrameDimensions().x;
 	m_Shape.height = m_pCurrentSprite->GetFrameDimensions().y;

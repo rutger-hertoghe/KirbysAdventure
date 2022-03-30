@@ -12,15 +12,10 @@ Fireball::Fireball(Rectf fireballRect, Vector2f directionVector)
 	m_IsPersistent = true;
 }
 
-Fireball::~Fireball()
-{
-}
-
 void Fireball::Update(float elapsedSec)
 {
 	UpdateSprite(elapsedSec);
-	m_Shape.left += elapsedSec * m_Velocity.x;
-	m_Shape.bottom += elapsedSec * m_Velocity.y;
+	ApplyVelocities(elapsedSec);
 	m_FlownDistance += elapsedSec * m_Velocity.x;
 	if (abs(m_FlownDistance) > m_MaxDistance)
 	{

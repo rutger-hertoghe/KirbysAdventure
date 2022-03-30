@@ -59,6 +59,12 @@ void Actor::SetLocation(const Point2f& location)
 	m_Shape.bottom = location.y;
 }
 
+void Actor::SetLocation(float x, float y)
+{
+	m_Shape.left = x;
+	m_Shape.bottom = y;
+}
+
 Point2f Actor::GetLocation() const
 {
 	return Point2f(m_Shape.left, m_Shape.bottom);
@@ -122,9 +128,12 @@ void Actor::SetInhalationVelocities(const Rectf& kirbyRect)
 	
 	const float xDistanceToKirby{ (m_Shape.left + m_Shape.width / 2) - (kirbyRect.left + kirbyRect.width / 2 ) };
 	const float yDistanceToKirby{ (m_Shape.bottom + m_Shape.height / 2) - (kirbyRect.bottom + kirbyRect.height / 2 ) };
-	const float speedMagnifier{ 5000 };
-	m_Velocity.x = (-speedMagnifier / xDistanceToKirby);
-	m_Velocity.y = -yDistanceToKirby;
+	const float xSpeedMagnifier{ 5000.f };
+	const float ySpeedMagnifier{ -10.f };
+	const float equalityTreshold{ 5.f };
+	// Multiplication by -m_XDirection because ?
+	m_Velocity.x = (-m_XDirection * xSpeedMagnifier / xDistanceToKirby);  
+	m_Velocity.y = (abs(yDistanceToKirby) > equalityTreshold) ? ySpeedMagnifier * yDistanceToKirby : 0.f;
 }
 
 bool Actor::IsInhalable()

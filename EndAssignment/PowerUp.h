@@ -17,7 +17,7 @@ public:
 	};
 
 	PowerUp(PowerUpType type, bool hasStart, bool hasContinuous, bool hasEnd, bool hasCompleteSpriteSet = false);
-	virtual ~PowerUp();
+
 	virtual void OnKeyDownEvent(const Rectf& shape, float xDirection)		= 0;
 	virtual void ContinuousKeyEvent(const Rectf& shape, float xDirection)	= 0;
 	virtual void OnKeyUpEvent(const Rectf& shape, float xDirection)		= 0;

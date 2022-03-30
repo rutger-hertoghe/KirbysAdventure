@@ -4,10 +4,8 @@ class Level;
 class HUD;
 class Camera;
 class PowerStar;
-class Projectile;
 class ProjectileManager;
-class Enemy;
-class Actor;
+class EnemyManager;
 
 class Game final
 {
@@ -37,14 +35,11 @@ private:
 	HUD* m_pHUD;
 	Camera* m_pCamera;
 	ProjectileManager* m_pProjectileManager;
-	Enemy* m_pTestEnemy;
+	EnemyManager* m_pEnemyManager;
 	PowerStar* m_pTestStar;
 
 	// FUNCTIONS
 	void Initialize( );
 	void Cleanup( );
 	void ClearBackground( ) const;
-
-	void UpdateEnemy(Enemy*& pEnemy, float elapsedSec);
-	void CheckEnemyRemovalConditions(Enemy*& pEnemy);
 };

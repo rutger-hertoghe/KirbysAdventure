@@ -6,7 +6,10 @@ class GameObject
 {
 public:
 	GameObject();
-	virtual ~GameObject();
+	// DO INTERMEDIATE & ABSTRACT CLASSES REQUIRE RULE OF THREE?
+	GameObject(const GameObject& other) = delete;
+	GameObject& operator=(const GameObject&) = delete;
+	virtual ~GameObject() = default;
 
 	virtual void Draw() const;
 	virtual void Update(float elapsedSec) = 0;

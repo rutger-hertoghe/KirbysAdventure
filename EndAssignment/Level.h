@@ -7,17 +7,10 @@ class SoundStream;
 
 class Level final
 {
-private:
-	Rectf m_Boundaries;
-	Point2f m_StartLocation;
-
-	std::vector<std::vector<Point2f>> m_WalkablePlatforms;
-
-	Texture* m_pBackground;
-	SoundStream* m_pLevelMusic;
-	
 public:
 	Level(std::string texturePath, std::string musicPath);
+	Level(const Level& other) = delete;
+	Level& operator=(const Level& other) = delete;
 	~Level();
 
 	void Initialize();
@@ -30,5 +23,15 @@ public:
 	Rectf GetBoundaries() const;
 
 	Point2f GetStartLocation() const;
+
+private:
+	Rectf m_Boundaries;
+	Point2f m_StartLocation;
+
+	std::vector<std::vector<Point2f>> m_WalkablePlatforms;
+
+	Texture* m_pBackground;
+	SoundStream* m_pLevelMusic;
+	
 };
 

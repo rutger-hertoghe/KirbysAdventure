@@ -88,6 +88,7 @@ void ProjectileManager::InitializeSprites()
 {
 	m_pSprites.push_back(new Sprite{ 4, 0.2f, "resources/sprites/fire.png" });
 	m_pSprites.push_back(new Sprite{ 4, 0.2f, "resources/sprites/star.png" });
+	m_pSprites.push_back(new Sprite{ 1, 0.f, "resources/sprites/puff.png" });
 }
 
 bool ProjectileManager::HasCollided(const Actor* pActor, const Projectile* pProjectile)

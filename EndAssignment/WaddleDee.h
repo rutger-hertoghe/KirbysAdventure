@@ -3,9 +3,12 @@
 class WaddleDee final : public Enemy
 {
 public:
-	WaddleDee(const Point2f& location);
-	~WaddleDee();
+	explicit WaddleDee(const Point2f& location);
+	WaddleDee(const WaddleDee& other) = delete;
+	WaddleDee& operator=(const WaddleDee& other) = delete;
+	~WaddleDee() override;
 
+	virtual void Update(float elapsedSec) override;
 private:
 	
 };

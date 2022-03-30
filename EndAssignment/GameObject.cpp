@@ -14,10 +14,6 @@ GameObject::GameObject()
 {
 }
 
-GameObject::~GameObject()
-{
-}
-
 void GameObject::Draw() const
 {
 	glPushMatrix();

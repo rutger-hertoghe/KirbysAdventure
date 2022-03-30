@@ -8,11 +8,11 @@ class Projectile : public GameObject
 public:
 	enum class ProjectileType {
 		fireball,
-		star
+		star,
+		puff
 	};
 
-	Projectile(ProjectileType type, const Rectf& projectileRect, const Vector2f& velocity);
-	virtual ~Projectile();
+	explicit Projectile(ProjectileType type, const Rectf& projectileRect, const Vector2f& velocity);
 
 	virtual void Update(float elapsedSec) = 0;
 	void SetSprite(Sprite* spritePtr);
@@ -29,5 +29,6 @@ protected:
 	Vector2f m_Velocity;
 	ProjectileType m_Type;
 	
+	void ApplyVelocities(float elapsedSec);
 };
 

@@ -21,7 +21,6 @@ Sprite::Sprite(int nrFrames, float loopTime, const std::string& texturePath, int
 Sprite::~Sprite()
 {
 	delete m_pTexture;
-	m_pTexture = nullptr;
 }
 
 void Sprite::SetDimensions()

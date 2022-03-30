@@ -13,10 +13,6 @@ PowerUp::PowerUp(PowerUpType type, bool hasStart, bool hasContinuous, bool hasEn
 {
 }
 
-PowerUp::~PowerUp()
-{
-}
-
 bool PowerUp::IsOneShot()
 {
 	return false;

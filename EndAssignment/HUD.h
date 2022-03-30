@@ -8,6 +8,8 @@ class HUD
 {
 public:
 	HUD();
+	HUD(const HUD& other) = delete;
+	HUD& operator=(const HUD& rhs) = delete;
 	~HUD();
 
 	void Draw(Kirby* kirbyPtr) const;

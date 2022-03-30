@@ -8,6 +8,8 @@ class ProjectileManager final
 {
 public:
 	ProjectileManager();
+	ProjectileManager(const ProjectileManager& other) = delete;
+	ProjectileManager& operator=(const ProjectileManager& other) = delete;
 	~ProjectileManager();
 
 	void Draw() const;

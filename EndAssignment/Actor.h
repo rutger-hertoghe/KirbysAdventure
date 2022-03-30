@@ -8,7 +8,11 @@ class Actor : public GameObject
 {
 public:
 	Actor();
+	// DO INTERMEDIATE & ABSTRACT CLASSES REQUIRE RULE OF THREE?
+	Actor(const Actor& other) = delete;
+	Actor& operator=(const Actor& other) = delete;
 	virtual ~Actor() override;
+
 	virtual void Update(float elapsedSec) = 0;
 
 	// POWERUP JUGGLING
@@ -17,6 +21,7 @@ public:
 	bool HasPower();
 
 	void SetLocation(const Point2f& location);
+	void SetLocation(float x, float y);
 	Point2f GetLocation() const;
 	PowerUp* GetPowerUp() const;
 
@@ -27,7 +32,6 @@ public:
 	bool IsInhalable();
 	bool IsBeingInhaled();
 	void ToggleBeingInhaled(const Rectf& inhalationZone);
-
 
 protected:
 	static const float m_Gravity;

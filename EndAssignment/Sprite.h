@@ -6,7 +6,10 @@ class Sprite
 {
 public:
 	Sprite(int nrFrames, float loopTime, const std::string& texturePath, int rows = 1);
+	Sprite(const Sprite& other) = delete;
+	Sprite& operator=(const Sprite& other) = delete;
 	~Sprite();
+	
 
 	void Draw(const Point2f& location, int frame) const;
 	void Draw(const Rectf& dstRect, int frame) const;

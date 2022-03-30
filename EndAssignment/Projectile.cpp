@@ -11,11 +11,6 @@ Projectile::Projectile(ProjectileType type, const Rectf& projectileRect, const V
 	m_Shape = projectileRect;
 }
 
-Projectile::~Projectile()
-{
-
-}
-
 bool Projectile::IsReadyToDestroy() const
 {
 	return m_IsReadyToDestroy;
@@ -34,6 +29,12 @@ void Projectile::SetReadyToDestroy()
 int Projectile::GetTypeInt() const
 {
 	return int(m_Type);
+}
+
+void Projectile::ApplyVelocities(float elapsedSec)
+{
+	m_Shape.left += elapsedSec * m_Velocity.x;
+	m_Shape.bottom += elapsedSec * m_Velocity.y;
 }
 
 void Projectile::SetSprite(Sprite* spritePtr)

@@ -5,7 +5,7 @@ class FirePower final : public PowerUp
 {
 public:
 	FirePower();
-	virtual ~FirePower() override;
+
 	virtual void OnKeyDownEvent(const Rectf& shape, float xDirection) override;
 	virtual void ContinuousKeyEvent(const Rectf& shape, float xDirection) override;
 	virtual void OnKeyUpEvent(const Rectf& shape, float xDirection) override;

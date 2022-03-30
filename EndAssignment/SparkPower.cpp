@@ -7,10 +7,6 @@ SparkPower::SparkPower()
 {
 }
 
-SparkPower::~SparkPower()
-{
-}
-
 void SparkPower::OnKeyDownEvent(const Rectf& shape, float xDirection)
 {
 	m_IsActive = true;

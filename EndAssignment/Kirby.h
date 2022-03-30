@@ -50,7 +50,9 @@ class Kirby final : public Actor
 
 public:
 	Kirby();
-	~Kirby();
+	Kirby(const Kirby& other) = delete;
+	Kirby& operator=(const Kirby& other) = delete;
+	~Kirby() override;
 
 	virtual void Update(float elapsedSec) override;
 	void ProcessKeyUp(const SDL_KeyboardEvent& e);
@@ -79,13 +81,16 @@ private:
 	const float m_HorAcceleration;
 	const float m_MaxJumpTime;
 	const int m_MaxHealth;
+	const int m_MaxParticleFrames;
 
 	bool m_IsInvulnerable;
 	bool m_CanSpitStar;
 
 	int m_Health;
 	int m_Lives;
+	int m_ParticleFrame;
 
+	float m_ElapsedSec;
 	float m_JumpTime;
 
 	// Pointers
@@ -119,6 +124,21 @@ private:
 	std::string GetSpriteNameFromState(const ActionState& state) const;
 	Sprite* GetSpritePtr(const std::string& spriteName) const;
 	virtual void SetIsOnGround() override;
+	
 	void SpitStar();
+	void SpawnPuff();
+
+	void DoRDownActions();
+	void DoRHeldActions();
+	void DoRUpActions();
+
+	void DoSpaceDownActions();
+	void DoSpaceHeldActions(bool isImmobile, float elapsedSec);
+	void DoSpaceUpActions();
+
+	void DoLeftHeldActions(bool isImmobile, float elapsedSec);
+	void DoRightHeldActions(bool isImmobile, float elapsedSec);
+	void DoDownHeldActions(bool isKeyDown);
+	void DoUpHeldActions(bool isImmobile, float elapsedSec);
 };
 

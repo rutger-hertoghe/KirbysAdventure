@@ -8,10 +8,6 @@ Star::Star(Rectf starRect, float xDirection)
 {
 }
 
-Star::~Star()
-{
-}
-
 void Star::Update(float elapsedSec)
 {
 	UpdateSprite(elapsedSec);

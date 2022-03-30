@@ -3,8 +3,7 @@
 class Star final : public Projectile
 {
 public:
-	Star(Rectf starRect, float xDirection);
-	~Star();
+	explicit Star(Rectf starRect, float xDirection);
 
 	virtual void Update(float elapsedSec) override;
 	

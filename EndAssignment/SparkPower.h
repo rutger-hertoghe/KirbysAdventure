@@ -5,7 +5,6 @@ class SparkPower final : public PowerUp
 {
 public:
 	SparkPower();
-	virtual ~SparkPower();
 	virtual void OnKeyDownEvent(const Rectf& shape, float xDirection) override;
 	virtual void ContinuousKeyEvent(const Rectf& shape, float xDirection) override;
 	virtual void OnKeyUpEvent(const Rectf& shape, float xDirection) override;

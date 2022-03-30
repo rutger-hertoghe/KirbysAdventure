@@ -12,13 +12,9 @@ Enemy::Enemy(const Point2f& location)
 	m_Shape.bottom = location.y;
 }
 
-Enemy::~Enemy()
-{
-}
-
 void Enemy::Update(float elapsedSec)
 {
-	ApplyVelocities(elapsedSec, m_Velocity.x, m_Velocity.y);
+	ApplyVelocities(elapsedSec, m_XDirection * m_Velocity.x, m_Velocity.y);
 	if (m_IsBeingInhaled) return; // If enemy is being inhaled, code below can not be executed
 	
 	UpdateSprite(elapsedSec);
@@ -62,8 +58,9 @@ bool Enemy::HasBeenOffScreen()
 	return m_HasBeenOffScreen;
 }
 
-void Enemy::SetOffScreen(bool offscreen)
+void Enemy::SetOffScreen(bool offscreen, float direction)
 {
+	m_XDirection = direction;
 	m_HasBeenOffScreen = true;
 }
 
