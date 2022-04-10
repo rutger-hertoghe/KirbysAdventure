@@ -6,10 +6,13 @@ public:
 	explicit WaddleDee(const Point2f& location);
 	WaddleDee(const WaddleDee& other) = delete;
 	WaddleDee& operator=(const WaddleDee& other) = delete;
-	~WaddleDee() override;
+	WaddleDee(WaddleDee&& other) = delete;
+	WaddleDee& operator=(WaddleDee&& other) = delete;
+	~WaddleDee() override = default; 
 
 	virtual void Update(float elapsedSec) override;
 private:
 	
+	virtual void InitializeSprites() override;
 };
 

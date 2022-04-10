@@ -20,7 +20,7 @@ Camera::Camera(const Point2f& location, float windowWidth, float windowHeight, c
 {
 }
 
-void Camera::Transform()
+void Camera::Transform(float distanceFactor)
 {
 	// Windowsizes divided by scaling factor results in the amount of pixels the scaled window can represent
 	// This is divided by 2 as well to get the center of the scaled window
@@ -31,36 +31,46 @@ void Camera::Transform()
 	bool outOfBoundsBottom{ m_Location.y - ScaledCenterOfScreen.y < m_LevelBoundaries.bottom };
 	bool outOfBoundsTop{ m_Location.y + ScaledCenterOfScreen.y > m_LevelBoundaries.height };
 
-	float screenCenterLeft{ ScaledCenterOfScreen.x };
-	float screenCenterBottom{ ScaledCenterOfScreen.y };
-	float screenCenterRight{ m_LevelBoundaries.width - ScaledCenterOfScreen.x };
-	float screenCenterTop{ m_LevelBoundaries.height - ScaledCenterOfScreen.y};
+	float screenCenterLeft{ ScaledCenterOfScreen.x / distanceFactor };
+	float screenCenterBottom{ ScaledCenterOfScreen.y / distanceFactor };
+	float screenCenterRight{ (m_LevelBoundaries.width - ScaledCenterOfScreen.x) / distanceFactor };
+	float screenCenterTop{ (m_LevelBoundaries.height - ScaledCenterOfScreen.y) / distanceFactor };
 
 	float reCenterOnX{}, reCenterOnY{};
 
 	if (outOfBoundsLeft) reCenterOnX = screenCenterLeft;
 	else if (outOfBoundsRight) reCenterOnX = screenCenterRight;
-	else reCenterOnX = m_Location.x;
+	else reCenterOnX = m_Location.x / distanceFactor;
 
 	if (outOfBoundsBottom) reCenterOnY = screenCenterBottom;
 	else if (outOfBoundsTop) reCenterOnY = screenCenterTop;
-	else reCenterOnY = m_Location.y;
+	else reCenterOnY = m_Location.y / distanceFactor;
 
 	glScalef(m_ScalingFactor.x, m_ScalingFactor.y, 1.f); // Scaling to fit window
-	glTranslatef(ScaledCenterOfScreen.x, ScaledCenterOfScreen.y, 0.f); // Translate camera position to center of screen
+	glTranslatef(screenCenterLeft, screenCenterBottom, 0.f); // Translate camera position to center of screen
 	glTranslatef(0.f, m_HudHeight, 0.f); // Get view area above hud
 	glTranslatef(-reCenterOnX, -reCenterOnY, 0.f);
 }
 
-void Camera::Update(float x, float y)
+void Camera::Update(float x, float y, float elapsedSec)
 {
-	m_Location.x = x;
+	const float movementTreshold(48.f);
+
+	if (m_Location.x - x > movementTreshold)
+	{
+		m_Location.x = x + movementTreshold;
+	}
+	else if (m_Location.x - x < 0.f)
+	{
+		m_Location.x = x;
+	}
+
 	m_Location.y = y;
 }
 
-void Camera::Update(const Point2f& position)
+void Camera::Update(const Point2f& position, float elapsedSec)
 {
-	Update(position.x, position.y);
+	Update(position.x, position.y, elapsedSec);
 }
 
 void Camera::TransformHUD()
@@ -76,4 +86,9 @@ void Camera::UpdateBoundaries(const Level& level)
 Point2f Camera::GetViewDimensions()
 {
 	return Point2f{ m_WindowSize.x / m_ScalingFactor.x, m_WindowSize.y / m_ScalingFactor.y };
+}
+
+Point2f Camera::GetLocation()
+{
+	return m_Location;
 }

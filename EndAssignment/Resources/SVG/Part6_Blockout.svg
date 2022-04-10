@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   version="1.1"
+   id="svg4244"
+   width="1272"
+   height="168"
+   viewBox="0 0 1272 168"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs4248" />
+  <g
+     id="g4250">
+    <image
+       width="1272"
+       height="168"
+       preserveAspectRatio="none"
+       xlink:href="Part6_Blockout.png"
+       id="image4252" />
+    <path
+       style="fill:#000000"
+       d="m 808,168 v -8 h 32 v -32 h 80 V 80 h 80 V 32 h 112 v 112 h 144 v -32 h 16 v 56 z"
+       id="path6275" />
+    <path
+       style="fill:#000000"
+       d="m 0,168 v -40 h 264 v 16 h 80 v -16 h 32 V 96 h 16 V 48 h 64 v 96 h 48 V 48 h 64 v 48 h 144 v 32 h 80 v 40 z"
+       id="path4272" />
+  </g>
+</svg>

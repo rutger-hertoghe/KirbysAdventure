@@ -8,6 +8,8 @@
 #include "Star.h"
 #include "Utils.h"
 #include "Puff.h"
+#include "KirbyStateHandler.h"
+#include "SoundEffect.h"
 
 Kirby::Kirby()
 	: m_ActionState{ ActionState::idle }
@@ -17,13 +19,15 @@ Kirby::Kirby()
 	, m_MaxJumpTime{ 0.15f }
 	, m_JumpTime{ 0.f }
 	, m_MacroState{ MacroState::basic }
-	, m_Health{ 4 }
+	, m_Health{ 6 }
 	, m_Lives{ 5 }
 	, m_MaxHealth{ 6 }
 	, m_IsInvulnerable{false}
 	, m_CanSpitStar{false}
 	, m_ParticleFrame{ 0 }
 	, m_MaxParticleFrames{50}
+	, m_GotDamaged{false}
+	, m_HasReleasedJump{true}
 {
 	Initialize();
 }
@@ -31,85 +35,103 @@ Kirby::Kirby()
 Kirby::~Kirby()
 {
 	DeleteSprites();
+	delete m_pStateHandler;
+	m_pStateHandler = nullptr;
+
+	for (SoundEffect* pSound : m_pSounds)
+	{
+		if (pSound) delete pSound;
+	}
+	m_pSounds.clear();
 }
 
 void Kirby::Initialize()
 {
 	InitializeSprites();
+	
+	// InitializeHurtSprites();
 	m_pCurrentSprite = GetSpritePtr("kirby_idle");
-	Point2f kirbySize{ m_pCurrentSprite->GetFrameDimensions() };
-	m_Shape.width = kirbySize.x;
-	m_Shape.height = kirbySize.y;
+	SetDimsFromSprite();
+
+	m_pStateHandler = new KirbyStateHandler(this);
+	m_pSounds.push_back(new SoundEffect{ "resources/sounds/spitstar.wav" });
 }
 
 void Kirby::InitializeSprites()
 {
 	int nrFrames{ 1 };
 	float animationSpeed{ 0.f };
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "resources/sprites/kirby_jumping.png" });
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "resources/sprites/kirby_falling.png" });
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "resources/sprites/kirby_inhaling.png" });
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "resources/sprites/kirby_bloated_idle.png" });
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "resources/sprites/kirby_ability_jumping.png" });
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "resources/sprites/kirby_ability_falling.png" });
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "resources/sprites/kirby_ducking.png" });
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "resources/sprites/kirby_sliding.png" });
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "resources/sprites/kirby_ability_ducking.png" });
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "resources/sprites/kirby_ability_sliding.png" });
+	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_jumping" });
+	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_falling" });
+	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_inhaling" });
+	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_jumping" });
+	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_falling" });
+	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ducking" });
+	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_sliding" });
+	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_ducking" });
+	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_sliding" });
 	animationSpeed = 0.15f;
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "resources/sprites/kirby_ability_spark_start.png" });
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "resources/sprites/kirby_hurt.png" });
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "resources/sprites/kirby_inflated_hurt.png" });
+	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_bloated_idle" });
+	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_spark_start" });
+	animationSpeed = 0.4f;
+	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_hurt" });
+	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_inflated_hurt" });
 
 	nrFrames = 2;
 	animationSpeed = 0.05f;
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "resources/sprites/kirby_ability_fire_continuous.png" });
+	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_fire_continuous" });
+	animationSpeed = 0.1f;
+	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_spark_continuous" });
 	animationSpeed = 0.15f;
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "resources/sprites/kirby_start_inhaling.png" });
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "resources/sprites/kirby_exhaling.png" });
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "resources/sprites/kirby_flapping.png", });
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "resources/sprites/kirby_ability_flapping.png" });
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "resources/sprites/kirby_ability_spark_continuous.png" });
+	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_start_inhaling" });
+	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_exhaling" });
+	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_flapping" });
+	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_flapping" });
 	animationSpeed = 0.75f;
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "resources/sprites/kirby_inflated.png" });
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "resources/sprites/kirby_ability_inflated.png" });
+	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_inflated" });
+	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_inflated" });
 
 	nrFrames = 3;
 	animationSpeed = 0.3f;
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "resources/sprites/kirby_swallowing.png" });
+	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_swallowing" });
 
 	nrFrames = 4;
 	animationSpeed = 0.2f;
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "resources/sprites/kirby_flipping.png" });
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "resources/sprites/kirby_ability_flipping.png" });
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "resources/sprites/kirby_bloat.png" });
+	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_flipping" });
+	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_flipping" });
+	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_bloat" });
 	animationSpeed = 0.4f;
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "resources/sprites/kirby_inflating.png" });
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "resources/sprites/kirby_deflating.png" });
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "resources/sprites/kirby_ability_inflating.png" });
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "resources/sprites/kirby_ability_deflating.png" });
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "resources/sprites/kirby_spitting.png" });
+	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_inflating" });
+	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_deflating" });
+	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_inflating" });
+	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_deflating" });
+	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_spitting" });
 	animationSpeed = 0.7f;
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "resources/sprites/kirby_walking.png" });
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "resources/sprites/kirby_ability_walking.png" });
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "resources/sprites/kirby_bloated_walking.png" });
+	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_walking" });
+	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_walking" });
+	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_bloated_walking" });
 
 	nrFrames = 16;
 	animationSpeed = 1.6f;
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "resources/sprites/kirby_idle.png", 2 });
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "resources/sprites/kirby_ability_idle.png", 2 });
+	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_idle", 2 });
+	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_idle", 2 });
 
 	// Air particle sprite:
 	nrFrames = 1;
 	animationSpeed = 0.f;
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "resources/sprites/airparticle.png" });
+	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "airparticle" });
+
+	CreateAltSprites();
 }
 
 void Kirby::DeleteSprites()
 {
 	for (Sprite* pSprite : m_pSprites)
 	{
-		if (pSprite) delete pSprite;
+		if (pSprite)
+		{
+			delete pSprite;
+		}
 	}
 	m_pSprites.clear();
 }
@@ -121,43 +143,35 @@ void Kirby::Draw() const
 		Color4f transparentWhite{ 1.f, 1.f, 1.f, 0.3f };
 		utils::SetColor(transparentWhite);
 		utils::FillRect(GetInhalationZone());
-		//Sprite* airSprite = GetSpritePtr("airparticle");
-		//const float particles{ 10 };
-		//for (int i{}; i < 10; ++i)
-		//{
-		//	Point2f kirbyCenter{ m_Shape.left + m_Shape.width / 2, m_Shape.bottom + m_Shape.height / 2 };
-		//	const float zoneWidth{ GetInhalationZone().width }, zoneHeight{ GetInhalationZone().height};
-		//	float yUnscaledOffset{ zoneHeight / particles * i }; // Space particles evenly over zone
-		//	
-
-		//	float xVelocity{ 100 * m_XDirection * (zoneWidth / m_MaxParticleFrames) * (m_MaxParticleFrames - m_ParticleFrame) };
-		//	float xLocation{ m_Shape.left + m_Shape.width / 2 + xVelocity };
-		//	
-		//	Point2f distanceToKirby{};
-		//	distanceToKirby.x = abs(kirbyCenter.x - xLocation);
-		//	float scalar{ distanceToKirby.x / zoneWidth };
-		//	float yScaledOffset{ yUnscaledOffset * scalar };
-		//	float yLocation{ m_Shape.bottom + (m_Shape.height - zoneHeight) / 2 + yScaledOffset + (zoneHeight - yScaledOffset) / 2 };
-
-		//	airSprite->Draw(Point2f{ xLocation, yLocation }, 1);
-		//}
 	}
 	GameObject::Draw();
 }
 
 void Kirby::Update(float elapsedSec)
 {
-	++m_ParticleFrame;
-	m_ParticleFrame %= m_MaxParticleFrames;
-	m_ElapsedSec = elapsedSec;
-
+	UpdateInvulnerability(elapsedSec);
 	UpdateSprite(elapsedSec);
 	SetIsOnGround();
 	ProcessInput(elapsedSec);
 	UpdateState();
 	ProcessMovement(elapsedSec);
 	LockToLevel();
-	if (m_pPowerUp) m_pPowerUp->Update(elapsedSec);
+	if (HasPowerUp())
+	{
+		if (m_MacroState == MacroState::bloated)
+		{
+			std::string spriteName = m_pCurrentSprite->GetName();
+			Flicker(m_AccumulatedTime, spriteName);
+		}
+		GetPowerUp()->Update(elapsedSec);
+	}
+	
+	float direction{};
+	if (m_pProjectileManager->ProjectileHasHit(this, Projectile::ActorType::kirby, direction))
+	{
+		DecrementHealth();
+		BounceOffInDirection(direction);
+	}
 }
 
 #pragma region UpdateHelpers
@@ -172,136 +186,16 @@ void Kirby::SetIsOnGround()
 
 void Kirby::UpdateState()
 {
-	const float yVelocityTreshold{ 100.f };
-	const bool isMoving{ abs(m_Velocity.x) >= 1.f };
-	const bool isIdle{ !isMoving };
-	const bool isGoingUp{ m_Velocity.y > 1.f };
-	const bool isGoingDown{ m_Velocity.y < -1.f };
-	const bool isJumping{ isGoingUp && !(m_ActionState == ActionState::inflating || m_ActionState == ActionState::inflated) };
-	const bool isMidAir{ abs(m_Velocity.y) < yVelocityTreshold && !m_IsOnGround };
-	const bool isFalling{ !m_IsOnGround && m_ActionState != ActionState::jumping };
-	const bool isLoopDone{ m_HasLooped };
-	const bool isUsingPower{ m_pPowerUp ? m_pPowerUp->IsActive() : false };
-
-	const bool isInflated{ m_MacroState == MacroState::inflated };
-	const bool isDucking{ m_MacroState == MacroState::ducking };
-	const bool isInhaling{ m_MacroState == MacroState::inhalation };
-	const bool isBloated{ m_MacroState == MacroState::bloated };
-	const bool isSliding{ m_MacroState == MacroState::sliding };
-
-	switch (m_ActionState)
-	{
-		// BASIC SET
-	case ActionState::idle:
-		if (isInflated)			SetState(ActionState::inflating);
-		else if (isUsingPower)	SetPowerState();
-		else if (isInhaling)	SetState(ActionState::start_inhaling);
-		else if (isJumping)		SetState(ActionState::jumping);
-		else if (isFalling)		SetState(ActionState::falling);
-		else if (isDucking)		SetState(ActionState::ducking);
-		else if (isMoving)		SetState(ActionState::walking);
-		break;
-	case ActionState::walking:
-		if (isInflated)			SetState(ActionState::inflating);
-		else if (isUsingPower)	SetPowerState();
-		else if (isInhaling)	SetState(ActionState::start_inhaling);
-		else if (isJumping)		SetState(ActionState::jumping);
-		else if (isFalling)		SetState(ActionState::falling);
-		else if (isDucking)		SetState(ActionState::ducking);
-		else if (isIdle)		SetState(ActionState::idle);
-		break;
-	case ActionState::jumping:
-		if (isInflated)			SetState(ActionState::inflating);
-		else if (isUsingPower)	SetPowerState();
-		else if (isInhaling)	SetState(ActionState::inhaling);
-		else if (m_IsOnGround)	SetState(ActionState::idle);
-		else if (isMidAir)		SetState(ActionState::flipping);
-		break;
-	case ActionState::flipping:
-		if (isInflated)			SetState(ActionState::inflating);
-		else if (isUsingPower)  SetPowerState();
-		else if (isInhaling)	SetState(ActionState::inhaling);
-		else if (m_IsOnGround)	SetState(ActionState::idle);
-		else if (isLoopDone)	SetState(ActionState::falling);
-		break;
-	case ActionState::falling:
-		if (isInflated)			SetState(ActionState::inflating);
-		else if (isUsingPower)	SetPowerState();
-		else if (isInhaling)	SetState(ActionState::inhaling);
-		else if (m_IsOnGround)	SetState(ActionState::idle);
-		break;
-	case ActionState::ducking:
-		if (isSliding)			SetState(ActionState::sliding);
-		else if (!isDucking)	SetState(ActionState::idle);
-		break;
-	case ActionState::sliding:
-		if (!isMoving)
-		{
-			SetState(ActionState::ducking);
-			m_MacroState = MacroState::ducking;
-		}
-		// INFLATING SET
-	case ActionState::inflating:
-		if (isLoopDone)	SetState(ActionState::inflated);
-		break;
-	case ActionState::inflated:
-		if (!isInflated)	SetState(ActionState::deflating);
-		else if (isGoingUp)		SetState(ActionState::flapping);
-		break;
-	case ActionState::flapping:
-		if (!isInflated)	SetState(ActionState::deflating);
-		else if (isGoingDown)	SetState(ActionState::inflated);
-		break;
-	case ActionState::deflating:
-		if (isLoopDone)	SetState(ActionState::idle);
-		break;
-		// INHALING/BlOAT SET
-	case ActionState::start_inhaling:
-		if (isLoopDone)	SetState(ActionState::inhaling);
-		break;
-	case ActionState::inhaling:
-		if (isBloated)			SetState(ActionState::bloat);
-		else if (!isInhaling)	SetState(ActionState::exhaling);
-		break;
-	case ActionState::bloat:
-		if (isLoopDone) SetState(ActionState::bloated_idle);
-		break;
-	case ActionState::exhaling:
-		if (isLoopDone) SetState(ActionState::idle);
-		break;
-	case ActionState::bloated_idle:
-		if (!isBloated) SetState(ActionState::swallowing);
-		else if (isMoving || isJumping || isFalling) SetState(ActionState::bloated_walking);
-		break;
-	case ActionState::bloated_walking:
-		if (!isBloated) SetState(ActionState::swallowing);
-		else if (isIdle && !isJumping && !isFalling) SetState(ActionState::bloated_idle);
-		break;
-	case ActionState::swallowing:
-		if (isLoopDone) SetState(ActionState::idle);
-		break;
-	case ActionState::spitting:
-		if (isLoopDone) SetState(ActionState::idle);
-		break;
-		// POWER SET
-	case ActionState::power_start:
-		if (!isUsingPower && m_pPowerUp->HasEnd()) SetState(ActionState::power_end);
-		else if (!isUsingPower) SetState(ActionState::idle);
-		else if (isLoopDone && m_pPowerUp->HasContinuous()) SetState(ActionState::power_continuous);
-		break;
-	case ActionState::power_continuous:
-		if (!isUsingPower && m_pPowerUp->HasEnd()) SetState(ActionState::power_end);
-		else if (!isUsingPower) SetState(ActionState::idle);
-		break;
-	case ActionState::power_end:
-		if (isLoopDone) SetState(ActionState::idle);
-		break;
-	}
+	m_pStateHandler->HandleState(m_ActionState, m_MacroState);
 }
 
 void Kirby::ProcessMovement(float elapsedSec)
 {
 	float xVelocity{ m_Velocity.x }, yVelocity{ m_Velocity.y };
+	if (m_Velocity.y < 0.f)
+	{
+		m_JumpTime = m_MaxJumpTime;
+	}
 	if (m_MacroState == MacroState::inflated)
 	{
 		const float speedModifier{ 0.5f };
@@ -310,7 +204,7 @@ void Kirby::ProcessMovement(float elapsedSec)
 	}
 	ApplyVelocities(elapsedSec, xVelocity, yVelocity);
 	ApplyGravity(elapsedSec);
-	HandleCollisions();
+	HandleLevelCollisions();
 }
 
 void Kirby::LockToLevel()
@@ -331,7 +225,7 @@ void Kirby::LockToLevel()
 	if (kirbyLeft < boundaries.left) kirbyLeft = boundaries.left;
 	else if (kirbyRight > boundaries.width) kirbyLeft = boundaries.width - m_Shape.width;
 
-	if (kirbyBottom < -50.f)
+	if (kirbyBottom + m_Shape.height < 0.f)
 	{
 		KillKirby();
 	}
@@ -342,12 +236,13 @@ void Kirby::LockToLevel()
 void Kirby::ProcessInput(float elapsedSec)
 {
 	const Uint8* pStates = SDL_GetKeyboardState(nullptr);
-	const bool isUsingPower{ m_pPowerUp ? m_pPowerUp->IsActive() : false };
+	const bool isUsingPower{ HasPowerUp() ? GetPowerUp()->IsActive() : false};
 	const bool isImmobile{
 		isUsingPower
 		|| m_MacroState == MacroState::inhalation
 		|| (m_MacroState == MacroState::ducking && m_IsOnGround)
-		|| m_MacroState == MacroState::sliding };
+		|| m_MacroState == MacroState::sliding 
+		|| m_ActionState == ActionState::hurt};
 	
 	const bool rightKeysDown{ pStates[SDL_SCANCODE_RIGHT] || pStates[SDL_SCANCODE_D] };
 	const bool leftKeysDown{  pStates[SDL_SCANCODE_LEFT]  || pStates[SDL_SCANCODE_A] };
@@ -408,7 +303,8 @@ void Kirby::ProcessKeyDown(const SDL_KeyboardEvent& e)
 		DoRDownActions();
 		break;
 	// TEST CODE
-	case SDLK_e:
+	case SDLK_DOWN:
+	case SDLK_s:
 		if (m_MacroState == MacroState::bloated)
 		{
 			m_MacroState = MacroState::basic;
@@ -448,7 +344,7 @@ void Kirby::DoRightHeldActions(bool isImmobile, float elapsedSec)
 
 void Kirby::DoDownHeldActions(bool isKeyDown)
 {
-	const bool isUsingPower{ m_pPowerUp ? m_pPowerUp->IsActive() : false };
+	const bool isUsingPower{ HasPowerUp() ? GetPowerUp()->IsActive() : false};
 	if (isKeyDown && m_MacroState == MacroState::basic)
 	{
 		if (!isUsingPower)
@@ -465,8 +361,14 @@ void Kirby::DoDownHeldActions(bool isKeyDown)
 void Kirby::DoUpHeldActions(bool isImmobile, float elapsedSec)
 {
 	if (isImmobile) return;
-	if (m_MacroState != MacroState::bloated)	Flap();
-	else										Jump(elapsedSec);
+	if (m_MacroState != MacroState::bloated)
+	{
+		Flap();
+	}
+	else if (CanJump())
+	{
+		Jump(elapsedSec);
+	}
 }
 
 void Kirby::DoRDownActions()
@@ -479,9 +381,9 @@ void Kirby::DoRDownActions()
 		SpawnPuff();
 	}
 	// Use PowerUp; if no need to deflate, down event of powerup can be used
-	else if (m_pPowerUp && m_MacroState == MacroState::basic)
+	else if (HasPowerUp() && m_MacroState == MacroState::basic)
 	{
-		m_pPowerUp->OnKeyDownEvent(m_Shape, m_XDirection);
+		GetPowerUp()->OnKeyDownEvent(m_Shape, m_XDirection);
 	}
 	// Spit star; 
 	else if (m_MacroState == MacroState::bloated)
@@ -490,20 +392,21 @@ void Kirby::DoRDownActions()
 		{
 			SetState(ActionState::spitting);
 			m_MacroState = MacroState::basic;
+			m_pSounds[0]->Play(0);
 			SpitStar();
 		}
 	}
 	// Inhale; if all above conditions are not met, and Kirby has no powerup
-	else if (!m_pPowerUp)
+	else if (HasPowerUp() == false)
 	{
 		m_MacroState = MacroState::inhalation;
 	}
 }
 void Kirby::DoRHeldActions()
 {
-	if (m_pPowerUp && m_MacroState == MacroState::basic) // Use Powerup
+	if (HasPowerUp() && m_MacroState == MacroState::basic) // Use Powerup
 	{
-		m_pPowerUp->ContinuousKeyEvent(m_Shape, m_XDirection);
+		GetPowerUp()->ContinuousKeyEvent(m_Shape, m_XDirection);
 	}
 }
 void Kirby::DoRUpActions()
@@ -516,15 +419,16 @@ void Kirby::DoRUpActions()
 	{
 		m_MacroState = MacroState::basic;
 	}
-	else if (m_pPowerUp && m_MacroState == MacroState::basic)
+	else if (HasPowerUp() && m_MacroState == MacroState::basic)
 	{
-		m_pPowerUp->OnKeyUpEvent(m_Shape, m_XDirection);
+		GetPowerUp()->OnKeyUpEvent(m_Shape, m_XDirection);
 	}
 }
 
 void Kirby::DoSpaceDownActions()
 {
-	const bool isUsingPower{ m_pPowerUp ? m_pPowerUp->IsActive() : false };
+	const bool isUsingPower{ HasPowerUp() ? GetPowerUp()->IsActive() : false };
+
 	if (m_MacroState == MacroState::ducking && m_IsOnGround && !isUsingPower)
 	{
 		m_Velocity.x = 180.f * m_XDirection;
@@ -534,12 +438,13 @@ void Kirby::DoSpaceDownActions()
 
 void Kirby::DoSpaceHeldActions(bool isImmobile, float elapsedSec)
 {
+	if (m_HasReleasedJump == true)
 	if (isImmobile) return; // Being immobile should prevent code below from execution
 	if (m_MacroState == MacroState::inflated)
 	{
 		Flap();
 	}
-	else if (m_MacroState != MacroState::ducking && m_MacroState != MacroState::sliding)
+	else if (CanJump() && m_MacroState != MacroState::ducking && m_MacroState != MacroState::sliding)
 	{
 		Jump(elapsedSec);
 	}
@@ -569,13 +474,14 @@ void Kirby::SlowDown(float elapsedSec)
 
 void Kirby::Jump(float elapsedSec)
 {
-	if (m_JumpTime < m_MaxJumpTime) AccelerateJump(elapsedSec);
-}
-
-void Kirby::AccelerateJump(float elapsedSec)
-{
 	m_Velocity.y = m_JumpSpeed;
 	m_JumpTime += elapsedSec;
+}
+
+
+bool Kirby::CanJump() const
+{
+	return m_JumpTime < m_MaxJumpTime;
 }
 
 void Kirby::Flap()
@@ -586,12 +492,6 @@ void Kirby::Flap()
 }
 #pragma endregion
 
-void Kirby::DiscardPower()
-{
-	delete m_pPowerUp;
-	m_pPowerUp = nullptr;
-}
-
 void Kirby::SpitStar()
 {
 	// Copy shape first to manipulate copied shape properties underneath, then offset to match sprite center and not spawn inside Kirby
@@ -601,8 +501,11 @@ void Kirby::SpitStar()
 	spawnRect.bottom += yOffset;
 	m_pProjectileManager->Add(new Star{ spawnRect, m_XDirection });
 
+	// Play sound
+	m_pSounds[0]->Play(0);
+
 	// Spitting out the star should remove the power
-	DiscardPower();
+	DeletePowerUp();
 
 	m_CanSpitStar = false; 
 }
@@ -629,6 +532,20 @@ Rectf Kirby::GetInhalationZone() const
 	return inhalationZone;
 }
 
+bool Kirby::IsBloated() const
+{
+	if (m_MacroState == MacroState::bloated)
+	{
+		return true;
+	}
+	return false;
+}
+
+bool Kirby::IsInvulnerable() const
+{
+	return m_IsInvulnerable;
+}
+
 void Kirby::SetBloated()
 {
 	SetState(ActionState::bloat);
@@ -636,18 +553,6 @@ void Kirby::SetBloated()
 }
 
 #pragma region Utility
-Sprite* Kirby::GetSpritePtr(const std::string& spriteName) const
-{
-	for (Sprite* pSprite : m_pSprites)
-	{
-		if (pSprite->GetName() == spriteName)
-		{
-			return pSprite;
-		}
-	}
-	return nullptr;
-}
-
 void Kirby::SetState(const ActionState& state)
 {
 	m_ActionState = state;
@@ -655,20 +560,25 @@ void Kirby::SetState(const ActionState& state)
 	m_pCurrentSprite = GetSpritePtr(spriteName);
 	m_AccumulatedTime = 0;
 	m_CurrentFrame = 0;
-	m_HasLooped = 0;
+	m_HasLooped = false;
 	m_LoopProgressTime = 0;
+}
+
+void Kirby::SetMacroState(const MacroState& macroState)
+{
+	m_MacroState = macroState;
 }
 
 std::string Kirby::GetSpriteNameFromState(const ActionState& state) const
 {
 	std::string spriteName{"kirby_"};
 
-	if (m_pPowerUp)
+	if (HasPowerUp())
 	{
 		spriteName.append("ability_");
-		if (m_pPowerUp->HasCompleteSpriteSet())
+		if (GetPowerUp()->HasCompleteSpriteSet())
 		{
-			spriteName.append(m_pPowerUp->GetPowerSuffix());
+			spriteName.append(GetPowerUp()->GetPowerSuffix());
 		}
 	}
 	switch (state)
@@ -733,26 +643,35 @@ std::string Kirby::GetSpriteNameFromState(const ActionState& state) const
 		break;
 	// POWER STATES
 	case ActionState::power_start:
-		if (m_pPowerUp && !(m_pPowerUp->HasCompleteSpriteSet()))
+		if (HasPowerUp() && !(GetPowerUp()->HasCompleteSpriteSet()))
 		{
-			spriteName.append(m_pPowerUp->GetPowerSuffix());
+			spriteName.append(GetPowerUp()->GetPowerSuffix());
 		}
 		spriteName.append("start");
 		break;
 	case ActionState::power_continuous:
-		if (m_pPowerUp && !(m_pPowerUp->HasCompleteSpriteSet()))
+		if (HasPowerUp() && !(GetPowerUp()->HasCompleteSpriteSet()))
 		{
-			spriteName.append(m_pPowerUp->GetPowerSuffix());
+			spriteName.append(GetPowerUp()->GetPowerSuffix());
 		}
 		spriteName.append("continuous");
 		break;
 	case ActionState::power_end:
-		if (m_pPowerUp && !(m_pPowerUp->HasCompleteSpriteSet()))
+		if (HasPowerUp() && !(GetPowerUp()->HasCompleteSpriteSet()))
 		{
-			spriteName.append(m_pPowerUp->GetPowerSuffix());
+			spriteName.append(GetPowerUp()->GetPowerSuffix());
 		}
 		spriteName.append("end");
 		break;
+	case ActionState::hurt:
+		if (m_MacroState == MacroState::bloated || m_MacroState == MacroState::inflated)
+		{
+			spriteName = "kirby_inflated_hurt";
+		}
+		else
+		{
+			spriteName = "kirby_hurt";
+		}
 	}
 	return spriteName;
 }
@@ -768,64 +687,116 @@ int Kirby::GetLives() const
 	return m_Lives;
 }
 
-void Kirby::SetProjectileManager(ProjectileManager* pProjectileMgr)
+//float Kirby::GetJumptime() const
+//{
+//	return m_JumpTime;
+//}
+//
+//float Kirby::GetMaxJumpTime() const
+//{
+//	return m_MaxJumpTime;
+//}
+
+bool Kirby::HasLooped() const
 {
-	m_pProjectileManager = pProjectileMgr;
+	return m_HasLooped;
 }
 
-void Kirby::Hit()
+bool Kirby::IsOnGround() const
 {
+	return m_IsOnGround;
 }
 
 void Kirby::DecrementHealth()
 {
 	if (m_IsInvulnerable) return;
 
+	SetState(ActionState::hurt);
+
 	--m_Health;
+	m_IsInvulnerable = true;
+	m_GotDamaged = true;
 	if (m_Health <= 0)
 	{
 		KillKirby();
 	}
-	m_IsInvulnerable = true;
+}
+
+void Kirby::UpdateInvulnerability(float elapsedSec)
+{
+	if (!m_IsInvulnerable) return;
+	
+	std::string spriteName = m_pCurrentSprite->GetName();
+
+	m_ArbitraryTimer += elapsedSec;
+	Flicker(m_ArbitraryTimer, spriteName);
+
+	const float flickerDuration{ 3.f };
+
+	if (m_ArbitraryTimer > flickerDuration)
+	{
+		SetVulnerable(spriteName);
+		ResetArbitraryTimer();
+	}
+}
+
+void Kirby::SetVulnerable(std::string spriteName)
+{
+	int splitIndex{ int(spriteName.find_last_of('_')) };
+	m_IsInvulnerable = false;
+	if (spriteName.substr(splitIndex) == "_alt")
+	{
+		spriteName = spriteName.substr(0, splitIndex);
+		m_pCurrentSprite = GetSpritePtr(spriteName);
+	}
 }
 
 void Kirby::KillKirby()
 {
 	--m_Lives;
+	m_Health = m_MaxHealth;
 	SetLocation(m_pCurrentLevel->GetStartLocation());
 	m_Velocity.y = 0;
-	delete m_pPowerUp;
-	m_pPowerUp = nullptr;
+	m_Velocity.x = 0;
+	DeletePowerUp();
 	m_CanSpitStar = false;
+	m_IsInvulnerable = false;
 	m_ActionState = ActionState::idle;
 	m_MacroState = MacroState::basic;
 }
 
-bool Kirby::IsInhaling() const
+void Kirby::BounceOffInDirection(float direction)
 {
-	if (m_MacroState == MacroState::inhalation)
-	{
-		return true;
-	}
-	return false;
+	Point2f velocity{ 150.f, 50.f };
+	m_Velocity.x = velocity.x * direction;
+	m_Velocity.y = velocity.y;
 }
 
-void Kirby::EnforceState()
-{
-	SetState(m_ActionState);
-}
+//bool Kirby::IsInhaling() const
+//{
+//	if (m_MacroState == MacroState::inhalation)
+//	{
+//		return true;
+//	}
+//	return false;
+//}
+
+//void Kirby::EnforceState()
+//{
+//	SetState(m_ActionState);
+//}
 
 void Kirby::SetPowerState()
 {
-	if (m_pPowerUp->HasStart())
+	if (GetPowerUp()->HasStart())
 	{
 		SetState(ActionState::power_start);
 	}
-	else if (m_pPowerUp->HasContinuous())
+	else if (GetPowerUp()->HasContinuous())
 	{
 		SetState(ActionState::power_continuous);
 	}
-	else if (m_pPowerUp->HasEnd())
+	else if (GetPowerUp()->HasEnd())
 	{
 		SetState(ActionState::power_end);
 	}

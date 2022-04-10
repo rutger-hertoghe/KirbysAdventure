@@ -12,7 +12,7 @@ public:
 	HUD& operator=(const HUD& rhs) = delete;
 	~HUD();
 
-	void Draw(Kirby* kirbyPtr) const;
+	void Draw(Kirby* pKirby) const;
 	float GetHeight() const;
 	float GetWidth() const;
 

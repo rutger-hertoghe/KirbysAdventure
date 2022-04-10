@@ -3,7 +3,7 @@
 #include "Sprite.h"
 
 Puff::Puff(Rectf puffRect, float xDirection)
-	: Projectile{ ProjectileType::puff, puffRect, Vector2f{0.f, 0.f} }
+	: Projectile{ Projectile::ActorType::kirby,  ProjectileType::puff, puffRect, Vector2f{0.f, 0.f} }
 	, m_MaxDistance{ 40.f }
 	, m_FlownDistance{ 0.0f }
 {

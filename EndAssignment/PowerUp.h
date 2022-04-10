@@ -1,4 +1,6 @@
 #pragma once
+#include "Projectile.h"
+
 class ProjectileManager;
 
 class PowerUp
@@ -16,7 +18,7 @@ public:
 		sword
 	};
 
-	PowerUp(PowerUpType type, bool hasStart, bool hasContinuous, bool hasEnd, bool hasCompleteSpriteSet = false);
+	explicit PowerUp(PowerUpType type, ProjectileManager* pMgr, bool hasStart, bool hasContinuous, bool hasEnd, bool hasCompleteSpriteSet = false);
 
 	virtual void OnKeyDownEvent(const Rectf& shape, float xDirection)		= 0;
 	virtual void ContinuousKeyEvent(const Rectf& shape, float xDirection)	= 0;
@@ -29,19 +31,19 @@ public:
 	virtual int GetPowerPanelSlot() const;
 	virtual std::string GetPowerSuffix() const = 0;
 
-	void SetProjectileManager(ProjectileManager* projectileMgrPtr);
-	ProjectileManager* GetProjectileManager();
-
 	bool HasStart() const;
 	bool HasContinuous() const;
 	bool HasEnd() const;
 	bool HasCompleteSpriteSet() const;
+
+	void SetKirbyAsOwner();
 
 protected:
 	const bool m_HasStart;
 	const bool m_HasContinuous;
 	const bool m_HasEnd;
 	const bool m_HasCompleteSpriteSet;
+	Projectile::ActorType m_Owner;
 
 	bool m_IsActive;
 	PowerUpType m_Type;

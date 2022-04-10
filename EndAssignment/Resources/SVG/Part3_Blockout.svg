@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   version="1.1"
+   id="svg2950"
+   width="504"
+   height="168"
+   viewBox="0 0 504 168"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs2954" />
+  <g
+     id="g2956">
+    <image
+       width="504"
+       height="168"
+       preserveAspectRatio="none"
+       xlink:href="Part3_Blockout.png"
+       id="image2958" />
+    <path
+       style="fill:#000000"
+       d="M 248,48 V 0 h 16 v 32 h 96 V 0 h 8 8 v 48 z"
+       id="path3360" />
+    <path
+       style="fill:#000000"
+       d="M 168,81 V 65 h -16 v 16 z"
+       id="path3358" />
+    <path
+       style="fill:#000000"
+       d="M 136,113 V 97 h -16 v 16 z"
+       id="path3356" />
+    <path
+       style="fill:#000000"
+       d="M 104,144 V 113 H 88 v 31 z"
+       id="path3354" />
+    <path
+       style="fill:#000000"
+       d="M 0,168 V 128 H 72 V 96 h 32 V 64 h 32 V 48 h 64.18384 l -1.46703,80 H 424 V 48 h 32.18384 l -1.46703,80 H 488 V 0 h 16 v 168 z"
+       id="path2996" />
+  </g>
+</svg>

@@ -2,6 +2,7 @@
 #include "Projectile.h"
 #include "Sprite.h"
 
+class ObjectManager;
 class Actor;
 
 class ProjectileManager final
@@ -16,7 +17,8 @@ public:
 	void Update(float elapsedSec);
 
 	void Add(Projectile* projectile);
-	bool ProjectileHasHit(Actor* pActor);
+	bool ProjectileHasHit(Actor* pActor, Projectile::ActorType hitActorType, float& direction);
+
 private:
 	std::vector<Projectile*> m_pProjectiles;
 	std::vector<Sprite*> m_pSprites;

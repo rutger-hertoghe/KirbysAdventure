@@ -2,14 +2,15 @@
 #include "PowerUp.h"
 #include "Vector2f.h"
 
-PowerUp::PowerUp(PowerUpType type, bool hasStart, bool hasContinuous, bool hasEnd, bool hasCompleteSpriteSet)
+PowerUp::PowerUp(PowerUpType type, ProjectileManager* pMgr, bool hasStart, bool hasContinuous, bool hasEnd, bool hasCompleteSpriteSet)
 	: m_Type{ type }
-	, m_pProjectileManager{nullptr}
+	, m_pProjectileManager{pMgr}
 	, m_HasStart{ hasStart }
 	, m_HasContinuous{ hasContinuous }
 	, m_HasEnd{ hasEnd }
 	, m_HasCompleteSpriteSet{hasCompleteSpriteSet}
 	, m_IsActive{ false }
+	, m_Owner{ Projectile::ActorType::enemy}
 {
 }
 
@@ -21,16 +22,6 @@ bool PowerUp::IsOneShot()
 int PowerUp::GetPowerPanelSlot() const
 {
 	return int(m_Type) + 1;
-}
-
-void PowerUp::SetProjectileManager(ProjectileManager* projectileMgrPtr)
-{
-	m_pProjectileManager = projectileMgrPtr;
-}
-
-ProjectileManager* PowerUp::GetProjectileManager()
-{
-	return m_pProjectileManager;
 }
 
 bool PowerUp::HasStart() const
@@ -51,4 +42,9 @@ bool PowerUp::HasEnd() const
 bool PowerUp::HasCompleteSpriteSet() const
 {
 	return m_HasCompleteSpriteSet;
+}
+
+void PowerUp::SetKirbyAsOwner()
+{
+	m_Owner = Projectile::ActorType::kirby;
 }

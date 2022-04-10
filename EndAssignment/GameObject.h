@@ -1,22 +1,24 @@
 #pragma once
-class PowerUp;
 class Sprite;
 
 class GameObject
 {
 public:
-	GameObject();
-	// DO INTERMEDIATE & ABSTRACT CLASSES REQUIRE RULE OF THREE?
+	explicit GameObject();
 	GameObject(const GameObject& other) = delete;
 	GameObject& operator=(const GameObject&) = delete;
+	GameObject(GameObject&& other) = delete;
+	GameObject& operator=(GameObject&& other) = delete;
 	virtual ~GameObject() = default;
 
 	virtual void Draw() const;
 	virtual void Update(float elapsedSec) = 0;
 
-	Rectf GetRect() const;
+	Rectf GetShape() const;
+	float GetDirection() const;
 
 protected:
+	Rectf m_Shape;
 	int m_CurrentFrame;
 	float m_AccumulatedTime;
 	float m_LoopProgressTime;
@@ -24,12 +26,13 @@ protected:
 	
 	float m_XDirection;
 
-	Rectf m_Shape;
-
 	Sprite* m_pCurrentSprite;
 
 	std::vector<Sprite*> m_pSprites;
 
 	void UpdateSprite(float elapsedSec);
+
+private:
+	
 };
 

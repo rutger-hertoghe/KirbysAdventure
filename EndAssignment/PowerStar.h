@@ -3,14 +3,15 @@
 class PowerStar final: public Item
 {
 public: 
-	PowerStar(const Point2f& location);
-	// DO INTERMEDIATE & ABSTRACT CLASSES REQUIRE RULE OF THREE?
+	explicit PowerStar(const Point2f& location);
 	PowerStar(const PowerStar& other) = delete;
 	PowerStar& operator=(const PowerStar& other) = delete;
+	PowerStar(PowerStar&& other) = delete;
+	PowerStar& operator=(PowerStar&& other) = delete;
 	~PowerStar();
 
 	virtual void Update(float elapsedSec) override;
-
+	void SetDirection(float directionValue);
 private:
 	
 };

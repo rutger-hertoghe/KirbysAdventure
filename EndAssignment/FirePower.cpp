@@ -3,11 +3,10 @@
 #include "ProjectileManager.h"
 #include "utils.h"
 #include "Fireball.h"
-#include <iostream>
 #include "Vector2f.h"
 
-FirePower::FirePower()
-	: PowerUp{PowerUpType::fire, false, true, false}
+FirePower::FirePower(ProjectileManager* pProjectileManager)
+	: PowerUp{PowerUpType::fire, pProjectileManager, false, true, false}
 	, m_TimeBetweenSpawns{0.08f}
 	, m_TimeSinceSpawn{0.f}
 	, m_CanSpawn{true}
@@ -15,6 +14,7 @@ FirePower::FirePower()
 	, m_AngleDifference{1}
 {
 }
+
 
 void FirePower::OnKeyDownEvent(const Rectf& shape, float xDirection)
 {
@@ -26,9 +26,12 @@ void FirePower::ContinuousKeyEvent(const Rectf& shape, float xDirection)
 	if (m_CanSpawn == true)
 	{
 		Rectf spawnLocation{ 0.f, shape.bottom, shape.width, shape.height };
-		spawnLocation.left = shape.left + (xDirection > 0.f ? shape.width : -shape.width);
+		spawnLocation.left = shape.left + (xDirection > 0.f ? shape.width + 1.f : -shape.width - 1.f);
 		Vector2f directionVector{ xDirection, float(m_YDirection * 3) };
-		if (m_pProjectileManager) m_pProjectileManager->Add(new Fireball{ spawnLocation, directionVector });
+		if (m_pProjectileManager)
+		{
+			m_pProjectileManager->Add(new Fireball{ m_Owner, spawnLocation, directionVector });
+		}
 		else std::cout << "PROJECTILE MANAGER NOT FOUND\n";
 		m_CanSpawn = false;
 	}

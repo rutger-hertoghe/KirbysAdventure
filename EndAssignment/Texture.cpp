@@ -13,6 +13,15 @@ Texture::Texture( const std::string& imagePath )
 	CreateFromImage( imagePath );
 }
 
+Texture::Texture(const std::string& imagePath, const Color4f& color)
+	:m_Id{ }
+	, m_Width{ 10.0f }
+	, m_Height{ 10.0f }
+	, m_CreationOk{ false }
+{
+	CreateFromImage(imagePath, color);
+}
+
 Texture::Texture( const std::string& text, TTF_Font *pFont, const Color4f& textColor )
 	:m_Id{}
 	,m_Width{ 10.0f }
@@ -76,6 +85,30 @@ void Texture::CreateFromImage( const std::string& path )
 
 	// Free loaded surface
 	SDL_FreeSurface( pLoadedSurface );
+}
+
+void Texture::CreateFromImage(const std::string& path, const Color4f& color)
+{
+	m_CreationOk = true;
+
+	// Load image at specified path
+	SDL_Surface* pLoadedSurface = IMG_Load(path.c_str());
+	if (pLoadedSurface == nullptr)
+	{
+		std::cerr << "Texture::CreateFromImage, error when calling IMG_Load: " << SDL_GetError() << std::endl;
+		m_CreationOk = false;
+		return;
+	}
+	SDL_Surface* pDestSurface = IMG_Load(path.c_str());
+	SDL_SetSurfaceColorMod(pLoadedSurface, Uint8(color.r * 255), Uint8(color.g * 255), Uint8(color.b * 255));
+	SDL_SetSurfaceAlphaMod(pLoadedSurface, 120);
+	SDL_BlitSurface(pLoadedSurface, &pLoadedSurface->clip_rect, pDestSurface, &pDestSurface->clip_rect);
+	CreateFromSurface(pDestSurface);
+
+	// Free loaded surface
+	SDL_FreeSurface(pLoadedSurface);
+	SDL_FreeSurface(pDestSurface);
+	
 }
 
 void Texture::CreateFromString( const std::string& text, const std::string& fontPath, int ptSize, const Color4f& textColor )

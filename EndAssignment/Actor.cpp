@@ -9,12 +9,14 @@ const float Actor::m_Gravity{ -500.f };
 
 Actor::Actor()
 	: GameObject{}
+	, m_pProjectileManager{nullptr}
 	, m_pPowerUp{ nullptr }
 	, m_pCurrentLevel{ nullptr }
 	, m_BaseVelocity{0.f, 0.f}
 	, m_IsOnGround{false}
-	, m_IsInhalable{ false }
+	, m_IsInhalable{ true }
 	, m_IsBeingInhaled{ false }
+	, m_ArbitraryTimer{0.f}
 {
 }
 
@@ -34,23 +36,29 @@ void Actor::TransferPowerUp(Actor* newOwner)
 		delete newOwner->m_pPowerUp;
 	}
 	newOwner->m_pPowerUp = m_pPowerUp;
+	newOwner->m_pPowerUp->SetKirbyAsOwner();
 	m_pPowerUp = nullptr;
 }
 
-void Actor::SetPowerUp(PowerUp* powerUp, ProjectileManager* pProjectileMgr)
+void Actor::SetPowerUp(PowerUp* powerUp)
 {
 	if (m_pPowerUp)
 	{
 		delete m_pPowerUp;
 	}
 	m_pPowerUp = powerUp;
-	m_pPowerUp->SetProjectileManager(pProjectileMgr);
 }
 
-bool Actor::HasPower()
+bool Actor::HasPowerUp() const
 {
 	if (m_pPowerUp) return true;
 	return false;
+}
+
+void Actor::DeletePowerUp()
+{
+	delete m_pPowerUp;
+	m_pPowerUp = nullptr;
 }
 
 void Actor::SetLocation(const Point2f& location)
@@ -63,6 +71,11 @@ void Actor::SetLocation(float x, float y)
 {
 	m_Shape.left = x;
 	m_Shape.bottom = y;
+}
+
+Vector2f Actor::GetVelocity() const
+{
+	return m_Velocity;
 }
 
 Point2f Actor::GetLocation() const
@@ -78,6 +91,11 @@ PowerUp* Actor::GetPowerUp() const
 void Actor::SetCurrentLevel(Level* level)
 {
 	m_pCurrentLevel = level;
+}
+
+void Actor::SetProjectileManager(ProjectileManager* pProjectileMgr)
+{
+	m_pProjectileManager = pProjectileMgr;
 }
 
 void Actor::SetIsOnGround()
@@ -117,9 +135,14 @@ void Actor::ApplyGravity(float elapsedSec)
 	m_Velocity.y += m_Gravity * elapsedSec;
 }
 
-void Actor::HandleCollisions()
+void Actor::HandleLevelCollisions()
 {
 	m_pCurrentLevel->HandleCollision(m_Shape, m_Velocity);
+}
+
+void Actor::ResetArbitraryTimer()
+{
+	m_ArbitraryTimer = 0.f;
 }
 
 void Actor::SetInhalationVelocities(const Rectf& kirbyRect)
@@ -136,12 +159,12 @@ void Actor::SetInhalationVelocities(const Rectf& kirbyRect)
 	m_Velocity.y = (abs(yDistanceToKirby) > equalityTreshold) ? ySpeedMagnifier * yDistanceToKirby : 0.f;
 }
 
-bool Actor::IsInhalable()
+bool Actor::IsInhalable() const
 {
 	return m_IsInhalable;
 }
 
-bool Actor::IsBeingInhaled()
+bool Actor::IsBeingInhaled() const
 {
 	return m_IsBeingInhaled;
 }
@@ -153,9 +176,69 @@ void Actor::ToggleBeingInhaled(const Rectf& inhalationZone)
 	{
 		m_IsBeingInhaled = true;
 	}
-	else
+}
+
+void Actor::Flicker(float timer, std::string& spriteName)
+{
+	int splitIndex{ int(spriteName.find_last_of('_')) };
+	if (splitIndex == -1)
 	{
-		m_IsBeingInhaled = false;
+		spriteName.append("_alt");
+		m_pCurrentSprite = GetSpritePtr(spriteName);
+	}
+	else if (spriteName.substr(splitIndex) != "_alt")
+	{
+		spriteName.append("_alt");
+		m_pCurrentSprite = GetSpritePtr(spriteName);
+	}
+	else if (int(timer * 10) % 2 == 0 && spriteName.substr(splitIndex) == "_alt")
+	{
+		spriteName = spriteName.substr(0, splitIndex);
+		m_pCurrentSprite = GetSpritePtr(spriteName);
 	}
 }
 
+Sprite* Actor::GetSpritePtr(const std::string& spriteName) const
+{
+	for (Sprite* pSprite : m_pSprites)
+	{
+		if (pSprite->GetName() == spriteName)
+		{
+			return pSprite;
+		}
+	}
+	std::cout << "SPRITE POINTER '" << spriteName << "' NOT FOUND\n";
+	return nullptr;
+}
+
+void Actor::CreateAltSprites()
+{
+	int originalLength{ int(m_pSprites.size()) };
+	for (int idx{}; idx < originalLength; idx++)
+	{
+		Sprite* pSprite{ m_pSprites[idx] };
+		m_pSprites.push_back(new Sprite{ pSprite->GetNrOfFrames(), pSprite->GetLoopTime(), pSprite->GetName(), pSprite->GetTextureRows(), true });
+	}
+}
+
+void Actor::SetInitialSprite(const std::string& spriteName)
+{
+	if (spriteName == "")
+	{
+		m_pCurrentSprite = m_pSprites[0];
+	}
+	else
+	{
+		m_pCurrentSprite = GetSpritePtr(spriteName);
+		if (m_pCurrentSprite == nullptr)
+		{
+			m_pCurrentSprite = m_pSprites[0];
+		}
+	}
+}
+
+void Actor::SetDimsFromSprite()
+{
+	m_Shape.width = m_pCurrentSprite->GetFrameDimensions().x;
+	m_Shape.height = m_pCurrentSprite->GetFrameDimensions().y;
+}

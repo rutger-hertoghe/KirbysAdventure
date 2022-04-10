@@ -2,8 +2,8 @@
 #include "Fireball.h"
 #include "utils.h"
 
-Fireball::Fireball(Rectf fireballRect, Vector2f directionVector)
-	: Projectile{ ProjectileType::fireball, fireballRect, Vector2f{directionVector.x * 200, directionVector.y} }
+Fireball::Fireball(ActorType owner, const Rectf& fireballRect, const Vector2f& directionVector)
+	: Projectile{owner, ProjectileType::fireball, fireballRect, Vector2f{directionVector.x * 200, directionVector.y} }
 	, m_MaxDistance{ 32.0f }
 	, m_FlownDistance{0.f}
 {

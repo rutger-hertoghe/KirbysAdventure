@@ -3,16 +3,18 @@
 #include "Level.h"
 #include "Actor.h"
 
-
 class Sprite;
 class Texture;
 class PowerUp;
 class Level;
 class ProjectileManager;
 class GameObject;
+class KirbyStateHandler;
+class SoundEffect;
 
 class Kirby final : public Actor
 {
+public:
 	enum class MacroState {
 		basic,
 		inflated,
@@ -48,31 +50,41 @@ class Kirby final : public Actor
 		hurt
 	};
 
-public:
-	Kirby();
+	explicit Kirby();
 	Kirby(const Kirby& other) = delete;
 	Kirby& operator=(const Kirby& other) = delete;
+	Kirby(Kirby&& other) = delete;
+	Kirby& operator=(Kirby&& other) = delete;
 	~Kirby() override;
 
 	virtual void Update(float elapsedSec) override;
 	void ProcessKeyUp(const SDL_KeyboardEvent& e);
 	void ProcessKeyDown(const SDL_KeyboardEvent& e);
 
-	void EnforceState();
+	//void EnforceState();
 
 	int GetHealth() const;
 	int GetLives() const;
 
-	void SetProjectileManager(ProjectileManager* pProjectileMgr);
-	void Hit();
+	//float GetJumptime() const;
+	//float GetMaxJumpTime() const;
+
+	bool IsOnGround() const;
+	bool HasLooped() const;
 
 	void DecrementHealth();
-	void KillKirby();
+	void BounceOffInDirection(float direction);
 
 	virtual void Draw() const override;
-	bool IsInhaling() const;
+	// bool IsInhaling() const;
 	Rectf GetInhalationZone() const;
+
+	bool IsBloated() const;
+	bool IsInvulnerable() const;
 	void SetBloated();
+	void SetPowerState();
+	void SetState(const ActionState& state);
+	void SetMacroState(const MacroState& macroState);
 
 private:
 	// Primitives
@@ -84,6 +96,9 @@ private:
 	const int m_MaxParticleFrames;
 
 	bool m_IsInvulnerable;
+	bool m_GotDamaged;
+	bool m_HasReleasedJump;
+
 	bool m_CanSpitStar;
 
 	int m_Health;
@@ -94,16 +109,19 @@ private:
 	float m_JumpTime;
 
 	// Pointers
-	ProjectileManager* m_pProjectileManager;
+	KirbyStateHandler* m_pStateHandler;
+	std::vector<SoundEffect*> m_pSounds;
 
 	// Non-Primitves
 	Rectf m_SuctionZone;
 	ActionState m_ActionState;
 	MacroState m_MacroState;	
 
+
 	// Functions
 	void Initialize();
 	void InitializeSprites();
+	// void InitializeHurtSprites();
 	void DeleteSprites();
 
 	void UpdateState();
@@ -114,19 +132,18 @@ private:
 	void Move(float elapsedSec, bool canAccelerate);
 	void SlowDown(float elapsedSec);
 	void Jump(float elapsedSec);
-	void AccelerateJump(float elapsedSec);
+	bool CanJump() const;
 
-	void DiscardPower();
-	void SetPowerState();
-
-	void SetState(const ActionState& state);
+	void UpdateInvulnerability(float elapsedSec);
+	void SetVulnerable(std::string spriteName);
+	
 	void LockToLevel();
 	std::string GetSpriteNameFromState(const ActionState& state) const;
-	Sprite* GetSpritePtr(const std::string& spriteName) const;
 	virtual void SetIsOnGround() override;
 	
 	void SpitStar();
 	void SpawnPuff();
+	void KillKirby();
 
 	void DoRDownActions();
 	void DoRHeldActions();

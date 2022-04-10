@@ -5,7 +5,7 @@
 PowerStar::PowerStar(const Point2f& location)
 {
 	SetLocation(location);
-	m_pCurrentSprite = new Sprite{ 4, 0.5f, "resources/sprites/star.png" };
+	m_pCurrentSprite = new Sprite{ 4, 0.5f, "star" };
 	m_Shape.width = m_pCurrentSprite->GetFrameDimensions().x;
 	m_Shape.height = m_pCurrentSprite->GetFrameDimensions().y;
 	SetBaseVelocity( 50.f, 50.f);
@@ -28,5 +28,10 @@ void PowerStar::Update(float elapsedSec)
 	UpdateSprite(elapsedSec);
 	ApplyVelocities(elapsedSec, m_Velocity.x, m_Velocity.y);
 	ApplyGravity(elapsedSec);
-	HandleCollisions();
+	HandleLevelCollisions();
+}
+
+void PowerStar::SetDirection(float directionValue)
+{
+	m_XDirection = directionValue;
 }

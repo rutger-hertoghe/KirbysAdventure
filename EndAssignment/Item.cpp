@@ -5,8 +5,3 @@ Item::Item()
 	: Actor{}
 {
 }
-
-void Item::Update(float elapsedSec)
-{
-
-}

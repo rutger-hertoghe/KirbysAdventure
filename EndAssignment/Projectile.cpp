@@ -2,11 +2,12 @@
 #include "Projectile.h"
 #include "Sprite.h"
 
-Projectile::Projectile(ProjectileType type, const Rectf& projectileRect, const Vector2f& velocity)
+Projectile::Projectile(ActorType owner, ProjectileType type, const Rectf& projectileRect, const Vector2f& velocity)
 	: m_Type{type}
 	, m_IsReadyToDestroy{false}
 	, m_Velocity{velocity}
 	, m_IsPersistent{false}
+	, m_Owner{owner}
 {
 	m_Shape = projectileRect;
 }
@@ -29,6 +30,11 @@ void Projectile::SetReadyToDestroy()
 int Projectile::GetTypeInt() const
 {
 	return int(m_Type);
+}
+
+Projectile::ActorType Projectile::GetOwner()
+{
+	return m_Owner;
 }
 
 void Projectile::ApplyVelocities(float elapsedSec)

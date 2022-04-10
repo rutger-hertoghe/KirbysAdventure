@@ -5,7 +5,7 @@ class HUD;
 class Camera;
 class PowerStar;
 class ProjectileManager;
-class EnemyManager;
+class ObjectManager;
 
 class Game final
 {
@@ -29,17 +29,27 @@ public:
 
 private:
 	// DATA MEMBERS
+	int m_CurrentLevel;
+	bool m_LegacyMode;
+
 	const Window m_Window;
 	Kirby* m_pKirby;
 	Level* m_pCurrentLevel;
 	HUD* m_pHUD;
 	Camera* m_pCamera;
 	ProjectileManager* m_pProjectileManager;
-	EnemyManager* m_pEnemyManager;
-	PowerStar* m_pTestStar;
+	ObjectManager* m_pObjectManager;
+
+	std::vector<Level*> m_pLevels;
 
 	// FUNCTIONS
 	void Initialize( );
 	void Cleanup( );
 	void ClearBackground( ) const;
+	void InitializeLevels();
+	void LoadLevel(std::string levelName);
+
+	void DrawLevelLegacy() const;
+	void DrawLevelParallax() const;
+	void DrawGeneral() const;
 };

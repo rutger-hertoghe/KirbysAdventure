@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   version="1.1"
+   id="svg3645"
+   width="248"
+   height="359"
+   viewBox="0 0 248 359"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs3649" />
+  <g
+     id="g3651">
+    <image
+       width="248"
+       height="359"
+       preserveAspectRatio="none"
+       xlink:href="Part4_Platforms.png"
+       id="image3653" />
+    <path
+       style="fill:#000000"
+       d="m -0.5,111.53242 h 113 z"
+       id="path3894" />
+    <path
+       style="fill:#000000"
+       d="m 111.5,159.59291 h 33 z"
+       id="path3892" />
+    <path
+       style="fill:#000000"
+       d="m 143.5,207.53467 h 105 z"
+       id="path3890" />
+    <path
+       style="fill:#000000"
+       d="m 95.5,255.59291 h 33 z"
+       id="path3655" />
+  </g>
+</svg>

@@ -1,10 +1,12 @@
 #pragma once
 #include "PowerUp.h"
 
+class ProjectileManager;
+
 class FirePower final : public PowerUp
 {
 public:
-	FirePower();
+	explicit FirePower(ProjectileManager* pProjectileManager);
 
 	virtual void OnKeyDownEvent(const Rectf& shape, float xDirection) override;
 	virtual void ContinuousKeyEvent(const Rectf& shape, float xDirection) override;
@@ -15,15 +17,14 @@ public:
 	virtual std::string GetPowerSuffix() const;
 
 private:
-	Rectf m_Rect;
 	const float m_TimeBetweenSpawns;
 	float m_TimeSinceSpawn;
 
 	int m_YDirection;
+	int m_AngleDifference;
 
 	bool m_CanSpawn;
 
-	int m_AngleDifference;
 	void ChangeFireAngle();
 	
 };

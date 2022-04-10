@@ -6,6 +6,8 @@
 #include <iostream>
 #include "utils.h"
 #include "Actor.h"
+#include "ObjectManager.h"
+#include "Enemy.h"
 
 ProjectileManager::ProjectileManager()
 {
@@ -37,7 +39,6 @@ void ProjectileManager::Draw() const
 
 void ProjectileManager::Update(float elapsedSec)
 {
-
 	int idx{};
 	if (m_pProjectiles.size() > 0)
 	{
@@ -68,16 +69,17 @@ void ProjectileManager::Add(Projectile* projectile)
 	m_pProjectiles[lastIdx]->SetSprite(m_pSprites[typeInt]);
 }
 
-bool ProjectileManager::ProjectileHasHit(Actor* pActor)
+bool ProjectileManager::ProjectileHasHit(Actor* pActor, Projectile::ActorType hitActorType, float& direction)
 {
 	for (Projectile* pProjectile : m_pProjectiles)
 	{
-		if (HasCollided(pActor, pProjectile))
+		if (HasCollided(pActor, pProjectile) && pProjectile->GetOwner() != hitActorType)
 		{
 			if (pProjectile->IsPersistent() == false)
 			{
 				pProjectile->SetReadyToDestroy();
 			}
+			direction = pProjectile->GetDirection();
 			return true;
 		}
 	}
@@ -86,9 +88,10 @@ bool ProjectileManager::ProjectileHasHit(Actor* pActor)
 
 void ProjectileManager::InitializeSprites()
 {
-	m_pSprites.push_back(new Sprite{ 4, 0.2f, "resources/sprites/fire.png" });
-	m_pSprites.push_back(new Sprite{ 4, 0.2f, "resources/sprites/star.png" });
-	m_pSprites.push_back(new Sprite{ 1, 0.f, "resources/sprites/puff.png" });
+	m_pSprites.push_back(new Sprite{ 4, 0.2f, "fire" });
+	m_pSprites.push_back(new Sprite{ 4, 0.2f, "star" });
+	m_pSprites.push_back(new Sprite{ 1, 0.f, "puff" });
+	m_pSprites.push_back(new Sprite{ 3, 0.2f, "spark" });
 }
 
 bool ProjectileManager::HasCollided(const Actor* pActor, const Projectile* pProjectile)
@@ -97,13 +100,13 @@ bool ProjectileManager::HasCollided(const Actor* pActor, const Projectile* pProj
 
 	std::vector<Point2f> actorVertices{};
 
-	const Rectf& actorRect{ pActor->GetRect()};
+	const Rectf& actorRect{ pActor->GetShape()};
 	actorVertices.push_back(Point2f{ actorRect.left, actorRect.bottom });
 	actorVertices.push_back(Point2f{ actorRect.left + actorRect.width, actorRect.bottom });
 	actorVertices.push_back(Point2f{ actorRect.left + actorRect.width, actorRect.bottom + actorRect.height });
 	actorVertices.push_back(Point2f{ actorRect.left, actorRect.bottom + actorRect.height });
 
-	const Rectf& projectileRect{ pProjectile->GetRect() };
+	const Rectf& projectileRect{ pProjectile->GetShape() };
 	Point2f projectileLeft{ projectileRect.left, projectileRect.bottom + projectileRect.height / 2 };
 	Point2f projectileRight{ projectileRect.left + projectileRect.width, projectileRect.bottom + projectileRect.height / 2 };
 

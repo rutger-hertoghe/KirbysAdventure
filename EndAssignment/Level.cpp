@@ -5,21 +5,33 @@
 #include "Kirby.h"
 #include "SoundStream.h"
 #include "SVGParser.h"
+#include <fstream>
 
-Level::Level(std::string texturePath, std::string musicPath)
-	: m_pBackground{ new Texture{ texturePath } }
+Level::Level(std::string levelName, std::string musicPath)
+	: m_Name{levelName}
 	, m_pLevelMusic{ new SoundStream{ musicPath } }
-	, m_StartLocation{100.f, 100.f}
+	, m_pForeground{ nullptr }
+	, m_StartLocation{24.f, 72.f}
 {
-	m_Boundaries = Rectf{ 0.f, 0.f, m_pBackground->GetWidth(), m_pBackground->GetHeight() };
-	InitializeVertices();
 	Initialize();
 }
 
 Level::~Level()
 {
+	delete m_pFullBackground;
+	m_pFullBackground = nullptr;
+
+	delete m_pForeground;
+	m_pForeground = nullptr;
+
+	delete m_pMidground;
+	m_pMidground = nullptr;
+	
 	delete m_pBackground;
 	m_pBackground = nullptr;
+	
+	delete m_pFarBackground;
+	m_pFarBackground = nullptr;
 
 	delete m_pLevelMusic;
 	m_pLevelMusic = nullptr;
@@ -27,62 +39,123 @@ Level::~Level()
 
 void Level::Initialize()
 {
-	m_pLevelMusic->Play(true);
+	// m_pLevelMusic->Play(true);
+	InitializeVertices();
+	InitializeTextures();
 }
 
-void Level::Draw() const
+void Level::InitializeVertices()
+{
+	std::string svgPath{ "resources/SVG/" };
+	std::string blockOutPath{ svgPath + m_Name + "_blockout.svg"};
+	std::string platformPath{ svgPath + m_Name + "_platforms.svg" };
+	SVGParser::GetVerticesFromSvgFile(platformPath, m_Platforms);
+	SVGParser::GetVerticesFromSvgFile(blockOutPath, m_Blockout);
+}
+
+void Level::InitializeTextures()
+{
+	std::string texturePath{ "resources/backgrounds/" };
+	texturePath.append(m_Name);
+
+	std::string fullBackgroundPath{ texturePath };
+	fullBackgroundPath.append("_full.png");
+	m_pFullBackground = new Texture{ fullBackgroundPath };
+
+	std::string foregroundPath{ texturePath};
+	foregroundPath.append("_foreground.png");
+	m_pForeground = new Texture{ foregroundPath };
+	
+	std::string midGroundPath{ texturePath};
+	midGroundPath.append("_midground.png");
+	m_pMidground = new Texture{ midGroundPath };
+
+	std::string backGroundPath{ texturePath };
+	backGroundPath.append("_background.png");
+	m_pBackground = new Texture{ backGroundPath };
+	
+	std::string farBackGroundPath{ texturePath };
+	farBackGroundPath.append("_farbackground.png");
+	m_pFarBackground = new Texture{ farBackGroundPath };
+
+	m_Boundaries = Rectf{ 0.f, 0.f, m_pFullBackground->GetWidth(), m_pFullBackground->GetHeight() };
+}
+
+void Level::DrawFull() const
+{
+	Rectf dstRect{ 0.f, 0.f, m_pFullBackground->GetWidth(), m_pFullBackground->GetHeight() };
+	m_pFullBackground->Draw(dstRect);
+}
+
+void Level::DrawForeGround() const
+{
+	Rectf dstRect{ 0.f, 0.f, m_pForeground->GetWidth(), m_pForeground->GetHeight() };
+	m_pForeground->Draw(dstRect);
+}
+
+void Level::DrawMidGround() const
+{
+	Rectf dstRect{ 0.f, 0.f, m_pMidground->GetWidth(), m_pForeground->GetHeight() };
+	m_pMidground->Draw(dstRect);
+}
+
+void Level::DrawBackGround() const
 {
 	Rectf dstRect{ 0.f, 0.f, m_pBackground->GetWidth(), m_pBackground->GetHeight() };
 	m_pBackground->Draw(dstRect);
 }
 
-void Level::HandleCollision(Rectf& actorShape, Vector2f& actorVelocity) const
+void Level::DrawFarBackGround() const
 {
-	Point2f rayStart{ actorShape.left + actorShape.width / 2, actorShape.bottom + actorShape.height / 4 };
-	Point2f rayEnd{ actorShape.left + actorShape.width / 2, actorShape.bottom - 1.f };
-
-	Point2f horizontalRayStart{ actorShape.left, actorShape.bottom + actorShape.height / 2 };
-	Point2f horizontalRayEnd{ actorShape.left + actorShape.width, actorShape.bottom + actorShape.height / 2 };
-
-	utils::HitInfo hitInfo{};
-	for (std::vector<Point2f> platform : m_WalkablePlatforms) {
-		// Vertical collision
-		if (actorVelocity.y < 0.f
-			&& utils::Raycast(platform, rayStart, rayEnd, hitInfo))
-		{
-			actorShape.bottom = hitInfo.intersectPoint.y;
-			actorVelocity.y = 0;
-		}
-
-		// Horizontal collision
-		if (utils::Raycast(platform, horizontalRayStart, horizontalRayEnd, hitInfo))
-		{
-			
-			actorShape.left = hitInfo.intersectPoint.x + (hitInfo.lambda > 0.5f ? - actorShape.width : 0.f);
-			actorVelocity.x = 0;
-		}
-	}
+	Rectf dstRect{ 0.f, 0.f, m_pFarBackground->GetWidth(), m_pFarBackground->GetHeight() };
+	m_pFarBackground->Draw(dstRect);
 }
 
-void Level::InitializeVertices()
+void Level::HandleCollision(Rectf& actorShape, Vector2f& actorVelocity) const
 {
-	SVGParser::GetVerticesFromSvgFile("resources/SVG/part1.svg", m_WalkablePlatforms);
+	DoVerticalCollisions(actorShape, actorVelocity);
+	DoHorizontalCollisions(actorShape, actorVelocity);
 }
 
 bool Level::IsOnGround(const Rectf& actorShape) const
 {
-	Point2f rayStart{ actorShape.left + actorShape.width / 2, actorShape.bottom + actorShape.height / 4 };
-	Point2f rayEnd{ actorShape.left + actorShape.width / 2, actorShape.bottom - 1.f};
+	float pixelReduction{ 1.f };
+	Point2f leftRayStart{ actorShape.left + pixelReduction, actorShape.bottom + actorShape.height / 4 };
+	Point2f leftRayEnd{ actorShape.left + pixelReduction, actorShape.bottom};
+
+	Point2f rightRayStart{ actorShape.left + actorShape.width - pixelReduction, actorShape.bottom + actorShape.height / 4 };
+	Point2f rightRayEnd{ actorShape.left + actorShape.width - pixelReduction, actorShape.bottom - 1.f}; // -1.f extends ray by one pixel to set on ground because collision sets it one pixel above
 
 	utils::HitInfo hitInfo{};
-	for (const std::vector<Point2f>& platform : m_WalkablePlatforms)
+	for (const std::vector<Point2f>& platform : m_Blockout)
 	{
-		if (utils::Raycast(platform, rayStart, rayEnd, hitInfo))
+		if (utils::Raycast(platform, leftRayStart, leftRayEnd, hitInfo))
+		{
+			return true;
+		}
+		else if (utils::Raycast(platform, rightRayStart, rightRayEnd, hitInfo))
+		{
+			return true;
+		}
+	}
+
+	for (const std::vector<Point2f>& platform : m_Platforms)
+	{
+		if (utils::Raycast(platform, leftRayStart, leftRayEnd, hitInfo))
+		{
+			return true;
+		}
+		else if (utils::Raycast(platform, rightRayStart, rightRayEnd, hitInfo))
 		{
 			return true;
 		}
 	}
 	return false;
+}
+
+std::string Level::GetName() const
+{
+	return m_Name;
 }
 
 Rectf Level::GetBoundaries() const
@@ -93,5 +166,74 @@ Rectf Level::GetBoundaries() const
 Point2f Level::GetStartLocation() const
 {
 	return m_StartLocation;
+}
+
+void Level::DoVerticalCollisions(Rectf& actorShape, Vector2f& actorVelocity) const
+{
+	float pixelReduction{ 1.f };
+	Point2f leftRayStart{ actorShape.left + pixelReduction, actorShape.bottom + actorShape.height / 4 };
+	Point2f leftRayEnd{ actorShape.left + pixelReduction, actorShape.bottom };
+
+	Point2f rightRayStart{ actorShape.left + actorShape.width - pixelReduction, actorShape.bottom + actorShape.height / 4 };
+	Point2f rightRayEnd{ actorShape.left + actorShape.width - pixelReduction, actorShape.bottom}; // -1.f extends ray by one pixel to set on ground because collision sets it one pixel above
+
+	utils::HitInfo hitInfo{};
+	if (actorVelocity.y < 0.f) // Skip over this code if actor is not going downwards
+	{
+		for (std::vector<Point2f> platform : m_Platforms) {
+			if (utils::Raycast(platform, leftRayStart, leftRayEnd, hitInfo))
+			{
+				actorShape.bottom = hitInfo.intersectPoint.y;
+				actorVelocity.y = 0;
+				return;
+			}
+			else if (actorVelocity.y < 0.f
+				&& utils::Raycast(platform, rightRayStart, rightRayEnd, hitInfo))
+			{
+				actorShape.bottom = hitInfo.intersectPoint.y;
+				actorVelocity.y = 0;
+				return;
+			}
+		}
+	}
+
+	// Use full raycast line to also check ceiling collisions
+	leftRayStart.y = actorShape.bottom + actorShape.height + pixelReduction;
+	rightRayStart.y = actorShape.bottom + actorShape.height - pixelReduction;
+
+	for (std::vector<Point2f> platform : m_Blockout) 
+	{
+		if (utils::Raycast(platform, leftRayStart, leftRayEnd, hitInfo))
+		{
+			actorShape.bottom = hitInfo.intersectPoint.y + (hitInfo.lambda < 0.5f ? -actorShape.height  - 1.f: 0.f);
+			actorVelocity.y = 0;
+			return;
+		}
+		else if (utils::Raycast(platform, rightRayStart, rightRayEnd, hitInfo))
+		{
+			actorShape.bottom = hitInfo.intersectPoint.y + (hitInfo.lambda < 0.5f ? -actorShape.height - 1.f : 0.f);
+			actorVelocity.y = 0;
+			return;
+		}
+	}
+}
+
+void Level::DoHorizontalCollisions(Rectf& actorShape, Vector2f& actorVelocity) const
+{
+	Point2f horizontalRayStart{ actorShape.left, actorShape.bottom + actorShape.height / 2 };
+	Point2f horizontalRayEnd{ actorShape.left + actorShape.width, actorShape.bottom + actorShape.height / 2 };
+
+	utils::HitInfo hitInfo{};
+
+	for (std::vector<Point2f> platform : m_Blockout)
+	{
+		if (utils::Raycast(platform, horizontalRayStart, horizontalRayEnd, hitInfo))
+		{
+
+			actorShape.left = hitInfo.intersectPoint.x + (hitInfo.lambda > 0.5f ? -actorShape.width : 0.f);
+			actorVelocity.x = 0;
+			return;
+		}
+	}
 }
 

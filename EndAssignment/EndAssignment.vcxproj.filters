@@ -132,14 +132,26 @@
     <ClCompile Include="ProjectileManager.cpp">
       <Filter>Game Files\Managers</Filter>
     </ClCompile>
-    <ClCompile Include="EnemyManager.cpp">
-      <Filter>Game Files\Managers</Filter>
-    </ClCompile>
-    <ClCompile Include="ItemManager.cpp">
+    <ClCompile Include="ObjectManager.cpp">
       <Filter>Game Files\Managers</Filter>
     </ClCompile>
     <ClCompile Include="Item.cpp">
       <Filter>Game Files\GameObjects\Actors\Items</Filter>
+    </ClCompile>
+    <ClCompile Include="KirbyStateHandler.cpp">
+      <Filter>Game Files\GameObjects\Actors</Filter>
+    </ClCompile>
+    <ClCompile Include="HotHead.cpp">
+      <Filter>Game Files\GameObjects\Actors\Enemies</Filter>
+    </ClCompile>
+    <ClCompile Include="BrontoBurt.cpp">
+      <Filter>Game Files\GameObjects\Actors\Enemies</Filter>
+    </ClCompile>
+    <ClCompile Include="Spark.cpp">
+      <Filter>Game Files\GameObjects\Projectiles</Filter>
+    </ClCompile>
+    <ClCompile Include="Sparky.cpp">
+      <Filter>Game Files\GameObjects\Actors\Enemies</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -236,14 +248,26 @@
     <ClInclude Include="ProjectileManager.h">
       <Filter>Game Files\Managers</Filter>
     </ClInclude>
-    <ClInclude Include="EnemyManager.h">
-      <Filter>Game Files\Managers</Filter>
-    </ClInclude>
-    <ClInclude Include="ItemManager.h">
+    <ClInclude Include="ObjectManager.h">
       <Filter>Game Files\Managers</Filter>
     </ClInclude>
     <ClInclude Include="Item.h">
       <Filter>Game Files\GameObjects\Actors\Items</Filter>
+    </ClInclude>
+    <ClInclude Include="KirbyStateHandler.h">
+      <Filter>Game Files\GameObjects\Actors</Filter>
+    </ClInclude>
+    <ClInclude Include="HotHead.h">
+      <Filter>Game Files\GameObjects\Actors\Enemies</Filter>
+    </ClInclude>
+    <ClInclude Include="BrontoBurt.h">
+      <Filter>Game Files\GameObjects\Actors\Enemies</Filter>
+    </ClInclude>
+    <ClInclude Include="Spark.h">
+      <Filter>Game Files\GameObjects\Projectiles</Filter>
+    </ClInclude>
+    <ClInclude Include="Sparky.h">
+      <Filter>Game Files\GameObjects\Actors\Enemies</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

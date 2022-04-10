@@ -2,7 +2,7 @@
 #include "Star.h"
 
 Star::Star(Rectf starRect, float xDirection)
-	: Projectile{ ProjectileType::star, starRect, Vector2f{xDirection * 220.f, 0.f} }
+	: Projectile{Projectile::ActorType::kirby, ProjectileType::star, starRect, Vector2f{xDirection * 220.f, 0.f} }
 	, m_LifeTime{0.f}
 	, m_MaxTime{2.0f}
 {

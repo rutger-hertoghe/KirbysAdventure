@@ -7,22 +7,47 @@ public:
 	explicit Enemy(const Point2f& location);
 	Enemy(const Enemy& other) = delete;
 	Enemy& operator=(const Enemy& other) = delete;
-	virtual ~Enemy() override = default; 
+	Enemy(Enemy&& other) = delete;
+	Enemy& operator=(Enemy&& other) = delete;
+	virtual ~Enemy() override; 
 
-	virtual void Update(float elapsedSec);
-	bool CheckCollision(const Rectf& kirbyRect);
+	virtual void Update(float elapsedSec) = 0;
+	bool CheckCollisionWithKirby(const Rectf& kirbyRect);
 	
 	bool IsActive() const;
-	void Reset();
+	virtual void Reset();
 	void SetActivity(bool active);
-	bool HasBeenOffScreen();
+	bool HasBeenOffScreen() const;
 	void SetOffScreen(bool offscreen, float direction = 1.f);
+	virtual void InitializePowerUp();
+	virtual void DoAbilityCheck(Kirby* kirbyPtr);
 
 protected:
-	bool m_IsActive;
+	enum class ActionState
+	{
+		dormant,
+		moving,
+		power_start,
+		power_continuous,
+		power_end,
+		dying
+	};
+
+	bool m_CanJump;
+	// bool m_IsActive;
 	bool m_HasBeenOffScreen;
 	Point2f m_StartLocation;
 
+	ActionState m_ActionState;
+
 	void CorrectVelocities();
+
+	virtual void InitializeSprites() = 0;
+	void DeleteSprites();
+
+	void StandardUpdateSequence(float elapsedSec);
+	void Jump(float jumpStrength);
+
+	float GetSquaredDistanceToActor(Actor* actor);
 };
 

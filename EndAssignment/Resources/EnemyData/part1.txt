@@ -1,0 +1,11 @@
+brontoburt, 272, 88
+waddledee, 320, 24
+brontoburt, 408, 104
+brontoburt, 600, 120
+hothead, 696, 88
+brontoburt, 696, 72
+brontoburt, 888, 88
+waddledee, 944, 56
+waddledee, 1000, 88
+brontoburt, 1192, 48
+sparky, 904, 24

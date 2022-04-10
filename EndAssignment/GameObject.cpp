@@ -57,7 +57,13 @@ void GameObject::UpdateSprite(float elapsedSec)
 	else m_HasLooped = false;
 }
 
-Rectf GameObject::GetRect() const
+Rectf GameObject::GetShape() const
 {
 	return m_Shape;
 }
+
+float GameObject::GetDirection() const
+{
+	return m_XDirection;
+}
+

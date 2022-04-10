@@ -5,7 +5,7 @@
 class Fireball final : public Projectile
 {
 public:
-	explicit Fireball(Rectf fireballRect, Vector2f directionVector);
+	explicit Fireball(ActorType owner, const Rectf& fireballRect, const Vector2f& directionVector);
 
 	virtual void Update(float elapsedSec) override;
 

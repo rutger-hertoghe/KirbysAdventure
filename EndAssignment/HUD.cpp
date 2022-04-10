@@ -17,12 +17,12 @@ HUD::HUD()
 
 	int nrFrames{ 1 };
 	float animationSpeed{ 0.f };
-	Sprite* spritePtr{ new Sprite{ nrFrames, animationSpeed, "resources/ui/hud_health_lost.png" } };
+	Sprite* spritePtr{ new Sprite{ nrFrames, animationSpeed, "hud_health_lost" } };
 	m_pHealthLost = new HudElement{ spritePtr };
 
 	nrFrames = 2;
 	animationSpeed = 0.5f;
-	spritePtr = new Sprite{ nrFrames, animationSpeed, "resources/ui/hud_health.png" };
+	spritePtr = new Sprite{ nrFrames, animationSpeed, "hud_health" };
 	m_pHealth = new HudElement{ spritePtr };
 
 	nrFrames = 4;
@@ -62,36 +62,35 @@ void HUD::Draw(Kirby* kirbyPtr) const
 	DrawHealth(kirbyPtr);
 }
 
-void HUD::DrawPowerPanel(Kirby* kirbyPtr) const
+void HUD::DrawPowerPanel(Kirby* pKirby) const
 {
 	const float panelWidth{ 32.f };
 	const float panelHeight{ 40.f };
 	const int panelsPerRow{ int(m_pPowerTextures->GetWidth() / panelWidth) };
 
 	const Point2f hudLocation{ 144.f, 16.f };
-	const Rectf powerUpPanel{ hudLocation.x, hudLocation.y, panelWidth, panelHeight };
+	const Rectf panelRect{ hudLocation.x, hudLocation.y, panelWidth, panelHeight };
 
-	PowerUp* power{ kirbyPtr->GetPowerUp() };
+	PowerUp* power{ pKirby->GetPowerUp() };
+	int panel{ 0 };
 
-	if (power)
+	if (power && pKirby->IsBloated() == false)
 	{
-		const int panel{ power->GetPowerPanelSlot() };
-		const int panelCol{ panel % panelsPerRow};
-		const int panelRow{ panel / panelsPerRow + 1};
-		Rectf srcRect{ 
-			panel * panelWidth, 
-			m_pPowerTextures->GetHeight() - panelRow * panelHeight, 
-			panelWidth, 
-			panelHeight 
-		};
-		m_pPowerTextures->Draw(powerUpPanel, srcRect);
+		panel = power->GetPowerPanelSlot();
 	}
-	else
+	else if (pKirby->IsInvulnerable())
 	{
-		Rectf srcRect{ 0.f, 40.f, 32.f, 40.f };
-		m_pPowerTextures->Draw(powerUpPanel, srcRect);
+		panel = 10;
 	}
-	
+	const int panelCol{ panel % panelsPerRow };
+	const int panelRow{ panel / panelsPerRow + 1 };
+	Rectf srcRect{
+			panel * panelWidth,
+			m_pPowerTextures->GetHeight() - panelRow * panelHeight,
+			panelWidth,
+			panelHeight
+	};
+	m_pPowerTextures->Draw(panelRect, srcRect);
 }
 
 void HUD::DrawHealth(Kirby* kirbyPtr) const

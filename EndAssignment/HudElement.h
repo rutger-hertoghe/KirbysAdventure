@@ -8,6 +8,8 @@ public:
 	explicit HudElement(Sprite* pSprite);
 	HudElement(const HudElement& other) = delete;
 	HudElement& operator=(const HudElement& other) = delete;
+	HudElement(HudElement&& other) = delete;
+	HudElement& operator=(HudElement&& other) = delete;
 	~HudElement();
 
 	void Update(float elapsedSec);

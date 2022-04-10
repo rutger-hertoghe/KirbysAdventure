@@ -153,19 +153,21 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp" />
+    <ClCompile Include="BrontoBurt.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Core.cpp" />
     <ClCompile Include="Enemy.cpp" />
-    <ClCompile Include="EnemyManager.cpp" />
+    <ClCompile Include="ObjectManager.cpp" />
     <ClCompile Include="Fireball.cpp" />
     <ClCompile Include="FirePower.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameObject.cpp" />
+    <ClCompile Include="HotHead.cpp" />
     <ClCompile Include="HUD.cpp" />
     <ClCompile Include="HudElement.cpp" />
     <ClCompile Include="Item.cpp" />
-    <ClCompile Include="ItemManager.cpp" />
     <ClCompile Include="Kirby.cpp" />
+    <ClCompile Include="KirbyStateHandler.cpp" />
     <ClCompile Include="Level.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Matrix2x3.cpp" />
@@ -183,7 +185,9 @@
     <ClCompile Include="Puff.cpp" />
     <ClCompile Include="SoundEffect.cpp" />
     <ClCompile Include="SoundStream.cpp" />
+    <ClCompile Include="Spark.cpp" />
     <ClCompile Include="SparkPower.cpp" />
+    <ClCompile Include="Sparky.cpp" />
     <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="Star.cpp" />
     <ClCompile Include="structs.cpp" />
@@ -195,19 +199,21 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h" />
+    <ClInclude Include="BrontoBurt.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Core.h" />
     <ClInclude Include="Enemy.h" />
-    <ClInclude Include="EnemyManager.h" />
+    <ClInclude Include="ObjectManager.h" />
     <ClInclude Include="Fireball.h" />
     <ClInclude Include="FirePower.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameObject.h" />
+    <ClInclude Include="HotHead.h" />
     <ClInclude Include="HUD.h" />
     <ClInclude Include="HudElement.h" />
     <ClInclude Include="Item.h" />
-    <ClInclude Include="ItemManager.h" />
     <ClInclude Include="Kirby.h" />
+    <ClInclude Include="KirbyStateHandler.h" />
     <ClInclude Include="Level.h" />
     <ClInclude Include="Matrix2x3.h" />
     <ClInclude Include="pch.h" />
@@ -219,7 +225,9 @@
     <ClInclude Include="Puff.h" />
     <ClInclude Include="SoundEffect.h" />
     <ClInclude Include="SoundStream.h" />
+    <ClInclude Include="Spark.h" />
     <ClInclude Include="SparkPower.h" />
+    <ClInclude Include="Sparky.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="Star.h" />
     <ClInclude Include="structs.h" />

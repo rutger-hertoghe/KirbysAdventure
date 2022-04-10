@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   version="1.1"
+   id="svg9"
+   width="1272"
+   height="168"
+   viewBox="0 0 1272 168"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs13" />
+  <g
+     id="g15">
+    <image
+       width="1272"
+       height="168"
+       preserveAspectRatio="none"
+       xlink:href="Part1_Platforms.png"
+       id="image17" />
+    <path
+       style="fill:#000000"
+       d="m 975.5,80.567619 h 49 z"
+       id="path432" />
+    <path
+       style="fill:#000000"
+       d="m 671.5,80.567619 h 49 z"
+       id="path430" />
+    <path
+       style="fill:#000000"
+       d="m 271.5,80.592969 h 33 z"
+       id="path428" />
+    <path
+       style="fill:#000000"
+       d="m 767.5,96.592969 h 33 z"
+       id="path426" />
+    <path
+       style="fill:#000000"
+       d="m 943.5,112.65065 h 17 z"
+       id="path424" />
+    <path
+       style="fill:#000000"
+       d="m 639.5,112.65065 h 17 z"
+       id="path422" />
+    <path
+       style="fill:#000000"
+       d="m 383.5,128.55319 h 65 z"
+       id="path420" />
+    <path
+       style="fill:#000000"
+       d="m 1055.5,144.51829 h 209 z"
+       id="path418" />
+    <path
+       style="fill:#000000"
+       d="m 831.5,144.53729 h 97 z"
+       id="path416" />
+    <path
+       style="fill:#000000"
+       d="m 543.5,144.55319 h 65 z"
+       id="path414" />
+    <path
+       style="fill:#000000"
+       d="m 479.5,144.59299 h 33 z"
+       id="path412" />
+    <path
+       style="fill:#000000"
+       d="m 287.5,144.56759 h 49 z"
+       id="path410" />
+    <path
+       style="fill:#000000"
+       d="m 15.5,144.51699 h 225 z"
+       id="path99" />
+  </g>
+</svg>
