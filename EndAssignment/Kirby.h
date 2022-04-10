@@ -86,6 +86,7 @@ public:
 	void SetState(const ActionState& state);
 	void SetMacroState(const MacroState& macroState);
 
+	bool CheckCollisionWith(Actor* pActor);
 private:
 	// Primitives
 	const float m_MaxHorSpeed;

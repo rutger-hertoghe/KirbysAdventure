@@ -46,7 +46,7 @@ void BrontoBurt::Update(float elapsedSec)
 
 void BrontoBurt::DoAbilityCheck(Kirby* pKirby)
 {
-	const float kirbyY{ pKirby->GetShape().bottom + pKirby->GetShape().height / 2};
+	const float kirbyY{ pKirby->GetShape().bottom + pKirby->GetShape().height};
 
 	if (kirbyY < m_TargetY || kirbyY > m_Apex)
 	{

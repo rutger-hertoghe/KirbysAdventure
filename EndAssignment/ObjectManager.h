@@ -10,7 +10,7 @@ class Item;
 class ObjectManager final
 {
 public:
-	explicit ObjectManager(ProjectileManager* pProjectileManager);
+	explicit ObjectManager();
 	ObjectManager(const ObjectManager& other) = delete;
 	ObjectManager& operator=(const ObjectManager& other) = delete;
 	ObjectManager(ObjectManager&& other) = delete;
@@ -19,7 +19,8 @@ public:
 
 	void Draw() const;
 	void Update(float elapsedSec, const Point2f& cameraLocation);
-	void SetKirbyPtr(Kirby* kirbyPtr);
+	void LinkKirby(Kirby* kirbyPtr);
+
 	void SetLevelPointers(Level* levelPtr);
 	void SupplyViewportDimensions(const Point2f& viewDimensions);
 	std::vector<Enemy*>& GetEnemyVector();
@@ -48,8 +49,6 @@ private:
 
 	void LoadEnemiesFromFile(const std::string& filePath);
 	void CreateEnemy(const std::string& enemyName, const Point2f& location);
-
-	void InitializeItems();
 
 	void SetEnemyProjectileManagerPointers();
 };
