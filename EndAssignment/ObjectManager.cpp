@@ -14,17 +14,18 @@
 #include "Item.h"
 #include "PowerStar.h"
 
-ObjectManager::ObjectManager(ProjectileManager* pProjectileManager)
+ObjectManager::ObjectManager()
 	: m_pKirby{ nullptr }
-	, m_pProjectileManager{ pProjectileManager }
+	, m_pProjectileManager{ new ProjectileManager{} }
 {
-	InitializeItems();
 }
 
 ObjectManager::~ObjectManager()
 {
 	DeleteEnemies();
 	DeleteItems();
+
+	delete m_pProjectileManager;
 }
 
 void ObjectManager::Draw() const
@@ -37,13 +38,21 @@ void ObjectManager::Draw() const
 
 	for (Item* pItem : m_pItems)
 	{
-		pItem->Draw();
+		if (pItem->IsRemoved() == false)
+		{
+			pItem->Draw();
+		}
 	}
+
+	m_pProjectileManager->Draw();
 }
 
 void ObjectManager::Update(float elapsedSec, const Point2f& cameraLocation)
 {
 	m_ViewLocation = cameraLocation;
+
+	m_pProjectileManager->Update(elapsedSec);
+
 	for (Enemy*& pEnemy : m_pEnemies)
 	{
 		if (pEnemy)
@@ -51,6 +60,7 @@ void ObjectManager::Update(float elapsedSec, const Point2f& cameraLocation)
 			UpdateEnemy(pEnemy, elapsedSec);
 		}
 	}
+
 	for (Item*& pItem : m_pItems)
 	{
 		if (pItem)
@@ -69,9 +79,10 @@ void ObjectManager::SetEnemyProjectileManagerPointers()
 	}
 }
 
-void ObjectManager::SetKirbyPtr(Kirby* kirbyPtr)
+void ObjectManager::LinkKirby(Kirby* kirbyPtr)
 {
 	m_pKirby = kirbyPtr;
+	m_pKirby->SetProjectileManager(m_pProjectileManager);
 }
 
 void ObjectManager::SetLevelPointers(Level* levelPtr)
@@ -90,7 +101,7 @@ void ObjectManager::SetLevelPointers(Level* levelPtr)
 void ObjectManager::CheckEnemyRemovalConditions(Enemy*& pEnemy)
 {
 	// CONDITIONS AND VARIABLES
-	const bool hasCollidedWithKirby{ pEnemy->CheckCollisionWithKirby(m_pKirby->GetShape()) };
+	const bool hasCollidedWithKirby{ pEnemy->IsActive() && m_pKirby->CheckCollisionWith(pEnemy)};
 	const bool outsideExtendedViewingArea
 	{
 		abs(pEnemy->GetShape().left - m_ViewLocation.x) > (m_ViewSize.x * 2 / 3)
@@ -167,6 +178,52 @@ void ObjectManager::UpdateEnemy(Enemy*& pEnemy, float elapsedSec)
 
 void ObjectManager::UpdateItem(Item*& pItem, float elapsedSec)
 {
+	// If the item is gone, the game should no longer update the item
+	if (pItem->IsRemoved())
+	{
+		return;
+	}
+
+	const bool hasCollidedWithKirby{ m_pKirby->CheckCollisionWith(pItem)};
+	const bool outsideExtendedViewingArea
+	{
+		abs(pItem->GetShape().left - m_ViewLocation.x) > (m_ViewSize.x * 2 / 3)
+		|| abs(pItem->GetShape().bottom - m_ViewLocation.y) > (m_ViewSize.y * 2 / 3)
+	};
+	const bool fellOutOfWorld{ pItem->GetShape().bottom < -50.f };
+	const bool hasPassedKirby{ m_pKirby->GetDirection() > 0.f ? m_pKirby->GetShape().left > pItem->GetShape().left : m_pKirby->GetShape().left < pItem->GetShape().left };
+
+	if (hasCollidedWithKirby && pItem->HasCollisionEvent())
+	{
+		pItem->DoCollisionEvent();
+		pItem->Remove();
+	}
+	else if( fellOutOfWorld || (outsideExtendedViewingArea && pItem->IsPersistent() == false))
+	{
+		pItem->Remove();
+	}
+
+	if (pItem->IsInhalable())
+	{
+		pItem->ToggleBeingInhaled(m_pKirby->GetInhalationZone());
+	}
+	
+	if (pItem->IsBeingInhaled())
+	{
+		if (hasPassedKirby)
+		{
+			if (pItem->IsBloatItem())
+			{
+				m_pKirby->SetBloated();
+			}
+			if (pItem->HasPowerUp())
+			{
+				pItem->TransferPowerUp(m_pKirby);
+			}
+			pItem->Remove();
+		}
+		pItem->SetInhalationVelocities(m_pKirby->GetShape());
+	}
 	pItem->Update(elapsedSec);
 }
 
@@ -269,9 +326,4 @@ void ObjectManager::CreateEnemy(const std::string& enemyName, const Point2f& loc
 	{
 		m_pEnemies.push_back(new Sparky{ location });
 	}
-}
-
-void ObjectManager::InitializeItems()
-{
-
 }

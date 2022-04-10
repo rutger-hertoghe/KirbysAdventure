@@ -12,7 +12,6 @@ public:
 	virtual ~Enemy() override; 
 
 	virtual void Update(float elapsedSec) = 0;
-	bool CheckCollisionWithKirby(const Rectf& kirbyRect);
 	
 	bool IsActive() const;
 	virtual void Reset();
@@ -23,6 +22,7 @@ public:
 	virtual void DoAbilityCheck(Kirby* kirbyPtr);
 
 protected:
+	// TODO: Clean states that are not even being used, clean class in general
 	enum class ActionState
 	{
 		dormant,

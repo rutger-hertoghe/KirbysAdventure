@@ -569,6 +569,40 @@ void Kirby::SetMacroState(const MacroState& macroState)
 	m_MacroState = macroState;
 }
 
+bool Kirby::CheckCollisionWith(Actor* pActor)
+{
+	Rectf actorShape{ pActor->GetShape() };
+	std::vector<Point2f> vertices;
+	vertices.push_back(Point2f{ actorShape.left, actorShape.bottom });
+	vertices.push_back(Point2f{ actorShape.left, actorShape.bottom + actorShape.height});
+	vertices.push_back(Point2f{ actorShape.left + actorShape.width, actorShape.bottom + actorShape.height });
+	vertices.push_back(Point2f{ actorShape.left + actorShape.width, actorShape.bottom });
+
+	float height{ m_Shape.height };
+	if (m_MacroState == MacroState::ducking || m_MacroState == MacroState::sliding)
+	{
+		// Kirby should have a smaller collision box when ducking or sliding
+		height /= 2;
+	}
+
+	Point2f horizontalRayStart{m_Shape.left, m_Shape.bottom + height / 2};
+	Point2f horizontalRayEnd{ m_Shape.left + m_Shape.width, m_Shape.bottom + height / 2};
+	
+	Point2f verticalRayStart{m_Shape.left + m_Shape.width / 2, m_Shape.bottom};
+	Point2f verticalRayEnd{ m_Shape.left + m_Shape.width / 2, m_Shape.bottom + height };
+	utils::HitInfo hitInfo{};
+	
+	if (utils::Raycast(vertices, horizontalRayStart, horizontalRayEnd, hitInfo))
+	{
+		return true;
+	}
+	if (utils::Raycast(vertices, verticalRayStart, verticalRayEnd, hitInfo))
+	{
+		return true;
+	}
+	return false;
+}
+
 std::string Kirby::GetSpriteNameFromState(const ActionState& state) const
 {
 	std::string spriteName{"kirby_"};

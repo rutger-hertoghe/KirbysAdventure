@@ -37,7 +37,6 @@ private:
 	Level* m_pCurrentLevel;
 	HUD* m_pHUD;
 	Camera* m_pCamera;
-	ProjectileManager* m_pProjectileManager;
 	ObjectManager* m_pObjectManager;
 
 	std::vector<Level*> m_pLevels;

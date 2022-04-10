@@ -20,18 +20,6 @@ Enemy::~Enemy()
 	DeleteSprites();
 }
 
-bool Enemy::CheckCollisionWithKirby(const Rectf& kirbyRect)
-{
-	if (m_ActionState == ActionState::dormant) return false;
-
-	Point2f enemyCenter{ m_Shape.left + m_Shape.width / 2, m_Shape.bottom + m_Shape.height / 2 };
-	if (utils::IsPointInRect(enemyCenter, kirbyRect))
-	{
-		return true;
-	}
-	return false;
-}
-
 bool Enemy::IsActive() const
 {
 	return m_ActionState == ActionState::dormant ? false : true;

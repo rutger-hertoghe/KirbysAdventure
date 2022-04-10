@@ -34,18 +34,14 @@ void Game::Initialize( )
 	InitializeLevels();
 
 	m_pKirby = new Kirby{};
-	m_pProjectileManager = new ProjectileManager{};
 	m_pHUD = new HUD{};
-	m_pObjectManager = new ObjectManager{m_pProjectileManager};
+	m_pObjectManager = new ObjectManager{};
 	m_pCurrentLevel = m_pLevels[0];
 
 	m_pCamera = new Camera{ m_pKirby->GetLocation(), m_Window.width, m_Window.height, *m_pCurrentLevel, *m_pHUD };
 
-	m_pObjectManager->SetKirbyPtr(m_pKirby);
+	m_pObjectManager->LinkKirby(m_pKirby);
 	m_pObjectManager->SupplyViewportDimensions(m_pCamera->GetViewDimensions());
-
-	m_pKirby->SetCurrentLevel(m_pCurrentLevel);
-	m_pKirby->SetProjectileManager(m_pProjectileManager);
 
 	LoadLevel("part1");
 }
@@ -59,7 +55,6 @@ void Game::Cleanup( )
 	delete m_pHUD;
 	delete m_pCamera;
 	delete m_pKirby;
-	delete m_pProjectileManager;
 	delete m_pObjectManager;
 }
 
@@ -68,7 +63,6 @@ void Game::Update( float elapsedSec )
 	m_pHUD->Update(elapsedSec);
 	m_pKirby->Update(elapsedSec);
 	m_pCamera->Update(m_pKirby->GetLocation(), elapsedSec);
-	m_pProjectileManager->Update(elapsedSec);
 	m_pObjectManager->Update(elapsedSec, m_pCamera->GetLocation());
 }
 
@@ -208,10 +202,8 @@ void Game::DrawGeneral() const
 	glPushMatrix();
 	m_pCamera->Transform();
 	m_pKirby->Draw();
-	m_pProjectileManager->Draw();
 	m_pObjectManager->Draw();
 	glPopMatrix();
-
 
 	// UI AREA
 	glPushMatrix();

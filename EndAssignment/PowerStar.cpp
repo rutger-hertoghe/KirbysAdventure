@@ -3,6 +3,7 @@
 #include "Sprite.h"
 
 PowerStar::PowerStar(const Point2f& location)
+	: Item{false, true, false}
 {
 	SetLocation(location);
 	m_pCurrentSprite = new Sprite{ 4, 0.5f, "star" };
@@ -26,7 +27,7 @@ void PowerStar::Update(float elapsedSec)
 
 	SetIsOnGround();
 	UpdateSprite(elapsedSec);
-	ApplyVelocities(elapsedSec, m_Velocity.x, m_Velocity.y);
+	ApplyVelocities(elapsedSec, m_XDirection * m_Velocity.x, m_Velocity.y);
 	ApplyGravity(elapsedSec);
 	HandleLevelCollisions();
 }
