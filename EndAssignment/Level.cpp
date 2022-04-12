@@ -42,6 +42,7 @@ void Level::Initialize()
 	// m_pLevelMusic->Play(true);
 	InitializeVertices();
 	InitializeTextures();
+	LoadDoorsFromFile();
 }
 
 void Level::InitializeVertices()
@@ -168,6 +169,18 @@ Point2f Level::GetStartLocation() const
 	return m_StartLocation;
 }
 
+Door Level::GetDoorInfo(const Rectf& actorShape)
+{
+	for (Door door : m_Doors)
+	{
+		if (door.IsOnDoor(actorShape))
+		{
+			return door;
+		}
+	}
+	return Door{ "", Point2f{0, 0}, Point2f{0,0} };
+}
+
 void Level::DoVerticalCollisions(Rectf& actorShape, Vector2f& actorVelocity) const
 {
 	float pixelReduction{ 1.f };
@@ -198,7 +211,7 @@ void Level::DoVerticalCollisions(Rectf& actorShape, Vector2f& actorVelocity) con
 	}
 
 	// Use full raycast line to also check ceiling collisions
-	leftRayStart.y = actorShape.bottom + actorShape.height + pixelReduction;
+	leftRayStart.y = actorShape.bottom + actorShape.height - pixelReduction;
 	rightRayStart.y = actorShape.bottom + actorShape.height - pixelReduction;
 
 	for (std::vector<Point2f> platform : m_Blockout) 
@@ -234,6 +247,44 @@ void Level::DoHorizontalCollisions(Rectf& actorShape, Vector2f& actorVelocity) c
 			actorVelocity.x = 0;
 			return;
 		}
+	}
+}
+
+void Level::LoadDoorsFromFile()
+{
+	std::string path{ "resources/doordata/" + m_Name + ".txt" };
+	std::fstream file;
+	file.open(path, std::ios::in);
+
+	if (!file)
+	{
+		std::cout << "DOOR FILE NOT FOUND\n";
+	}
+
+	while (file.good())
+	{
+		std::string bufferString;
+		std::getline(file, bufferString, '\n');
+
+		int firstComma{ int(bufferString.find(',')) };
+		std::string levelName{ bufferString.substr(0, firstComma) };
+
+		int indexAfter{ firstComma + 1 };
+		int secondComma{ int(bufferString.find(',', indexAfter)) };
+		float xLocation{ std::stof(bufferString.substr(indexAfter, secondComma)) };
+
+		indexAfter = secondComma + 1;
+		int thirdComma{ int(bufferString.find(',', indexAfter)) };
+		float yLocation{ std::stof(bufferString.substr(indexAfter, thirdComma)) };
+
+		indexAfter = thirdComma + 1;
+		int fourthComma{ int(bufferString.find(',', indexAfter)) };
+		float xExit{ std::stof(bufferString.substr(indexAfter, fourthComma)) };
+
+		indexAfter = fourthComma + 1;
+		int endPos{ int(bufferString.size()) };
+		float yExit{ std::stof(bufferString.substr(indexAfter, endPos)) };
+		m_Doors.push_back(Door{ levelName, Point2f{ xLocation, yLocation }, Point2f{ xExit, yExit } });
 	}
 }
 

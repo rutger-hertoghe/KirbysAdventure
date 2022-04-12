@@ -153,6 +153,12 @@
     <ClCompile Include="Sparky.cpp">
       <Filter>Game Files\GameObjects\Actors\Enemies</Filter>
     </ClCompile>
+    <ClCompile Include="Door.cpp">
+      <Filter>Game Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelManager.cpp">
+      <Filter>Game Files\Managers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -268,6 +274,12 @@
     </ClInclude>
     <ClInclude Include="Sparky.h">
       <Filter>Game Files\GameObjects\Actors\Enemies</Filter>
+    </ClInclude>
+    <ClInclude Include="Door.h">
+      <Filter>Game Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelManager.h">
+      <Filter>Game Files\Managers</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

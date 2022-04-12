@@ -101,11 +101,12 @@ void ObjectManager::SetLevelPointers(Level* levelPtr)
 void ObjectManager::CheckEnemyRemovalConditions(Enemy*& pEnemy)
 {
 	// CONDITIONS AND VARIABLES
+	const float viewExtension{ 32.f };
 	const bool hasCollidedWithKirby{ pEnemy->IsActive() && m_pKirby->CheckCollisionWith(pEnemy)};
 	const bool outsideExtendedViewingArea
 	{
-		abs(pEnemy->GetShape().left - m_ViewLocation.x) > (m_ViewSize.x * 2 / 3)
-		|| abs(pEnemy->GetShape().bottom - m_ViewLocation.y) > (m_ViewSize.y * 2 / 3)
+		abs(pEnemy->GetShape().left - m_ViewLocation.x) > ((m_ViewSize.x + viewExtension) / 2)
+		|| abs(pEnemy->GetShape().bottom - m_ViewLocation.y) > ((m_ViewSize.y + viewExtension) / 2)
 	};
 	const bool fellOutOfWorld{ pEnemy->GetShape().bottom < -50.f };
 	const bool hasPassedKirby{ m_pKirby->GetDirection() > 0.f ? m_pKirby->GetShape().left > pEnemy->GetShape().left : m_pKirby->GetShape().left < pEnemy->GetShape().left };

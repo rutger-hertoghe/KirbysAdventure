@@ -8,7 +8,7 @@
 Enemy::Enemy(const Point2f& location)
 	: Actor{}
 	, m_StartLocation{location}
-	, m_ActionState(ActionState::dormant)
+	, m_ActionState(ActionState::moving)
 	, m_HasBeenOffScreen{false}
 	, m_CanJump{false}
 {
@@ -96,6 +96,12 @@ void Enemy::StandardUpdateSequence(float elapsedSec)
 	ApplyGravity(elapsedSec);
 	HandleLevelCollisions();
 	SetIsOnGround();
+
+	if (m_Velocity.x == 0.f)
+	{
+		m_XDirection *= -1.f;
+		m_Velocity.x = m_BaseVelocity.x;
+	}
 }
 
 void Enemy::Jump(float jumpStrength)

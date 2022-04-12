@@ -4,19 +4,19 @@
 #include "HUD.h"
 #include <iostream>
 
-Camera::Camera(float startLocationX, float startLocationY, float windowWidth, float windowHeight, const Level& level, const HUD& hud)
+Camera::Camera(float startLocationX, float startLocationY, float windowWidth, float windowHeight, const Rectf& levelBounds, const HUD& hud)
 	: m_Location{ startLocationX, startLocationY }
 	, m_WindowSize{ windowWidth, windowHeight}
 	, m_HudHeight{hud.GetHeight()}
-	, m_LevelBoundaries{ level.GetBoundaries() }
+	, m_LevelBoundaries{ levelBounds }
 {
 	float gameAreaHeight{ m_LevelBoundaries.height + m_HudHeight };
 	m_ScalingFactor.y = m_WindowSize.y / gameAreaHeight;
 	m_ScalingFactor.x = m_WindowSize.x / hud.GetWidth();
 }
 
-Camera::Camera(const Point2f& location, float windowWidth, float windowHeight, const Level& level, const HUD& hud)
-	: Camera{location.x, location.y, windowWidth, windowHeight, level, hud}
+Camera::Camera(const Point2f& location, float windowWidth, float windowHeight, const Rectf& levelBounds, const HUD& hud)
+	: Camera{location.x, location.y, windowWidth, windowHeight, levelBounds, hud}
 {
 }
 
@@ -38,13 +38,31 @@ void Camera::Transform(float distanceFactor)
 
 	float reCenterOnX{}, reCenterOnY{};
 
-	if (outOfBoundsLeft) reCenterOnX = screenCenterLeft;
-	else if (outOfBoundsRight) reCenterOnX = screenCenterRight;
-	else reCenterOnX = m_Location.x / distanceFactor;
+	if (outOfBoundsLeft)
+	{
+		reCenterOnX = screenCenterLeft;
+	}
+	else if (outOfBoundsRight)
+	{
+		reCenterOnX = screenCenterRight;
+	}
+	else
+	{
+		reCenterOnX = m_Location.x / distanceFactor;
+	}
 
-	if (outOfBoundsBottom) reCenterOnY = screenCenterBottom;
-	else if (outOfBoundsTop) reCenterOnY = screenCenterTop;
-	else reCenterOnY = m_Location.y / distanceFactor;
+	if (outOfBoundsBottom)
+	{
+		reCenterOnY = screenCenterBottom;
+	}
+	else if (outOfBoundsTop)
+	{
+		reCenterOnY = screenCenterTop;
+	}
+	else
+	{
+		reCenterOnY = m_Location.y / distanceFactor;
+	}
 
 	glScalef(m_ScalingFactor.x, m_ScalingFactor.y, 1.f); // Scaling to fit window
 	glTranslatef(screenCenterLeft, screenCenterBottom, 0.f); // Translate camera position to center of screen
@@ -78,9 +96,9 @@ void Camera::TransformHUD()
 	glScalef(m_ScalingFactor.x, m_ScalingFactor.y, 1.f); // Scaling to fit window
 }
 
-void Camera::UpdateBoundaries(const Level& level)
+void Camera::UpdateBoundaries(const Rectf& levelBounds)
 {
-	m_LevelBoundaries = level.GetBoundaries();
+	m_LevelBoundaries = levelBounds;
 }
 
 Point2f Camera::GetViewDimensions()

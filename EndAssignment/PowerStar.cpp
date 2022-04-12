@@ -9,7 +9,7 @@ PowerStar::PowerStar(const Point2f& location)
 	m_pCurrentSprite = new Sprite{ 4, 0.5f, "star" };
 	m_Shape.width = m_pCurrentSprite->GetFrameDimensions().x;
 	m_Shape.height = m_pCurrentSprite->GetFrameDimensions().y;
-	SetBaseVelocity( 50.f, 50.f);
+	SetBaseVelocity( 80.f, 200.f);
 }
 
 PowerStar::~PowerStar()
@@ -22,7 +22,12 @@ void PowerStar::Update(float elapsedSec)
 {
 	if (m_IsOnGround)
 	{
-		m_Velocity.y = -m_Gravity / 2;
+		m_Velocity.y = m_BaseVelocity.y;
+	}
+	if (m_Velocity.x == 0.f)
+	{
+		m_Velocity.x = m_BaseVelocity.x;
+		m_XDirection *= -1.f;
 	}
 
 	SetIsOnGround();

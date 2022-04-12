@@ -1,9 +1,13 @@
 #pragma once
 #include "Vector2f.h"
 #include "Platform.h"
+#include "Door.h"
+
 class Texture;
 class Kirby;
 class SoundStream;
+class ObjectManager;
+class Camera;
 
 class Level final
 {
@@ -30,12 +34,15 @@ public:
 	Rectf GetBoundaries() const;
 
 	Point2f GetStartLocation() const;
+	
+	Door GetDoorInfo(const Rectf& actorShape);
 
 private:
-
 	std::string m_Name;
 	Rectf m_Boundaries;
 	Point2f m_StartLocation;
+
+	std::vector<Door> m_Doors;
 
 	std::vector<std::vector<Point2f>> m_Blockout;
 	std::vector<std::vector<Point2f>> m_Platforms;
@@ -49,6 +56,7 @@ private:
 
 	void DoVerticalCollisions(Rectf& actorShape, Vector2f& actorVelocity) const;
 	void DoHorizontalCollisions(Rectf& actorShape, Vector2f& actorVelocity) const;
-	void CreateTexture(const std::string& tag, Texture*& pTargetTexture);
+
+	void LoadDoorsFromFile();
 };
 

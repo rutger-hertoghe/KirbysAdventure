@@ -9,7 +9,9 @@
 #include "Utils.h"
 #include "Puff.h"
 #include "KirbyStateHandler.h"
+#include "LevelManager.h"
 #include "SoundEffect.h"
+#include "Door.h"
 
 Kirby::Kirby()
 	: m_ActionState{ ActionState::idle }
@@ -178,7 +180,7 @@ void Kirby::Update(float elapsedSec)
 void Kirby::SetIsOnGround()
 {
 	Actor::SetIsOnGround();
-	if (m_IsOnGround)
+	if (m_IsOnGround && m_HasReleasedJump)
 	{
 		m_JumpTime = 0.f;
 	}
@@ -291,6 +293,14 @@ void Kirby::ProcessKeyUp(const SDL_KeyboardEvent& e)
 		break;
 	case SDLK_r:
 		DoRUpActions();
+		break;
+	case SDLK_RETURN:
+		Door info{ m_pCurrentLevel->GetDoorInfo(m_Shape) };
+		if (info.GetExitLevelName() != "")
+		{
+			m_pLevelManager->LoadLevel(info.GetExitLevelName());
+			SetLocation(info.GetExitLocation());
+		}
 		break;
 	}
 }
@@ -438,7 +448,6 @@ void Kirby::DoSpaceDownActions()
 
 void Kirby::DoSpaceHeldActions(bool isImmobile, float elapsedSec)
 {
-	if (m_HasReleasedJump == true)
 	if (isImmobile) return; // Being immobile should prevent code below from execution
 	if (m_MacroState == MacroState::inflated)
 	{
@@ -447,12 +456,14 @@ void Kirby::DoSpaceHeldActions(bool isImmobile, float elapsedSec)
 	else if (CanJump() && m_MacroState != MacroState::ducking && m_MacroState != MacroState::sliding)
 	{
 		Jump(elapsedSec);
+		m_HasReleasedJump = false;
 	}
 }
 
 void Kirby::DoSpaceUpActions()
 {
 	m_JumpTime = m_MaxJumpTime;
+	m_HasReleasedJump = true;
 }
 #pragma endregion
 #pragma endregion
@@ -567,6 +578,11 @@ void Kirby::SetState(const ActionState& state)
 void Kirby::SetMacroState(const MacroState& macroState)
 {
 	m_MacroState = macroState;
+}
+
+void Kirby::SetLevelManager(LevelManager* lvlMngr)
+{
+	m_pLevelManager = lvlMngr;
 }
 
 bool Kirby::CheckCollisionWith(Actor* pActor)

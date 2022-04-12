@@ -6,6 +6,7 @@ class Camera;
 class PowerStar;
 class ProjectileManager;
 class ObjectManager;
+class LevelManager;
 
 class Game final
 {
@@ -33,22 +34,17 @@ private:
 	bool m_LegacyMode;
 
 	const Window m_Window;
+
 	Kirby* m_pKirby;
-	Level* m_pCurrentLevel;
 	HUD* m_pHUD;
 	Camera* m_pCamera;
 	ObjectManager* m_pObjectManager;
-
-	std::vector<Level*> m_pLevels;
+	LevelManager* m_pLevelManager;
 
 	// FUNCTIONS
 	void Initialize( );
 	void Cleanup( );
 	void ClearBackground( ) const;
-	void InitializeLevels();
-	void LoadLevel(std::string levelName);
 
-	void DrawLevelLegacy() const;
-	void DrawLevelParallax() const;
 	void DrawGeneral() const;
 };

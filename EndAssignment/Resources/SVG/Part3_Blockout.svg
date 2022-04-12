@@ -26,19 +26,19 @@
        id="path3360" />
     <path
        style="fill:#000000"
-       d="M 168,81 V 65 h -16 v 16 z"
+       d="M 168,80 V 64 h -16 v 16 z"
        id="path3358" />
     <path
        style="fill:#000000"
-       d="M 136,113 V 97 h -16 v 16 z"
+       d="M 136,112 V 96 h -16 v 16 z"
        id="path3356" />
     <path
        style="fill:#000000"
-       d="M 104,144 V 113 H 88 v 31 z"
+       d="M 104,144 V 112 H 88 v 32 z"
        id="path3354" />
     <path
        style="fill:#000000"
-       d="M 0,168 V 128 H 72 V 96 h 32 V 64 h 32 V 48 h 64.18384 l -1.46703,80 H 424 V 48 h 32.18384 l -1.46703,80 H 488 V 0 h 16 v 168 z"
+       d="M 0,168 V 128 H 72 V 96 h 32 V 64 h 32 V 48 h 64 l 0,80 H 424 V 48 h 32 l 0,80 H 488 V 0 h 16 v 168 z"
        id="path2996" />
   </g>
 </svg>

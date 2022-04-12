@@ -11,6 +11,7 @@ class ProjectileManager;
 class GameObject;
 class KirbyStateHandler;
 class SoundEffect;
+class LevelManager;
 
 class Kirby final : public Actor
 {
@@ -85,6 +86,7 @@ public:
 	void SetPowerState();
 	void SetState(const ActionState& state);
 	void SetMacroState(const MacroState& macroState);
+	void SetLevelManager(LevelManager* lvlMngr);
 
 	bool CheckCollisionWith(Actor* pActor);
 private:
@@ -111,6 +113,7 @@ private:
 
 	// Pointers
 	KirbyStateHandler* m_pStateHandler;
+	LevelManager* m_pLevelManager;
 	std::vector<SoundEffect*> m_pSounds;
 
 	// Non-Primitves

@@ -156,7 +156,9 @@
     <ClCompile Include="BrontoBurt.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Core.cpp" />
+    <ClCompile Include="Door.cpp" />
     <ClCompile Include="Enemy.cpp" />
+    <ClCompile Include="LevelManager.cpp" />
     <ClCompile Include="ObjectManager.cpp" />
     <ClCompile Include="Fireball.cpp" />
     <ClCompile Include="FirePower.cpp" />
@@ -202,7 +204,9 @@
     <ClInclude Include="BrontoBurt.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Core.h" />
+    <ClInclude Include="Door.h" />
     <ClInclude Include="Enemy.h" />
+    <ClInclude Include="LevelManager.h" />
     <ClInclude Include="ObjectManager.h" />
     <ClInclude Include="Fireball.h" />
     <ClInclude Include="FirePower.h" />
