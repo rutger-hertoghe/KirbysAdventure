@@ -38,31 +38,13 @@ void Camera::Transform(float distanceFactor)
 
 	float reCenterOnX{}, reCenterOnY{};
 
-	if (outOfBoundsLeft)
-	{
-		reCenterOnX = screenCenterLeft;
-	}
-	else if (outOfBoundsRight)
-	{
-		reCenterOnX = screenCenterRight;
-	}
-	else
-	{
-		reCenterOnX = m_Location.x / distanceFactor;
-	}
+	if (outOfBoundsLeft) reCenterOnX = screenCenterLeft;
+	else if (outOfBoundsRight) reCenterOnX = screenCenterRight;
+	else reCenterOnX = m_Location.x / distanceFactor;
 
-	if (outOfBoundsBottom)
-	{
-		reCenterOnY = screenCenterBottom;
-	}
-	else if (outOfBoundsTop)
-	{
-		reCenterOnY = screenCenterTop;
-	}
-	else
-	{
-		reCenterOnY = m_Location.y / distanceFactor;
-	}
+	if (outOfBoundsBottom) reCenterOnY = screenCenterBottom;
+	else if (outOfBoundsTop) reCenterOnY = screenCenterTop;
+	else reCenterOnY = m_Location.y / distanceFactor;
 
 	glScalef(m_ScalingFactor.x, m_ScalingFactor.y, 1.f); // Scaling to fit window
 	glTranslatef(screenCenterLeft, screenCenterBottom, 0.f); // Translate camera position to center of screen
@@ -83,7 +65,14 @@ void Camera::Update(float x, float y, float elapsedSec)
 		m_Location.x = x;
 	}
 
-	m_Location.y = y;
+	if (m_Location.y - y > movementTreshold)
+	{
+		m_Location.y = y + movementTreshold;
+	}
+	else if (m_Location.y - y < 0.f)
+	{
+		m_Location.y = y;
+	}
 }
 
 void Camera::Update(const Point2f& position, float elapsedSec)

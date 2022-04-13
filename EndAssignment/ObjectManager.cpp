@@ -294,15 +294,24 @@ void ObjectManager::LoadEnemiesFromFile(const std::string& filePath)
 		std::string bufferString;
 		std::getline(file, bufferString, '\n');
 		
-		int firstCommaPos{ int(bufferString.find(',')) };
-		int indexAfterFirstComma{ firstCommaPos + 1 };
-		int secondCommaPos{ int(bufferString.find(',', indexAfterFirstComma)) };
-		int indexAfterSecondComma{ secondCommaPos + 1 };
-		int endPos{ int(bufferString.size())};
+		const int nrOfPositions{ 3 };
+		int splitPositions[nrOfPositions]{};
+		splitPositions[0] = int(bufferString.find(','));
+		splitPositions[1] = int(bufferString.find(',', splitPositions[0] + 1));
+		splitPositions[2] = int(bufferString.size());
+
+		// Safety check
+		for (int idx{}; idx < nrOfPositions; ++idx)
+		{
+			if (splitPositions[idx] == -1)
+			{
+				return;
+			}
+		}
 		
-		std::string enemyName{ bufferString.substr(0, firstCommaPos) };
-		float xCoordinate{ std::stof(bufferString.substr(indexAfterFirstComma, secondCommaPos)) };
-		float yCoordinate{ std::stof(bufferString.substr(indexAfterSecondComma, endPos)) };
+		std::string enemyName{ bufferString.substr(0, splitPositions[0])};
+		float xCoordinate{ std::stof(bufferString.substr(splitPositions[0] + 1, splitPositions[1]))};
+		float yCoordinate{ std::stof(bufferString.substr(splitPositions[1] + 1, splitPositions[2])) };
 		Point2f location{ xCoordinate, yCoordinate };
 
 		CreateEnemy(enemyName, location);
