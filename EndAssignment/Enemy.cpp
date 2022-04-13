@@ -96,7 +96,11 @@ void Enemy::StandardUpdateSequence(float elapsedSec)
 	ApplyGravity(elapsedSec);
 	HandleLevelCollisions();
 	SetIsOnGround();
+	ChangeDirectionOnBump();
+}
 
+void Enemy::ChangeDirectionOnBump()
+{
 	if (m_Velocity.x == 0.f)
 	{
 		m_XDirection *= -1.f;

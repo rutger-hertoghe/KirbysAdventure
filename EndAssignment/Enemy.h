@@ -46,6 +46,7 @@ protected:
 	void DeleteSprites();
 
 	void StandardUpdateSequence(float elapsedSec);
+	void ChangeDirectionOnBump();
 	void Jump(float jumpStrength);
 
 	float GetSquaredDistanceToActor(Actor* actor);

@@ -24,7 +24,21 @@ void Sparky::Update(float elapsedSec)
 		m_Velocity.x = m_BaseVelocity.x;
 		m_Velocity.y = m_BaseVelocity.y;
 	}
-	StandardUpdateSequence(elapsedSec);
+	
+	ApplyVelocities(elapsedSec, m_XDirection * m_Velocity.x, m_Velocity.y);
+	if (m_IsBeingInhaled) return; // If enemy is being inhaled, code below can not be executed
+
+	UpdateSprite(elapsedSec);
+	// CorrectVelocities();
+	ApplyGravity(elapsedSec);
+	HandleLevelCollisions();
+	SetIsOnGround();
+
+	if (m_Velocity.x == 0.f)
+	{
+		m_XDirection *= -1.f;
+		m_Velocity.x = m_BaseVelocity.x;
+	}
 }
 
 void Sparky::Reset()

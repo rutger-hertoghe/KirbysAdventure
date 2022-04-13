@@ -266,24 +266,37 @@ void Level::LoadDoorsFromFile()
 		std::string bufferString;
 		std::getline(file, bufferString, '\n');
 
-		int firstComma{ int(bufferString.find(',')) };
-		std::string levelName{ bufferString.substr(0, firstComma) };
+		const int nrOfPositions{ 5 };
+		int splitPositions[nrOfPositions];
 
-		int indexAfter{ firstComma + 1 };
-		int secondComma{ int(bufferString.find(',', indexAfter)) };
-		float xLocation{ std::stof(bufferString.substr(indexAfter, secondComma)) };
+		for (int idx{}; idx < nrOfPositions; ++idx)
+		{
+			if (idx == 0)
+			{
+				splitPositions[idx] = int(bufferString.find(','));
+			}
+			else if (idx < nrOfPositions - 1)
+			{
+				splitPositions[idx] = int(bufferString.find(',', splitPositions[idx - 1] + 1));
+			}
+			else if (idx == nrOfPositions - 1)
+			{
+				splitPositions[idx] = int(bufferString.size());
+			}
 
-		indexAfter = secondComma + 1;
-		int thirdComma{ int(bufferString.find(',', indexAfter)) };
-		float yLocation{ std::stof(bufferString.substr(indexAfter, thirdComma)) };
+			// Safety check
+			if (splitPositions[idx] == -1)
+			{
+				return;
+			}
+		}
 
-		indexAfter = thirdComma + 1;
-		int fourthComma{ int(bufferString.find(',', indexAfter)) };
-		float xExit{ std::stof(bufferString.substr(indexAfter, fourthComma)) };
+		std::string levelName{ bufferString.substr(0, splitPositions[0])};
+		float xLocation{ std::stof(bufferString.substr(splitPositions[0] + 1, splitPositions[1])) };
+		float yLocation{ std::stof(bufferString.substr(splitPositions[1] + 1, splitPositions[2])) };
+		float xExit{ std::stof(bufferString.substr(splitPositions[2] + 1, splitPositions[3]))};
+		float yExit{ std::stof(bufferString.substr(splitPositions[3] + 1, splitPositions[4])) };
 
-		indexAfter = fourthComma + 1;
-		int endPos{ int(bufferString.size()) };
-		float yExit{ std::stof(bufferString.substr(indexAfter, endPos)) };
 		m_Doors.push_back(Door{ levelName, Point2f{ xLocation, yLocation }, Point2f{ xExit, yExit } });
 	}
 }
