@@ -13,7 +13,7 @@ public:
 	virtual void OnKeyUpEvent(const Rectf& shape, float xDirection) override;
 
 	virtual bool IsActive() const override;
-	virtual std::string GetPowerSuffix() const;
+	virtual std::string GetPowerSuffix() const override;
 
 	virtual void Update(float elapsedSec) override;
 

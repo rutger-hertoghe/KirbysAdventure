@@ -21,11 +21,14 @@ public:
 	bool HasCollisionEvent() const;
 	bool IsRemoved() const;
 	bool IsPersistent() const;
+	bool NeedsToBeDrawn() const;
 
 protected:
 	bool m_IsBloatItem;
 	bool m_HasCollisionEvent;
 	bool m_IsPersistentOffScreen;
 	bool m_IsRemoved;
+
+	bool m_NeedsToBeDrawn;
 };
 

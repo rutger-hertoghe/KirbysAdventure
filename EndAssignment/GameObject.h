@@ -31,6 +31,7 @@ protected:
 	std::vector<Sprite*> m_pSprites;
 
 	void UpdateSprite(float elapsedSec);
+	void ChangeDirection();
 
 private:
 	

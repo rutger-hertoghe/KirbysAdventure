@@ -14,7 +14,6 @@ public:
 	virtual void Update(float elapsedSec) override;
 
 	virtual void Reset() override;
-	virtual void InitializePowerUp() override;
 	virtual void DoAbilityCheck(Kirby* pKirby) override;
 
 private:
@@ -23,5 +22,6 @@ private:
 	bool m_IsInert;
 
 	virtual void InitializeSprites() override;
+	virtual void InitializePowerUp() override;
 };
 

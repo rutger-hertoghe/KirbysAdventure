@@ -5,15 +5,16 @@
 #include "Camera.h"
 #include "Kirby.h"
 
-LevelManager::LevelManager(Kirby* pKirby, ObjectManager* pObjectMngr)
+LevelManager::LevelManager(Kirby* pKirby, ObjectManager* pObjectMngr, Camera* pCamera)
 	: m_pKirby(pKirby)
 	, m_pObjectManager{pObjectMngr}
-	, m_pCamera{nullptr}
+	, m_pCamera{ pCamera }
 {
 	Initialize();
 	m_pKirby->SetLevelManager(this);
 	m_pCurrentLevel = m_pLevels[0];
 	m_pKirby->SetLocation(m_pCurrentLevel->GetStartLocation());
+	LoadLevel("testlevel");
 }
 
 LevelManager::~LevelManager()
@@ -26,6 +27,7 @@ LevelManager::~LevelManager()
 
 void LevelManager::Initialize()
 {
+	m_pLevels.push_back(new Level{ "testlevel", "resources/music/stagemusic1.mp3" });
 	m_pLevels.push_back(new Level{ "part1", "resources/music/stagemusic1.mp3" });
 	m_pLevels.push_back(new Level{ "part2", "resources/music/stagemusic1.mp3" });
 	m_pLevels.push_back(new Level{ "part3", "resources/music/stagemusic1.mp3" });
@@ -40,6 +42,7 @@ void LevelManager::LoadLevel(std::string levelName)
 	{
 		return;
 	}
+
 	m_pObjectManager->ClearEnemyVector();
 
 	for (Level*& pLevel : m_pLevels)
@@ -60,11 +63,6 @@ void LevelManager::LoadLevel(std::string levelName)
 Level* LevelManager::GetCurrentLevel() const
 {
 	return m_pCurrentLevel;
-}
-
-void LevelManager::LinkCamera(Camera* pCamera)
-{
-	m_pCamera = pCamera;
 }
 
 void LevelManager::DrawLevelLegacy() const

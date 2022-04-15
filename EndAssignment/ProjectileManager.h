@@ -17,7 +17,9 @@ public:
 	void Update(float elapsedSec);
 
 	void Add(Projectile* projectile);
+	// This first version of ProjectileHasHit gets used to set the direction in which kirby should bounce off
 	bool ProjectileHasHit(Actor* pActor, Projectile::ActorType hitActorType, float& direction);
+	bool ProjectileHasHit(Actor* pActor, Projectile::ActorType hitActorType);
 
 private:
 	std::vector<Projectile*> m_pProjectiles;

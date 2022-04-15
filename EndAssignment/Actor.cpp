@@ -31,12 +31,13 @@ Actor::~Actor()
 
 void Actor::TransferPowerUp(Actor* newOwner)
 {
+	m_pPowerUp->SetInactive();
 	if (newOwner->m_pPowerUp)
 	{
 		delete newOwner->m_pPowerUp;
 	}
 	newOwner->m_pPowerUp = m_pPowerUp;
-	newOwner->m_pPowerUp->SetKirbyAsOwner();
+	newOwner->m_pPowerUp->SetOwnerType(Projectile::ActorType::kirby);
 	m_pPowerUp = nullptr;
 }
 
@@ -241,4 +242,12 @@ void Actor::SetDimsFromSprite()
 {
 	m_Shape.width = m_pCurrentSprite->GetFrameDimensions().x;
 	m_Shape.height = m_pCurrentSprite->GetFrameDimensions().y;
+}
+
+void Actor::ChangeDirectionOnBump()
+{
+	if (m_pCurrentLevel->IsAgainstWall(m_Shape, m_XDirection))
+	{
+		m_XDirection *= -1;
+	}
 }

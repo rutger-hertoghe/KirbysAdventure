@@ -24,6 +24,9 @@ public:
 		ducking,
 		sliding
 	};
+
+	// TODO: Finalize kirby states & movement, fix bugs & clean code
+
 	enum class ActionState {
 		idle,
 		walking,
@@ -73,8 +76,7 @@ public:
 	bool IsOnGround() const;
 	bool HasLooped() const;
 
-	void DecrementHealth();
-	void BounceOffInDirection(float direction);
+	void DecrementHealth(float direction);
 
 	virtual void Draw() const override;
 	// bool IsInhaling() const;
@@ -87,8 +89,11 @@ public:
 	void SetState(const ActionState& state);
 	void SetMacroState(const MacroState& macroState);
 	void SetLevelManager(LevelManager* lvlMngr);
+	
+	bool GiveShakeCommand();
 
 	bool CheckCollisionWith(Actor* pActor);
+
 private:
 	// Primitives
 	const float m_MaxHorSpeed;
@@ -100,7 +105,10 @@ private:
 
 	bool m_IsInvulnerable;
 	bool m_GotDamaged;
+	bool m_ShakeCommand;
+
 	bool m_HasReleasedJump;
+	bool m_HasReleasedR;
 
 	bool m_CanSpitStar;
 
@@ -136,9 +144,10 @@ private:
 	void Move(float elapsedSec, bool canAccelerate);
 	void SlowDown(float elapsedSec);
 	void Jump(float elapsedSec);
+	void BounceOffInDirection(float bounceDirection);
 	bool CanJump() const;
 
-	void UpdateInvulnerability(float elapsedSec);
+	void UpdateDamaged(float elapsedSec);
 	void SetVulnerable(std::string spriteName);
 	
 	void LockToLevel();
@@ -147,7 +156,9 @@ private:
 	
 	void SpitStar();
 	void SpawnPuff();
+	void ToggleRockMode();
 	void KillKirby();
+	void CheckForShakeCommand(bool isAlreadyOnGround);
 
 	void DoRDownActions();
 	void DoRHeldActions();

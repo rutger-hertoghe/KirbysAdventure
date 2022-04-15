@@ -46,5 +46,5 @@ private:
 	void Cleanup( );
 	void ClearBackground( ) const;
 
-	void DrawGeneral() const;
+	void DrawLevel() const;
 };

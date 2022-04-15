@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   version="1.1"
+   id="svg4060"
+   width="248"
+   height="168"
+   viewBox="0 0 248 168"
+   sodipodi:docname="Part5_Blockout.svg"
+   inkscape:version="1.1.2 (b8e25be833, 2022-02-05)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     showgrid="false"
+     inkscape:zoom="4.2797619"
+     inkscape:cx="124.07232"
+     inkscape:cy="5.7246175"
+     inkscape:window-width="1920"
+     inkscape:window-height="991"
+     inkscape:window-x="-9"
+     inkscape:window-y="-9"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg4060" />
+  <defs
+     id="defs4064" />
+  <g
+     id="g4066">
+    <image
+       width="248"
+       height="168"
+       preserveAspectRatio="none"
+       xlink:href="Part5_Blockout.png"
+       id="image4068" />
+    <path
+       style="fill:#000000"
+       d="M 0,168 V 0 H 24 V 144 H 216 V 0 h 32 v 168 z"
+       id="path4070" />
+  </g>
+</svg>

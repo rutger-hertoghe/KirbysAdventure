@@ -68,14 +68,6 @@ void Enemy::InitializePowerUp()
 	// Nothing here because by default enemies should not have a powerup
 }
 
-void Enemy::CorrectVelocities()
-{
-	if (m_Velocity.x != m_BaseVelocity.x)
-	{
-		m_Velocity.x = m_BaseVelocity.x;
-	}
-}
-
 void Enemy::DeleteSprites()
 {
 	for (Sprite*& pSprite : m_pSprites)
@@ -92,20 +84,10 @@ void Enemy::StandardUpdateSequence(float elapsedSec)
 	if (m_IsBeingInhaled) return; // If enemy is being inhaled, code below can not be executed
 
 	UpdateSprite(elapsedSec);
-	// CorrectVelocities();
 	ApplyGravity(elapsedSec);
 	HandleLevelCollisions();
 	SetIsOnGround();
 	ChangeDirectionOnBump();
-}
-
-void Enemy::ChangeDirectionOnBump()
-{
-	if (m_Velocity.x == 0.f)
-	{
-		m_XDirection *= -1.f;
-		m_Velocity.x = m_BaseVelocity.x;
-	}
 }
 
 void Enemy::Jump(float jumpStrength)

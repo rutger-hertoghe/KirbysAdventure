@@ -1,3 +1,5 @@
 hothead, 120, 56
-waddledee, 264, 136
+waddledee, 266, 136
 waddledee, 344, 136
+rocky, 150, 88
+parasol, 88, 24

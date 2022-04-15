@@ -153,11 +153,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Actor.cpp" />
+    <ClCompile Include="Bounder.cpp" />
     <ClCompile Include="BrontoBurt.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Core.cpp" />
     <ClCompile Include="Door.cpp" />
     <ClCompile Include="Enemy.cpp" />
+    <ClCompile Include="LaserBall.cpp" />
     <ClCompile Include="LevelManager.cpp" />
     <ClCompile Include="ObjectManager.cpp" />
     <ClCompile Include="Fireball.cpp" />
@@ -173,18 +175,19 @@
     <ClCompile Include="Level.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Matrix2x3.cpp" />
+    <ClCompile Include="Parasol.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Platform.cpp" />
     <ClCompile Include="PowerStar.cpp" />
     <ClCompile Include="PowerUp.cpp" />
     <ClCompile Include="Projectile.cpp" />
     <ClCompile Include="ProjectileManager.cpp" />
     <ClCompile Include="Puff.cpp" />
+    <ClCompile Include="Rocky.cpp" />
     <ClCompile Include="SoundEffect.cpp" />
     <ClCompile Include="SoundStream.cpp" />
     <ClCompile Include="Spark.cpp" />
@@ -192,20 +195,24 @@
     <ClCompile Include="Sparky.cpp" />
     <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="Star.cpp" />
+    <ClCompile Include="StonePower.cpp" />
     <ClCompile Include="structs.cpp" />
     <ClCompile Include="SVGParser.cpp" />
     <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="ThrowingStar.cpp" />
     <ClCompile Include="utils.cpp" />
     <ClCompile Include="Vector2f.cpp" />
     <ClCompile Include="WaddleDee.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Actor.h" />
+    <ClInclude Include="Bounder.h" />
     <ClInclude Include="BrontoBurt.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Core.h" />
     <ClInclude Include="Door.h" />
     <ClInclude Include="Enemy.h" />
+    <ClInclude Include="LaserBall.h" />
     <ClInclude Include="LevelManager.h" />
     <ClInclude Include="ObjectManager.h" />
     <ClInclude Include="Fireball.h" />
@@ -220,13 +227,14 @@
     <ClInclude Include="KirbyStateHandler.h" />
     <ClInclude Include="Level.h" />
     <ClInclude Include="Matrix2x3.h" />
+    <ClInclude Include="Parasol.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="Platform.h" />
     <ClInclude Include="PowerStar.h" />
     <ClInclude Include="PowerUp.h" />
     <ClInclude Include="Projectile.h" />
     <ClInclude Include="ProjectileManager.h" />
     <ClInclude Include="Puff.h" />
+    <ClInclude Include="Rocky.h" />
     <ClInclude Include="SoundEffect.h" />
     <ClInclude Include="SoundStream.h" />
     <ClInclude Include="Spark.h" />
@@ -234,9 +242,11 @@
     <ClInclude Include="Sparky.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="Star.h" />
+    <ClInclude Include="StonePower.h" />
     <ClInclude Include="structs.h" />
     <ClInclude Include="SVGParser.h" />
     <ClInclude Include="Texture.h" />
+    <ClInclude Include="ThrowingStar.h" />
     <ClInclude Include="utils.h" />
     <ClInclude Include="Vector2f.h" />
     <ClInclude Include="WaddleDee.h" />

@@ -159,6 +159,33 @@ std::string Level::GetName() const
 	return m_Name;
 }
 
+bool Level::IsAgainstWall(const Rectf& actorShape, float actorDirection) const
+{
+	Point2f horizontalRayStart{ actorShape.left, actorShape.bottom + actorShape.height / 2 };
+	Point2f horizontalRayEnd{ actorShape.left + actorShape.width, actorShape.bottom + actorShape.height / 2 };
+	// abs(actordirection) is always 1, so can be used to increase the raycast size by one on the appropriate side, 
+	// so that a bump gets detected even if the actor is stopped by collision
+	if (actorDirection > 0.f) 
+	{
+		horizontalRayEnd.x += actorDirection;
+	}
+	else
+	{
+		horizontalRayStart.x += actorDirection;
+	}
+
+	utils::HitInfo hitInfo{};
+
+	for (std::vector<Point2f> platform : m_Blockout)
+	{
+		if (utils::Raycast(platform, horizontalRayStart, horizontalRayEnd, hitInfo))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 Rectf Level::GetBoundaries() const
 {
 	return m_Boundaries;

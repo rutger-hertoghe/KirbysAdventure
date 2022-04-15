@@ -13,6 +13,5 @@ public:
 	virtual void Update(float elapsedSec) override;
 	void SetDirection(float directionValue);
 private:
-	
 };
 

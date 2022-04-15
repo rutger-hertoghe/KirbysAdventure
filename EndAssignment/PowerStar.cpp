@@ -20,16 +20,29 @@ PowerStar::~PowerStar()
 
 void PowerStar::Update(float elapsedSec)
 {
+	m_ArbitraryTimer += elapsedSec;
+
+	// Check timed events such as flickering out of existence and actual disappearing
+	if (m_ArbitraryTimer > 10.f)
+	{
+		m_IsRemoved = true;
+	}
+	else if (m_ArbitraryTimer > 8.f &&  int(m_ArbitraryTimer * 40) % 2 == 0 )
+	{
+		m_NeedsToBeDrawn = !m_NeedsToBeDrawn;
+	}
+	else if (m_ArbitraryTimer > 5.f &&  int(m_ArbitraryTimer * 10) % 2 == 0 )
+	{
+		m_NeedsToBeDrawn = !m_NeedsToBeDrawn;
+	}
+
 	if (m_IsOnGround)
 	{
 		m_Velocity.y = m_BaseVelocity.y;
 	}
-	if (m_Velocity.x == 0.f)
-	{
-		m_Velocity.x = m_BaseVelocity.x;
-		m_XDirection *= -1.f;
-	}
-
+	
+	ChangeDirectionOnBump();
+	
 	SetIsOnGround();
 	UpdateSprite(elapsedSec);
 	ApplyVelocities(elapsedSec, m_XDirection * m_Velocity.x, m_Velocity.y);

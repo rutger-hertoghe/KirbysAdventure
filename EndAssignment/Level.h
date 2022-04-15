@@ -1,6 +1,5 @@
 #pragma once
 #include "Vector2f.h"
-#include "Platform.h"
 #include "Door.h"
 
 class Texture;
@@ -17,7 +16,6 @@ public:
 	Level& operator=(const Level& other) = delete;
 	~Level();
 
-	void Initialize();
 	void DrawFull() const;
 	void DrawForeGround() const;
 	void DrawMidGround() const;
@@ -25,16 +23,13 @@ public:
 	void DrawFarBackGround() const;
 
 	void HandleCollision(Rectf& actorShape, Vector2f& actorVelocity) const;
-	void InitializeVertices();
-	void InitializeTextures();
 
 	bool IsOnGround(const Rectf& actorShape) const;
+	bool IsAgainstWall(const Rectf& actorShape, float actorDirection) const;
+
 	std::string GetName() const;
-
 	Rectf GetBoundaries() const;
-
 	Point2f GetStartLocation() const;
-	
 	Door GetDoorInfo(const Rectf& actorShape);
 
 private:
@@ -58,5 +53,9 @@ private:
 	void DoHorizontalCollisions(Rectf& actorShape, Vector2f& actorVelocity) const;
 
 	void LoadDoorsFromFile();
+
+	void Initialize();
+	void InitializeVertices();
+	void InitializeTextures();
 };
 

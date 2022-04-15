@@ -68,5 +68,7 @@ protected:
 	void CreateAltSprites();
 	void SetInitialSprite(const std::string& spriteName = "");
 	void SetDimsFromSprite();
+
+	void ChangeDirectionOnBump();
 };
 

@@ -10,7 +10,8 @@ public:
 		fireball,
 		star,
 		puff,
-		spark
+		spark,
+		throwingStar
 	};
 
 	enum class ActorType {

@@ -38,3 +38,8 @@ bool Item::IsPersistent() const
 {
 	return m_IsPersistentOffScreen;
 }
+
+bool Item::NeedsToBeDrawn() const
+{
+	return m_NeedsToBeDrawn;
+}
