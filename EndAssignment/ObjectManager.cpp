@@ -27,13 +27,17 @@
 
 // TODO: Implement removal puffs for enemies & items
 
-ProjectileManager* ObjectManager::m_pProjectileManager{ nullptr };
+ObjectManager* ObjectManager::m_pObjectManager{ nullptr };
 
 ObjectManager::ObjectManager(Kirby* pKirby)
 	: m_pKirby{ pKirby }
 {
-	m_pProjectileManager = new ProjectileManager{};
-	m_pKirby->SetProjectileManager(m_pProjectileManager);
+	if (m_pObjectManager)
+	{
+		delete m_pObjectManager;
+	}
+	m_pObjectManager = this;
+
 	m_pKirby->SetObjectManager(this);
 }
 
@@ -42,13 +46,11 @@ ObjectManager::~ObjectManager()
 	DeleteEnemies();
 	DeleteItems();
 	DeleteFXs();
-
-	delete m_pProjectileManager;
 }
 
-ProjectileManager* ObjectManager::GetProjectileMngr()
+ObjectManager* ObjectManager::GetObjectMngr()
 {
-	return m_pProjectileManager;
+	return m_pObjectManager;
 }
 
 void ObjectManager::Draw() const
@@ -56,8 +58,6 @@ void ObjectManager::Draw() const
 	DrawFXs();
 	DrawItems();
 	DrawEnemies();
-	
-	m_pProjectileManager->Draw();
 }
 
 void ObjectManager::DrawEnemies() const
@@ -94,8 +94,6 @@ void ObjectManager::Update(float elapsedSec, const Rectf& visibleArea)
 {
 	m_VisibleArea = visibleArea;
 
-	m_pProjectileManager->Update(elapsedSec);
-
 	UpdateEnemies(elapsedSec);
 	UpdateItems(elapsedSec);
 	UpdateRemovalFXs(elapsedSec);
@@ -128,7 +126,6 @@ void ObjectManager::SetEnemyProjectileManagerPointers()
 {
 	for (Enemy* pEnemy : m_pEnemies)
 	{
-		pEnemy->SetProjectileManager(m_pProjectileManager);
 		pEnemy->InitializePowerUp();
 	}
 }
@@ -190,7 +187,7 @@ void ObjectManager::CheckEnemyRemovalConditions(Enemy*& pEnemy, bool insideXScre
 
 	// ACTUAL CODE
 
-	if (m_pProjectileManager->ProjectileHasHit(pEnemy, Projectile::ActorType::enemy) || fellOutOfWorld || outsideExtendedViewingArea)
+	if (ProjectileManager::GetProjectileMngr()->ProjectileHasHit(pEnemy, Projectile::ActorType::enemy) || fellOutOfWorld || outsideExtendedViewingArea)
 	{
 		AddRemovalFX(pEnemy->GetLocation(), RemovalFX::FXType::enemy);
 		pEnemy->Reset();
@@ -244,7 +241,7 @@ void ObjectManager::UpdateItem(Item*& pItem, float elapsedSec)
 	{
 		DoItemInhalationActions(pItem);
 	}
-	else if (pItem->IsDestructible() && m_pProjectileManager->ProjectileHasHit(pItem, Projectile::ActorType::enemy))
+	else if (pItem->IsDestructible() && ProjectileManager::GetProjectileMngr()->ProjectileHasHit(pItem, Projectile::ActorType::enemy))
 	{
 		pItem->Remove();
 		AddRemovalFX(pItem->GetLocation(), RemovalFX::FXType::item);
@@ -438,7 +435,7 @@ void ObjectManager::LoadObjectsFromFile(const std::string& filePath)
 		const int nrOfPositions{ 3 };
 		int splitPositions[nrOfPositions]{};
 		splitPositions[0] = int(bufferString.find(','));
-		splitPositions[1] = int(bufferString.find(',', splitPositions[0] + 1));
+		splitPositions[1] = int(bufferString.find(',', int(splitPositions[0] + 1)));
 		splitPositions[2] = int(bufferString.size());
 
 		// Safety check

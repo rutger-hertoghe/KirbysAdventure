@@ -40,5 +40,6 @@ protected:
 	ActorType m_Owner;
 	
 	void ApplyVelocities(float elapsedSec);
+	void DestroyOnCollision();
 };
 

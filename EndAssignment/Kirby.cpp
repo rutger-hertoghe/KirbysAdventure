@@ -175,7 +175,7 @@ void Kirby::Update(float elapsedSec)
 	}
 	
 	float direction{};
-	if (m_pProjectileManager->ProjectileHasHit(this, Projectile::ActorType::kirby, direction))
+	if (ProjectileManager::GetProjectileMngr()->ProjectileHasHit(this, Projectile::ActorType::kirby, direction))
 	{
 		DecrementHealth(direction);
 	}
@@ -557,7 +557,7 @@ void Kirby::SpitStar()
 	const float yOffset{ (m_pCurrentSprite->GetFrameDimensions().y - m_Shape.height) / 2 }; 
 	spawnRect.left += m_XDirection * m_Shape.width;	
 	spawnRect.bottom += yOffset;
-	m_pProjectileManager->Add(new Star{ spawnRect, m_XDirection });
+	ProjectileManager::GetProjectileMngr()->Add(new Star{spawnRect, m_XDirection});
 
 	// Spitting out the star should remove the power
 	DeletePowerUp();
@@ -569,7 +569,7 @@ void Kirby::SpawnPuff()
 {
 	Rectf spawnLocation{ 0.f, m_Shape.bottom, m_Shape.width, m_Shape.height };
 	spawnLocation.left = m_Shape.left + (m_XDirection > 0.f ? m_Shape.width : -m_Shape.width);
-	m_pProjectileManager->Add(new Puff{ spawnLocation, m_XDirection });
+	ProjectileManager::GetProjectileMngr()->Add(new Puff{spawnLocation, m_XDirection});
 }
 
 void Kirby::ExpelPower()

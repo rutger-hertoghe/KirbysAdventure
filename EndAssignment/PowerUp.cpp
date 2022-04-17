@@ -2,9 +2,8 @@
 #include "PowerUp.h"
 #include "Vector2f.h"
 
-PowerUp::PowerUp(PowerUpType type, ProjectileManager* pMgr, bool hasStart, bool hasContinuous, bool hasEnd, bool hasCompleteSpriteSet)
+PowerUp::PowerUp(PowerUpType type, bool hasStart, bool hasContinuous, bool hasEnd, bool hasCompleteSpriteSet)
 	: m_Type{ type }
-	, m_pProjectileManager{pMgr}
 	, m_HasStart{ hasStart }
 	, m_HasContinuous{ hasContinuous }
 	, m_HasEnd{ hasEnd }

@@ -7,6 +7,7 @@
 #include "Projectile.h"
 #include "PowerStar.h"
 #include "ObjectManager.h"
+#include "ProjectileManager.h"
 #include "LevelManager.h"
 
 #include "MrTickTock.h"
@@ -30,6 +31,8 @@ void Game::Initialize( )
 	m_pKirby = new Kirby{};
 	m_pHUD = new HUD{};
 	m_pObjectManager = new ObjectManager{m_pKirby};
+	m_pObjectManager = new ObjectManager{m_pKirby};
+	m_pProjectileManager = new ProjectileManager{};
 	m_pCamera = new Camera{ m_pKirby->GetLocation(), m_Window.width, m_Window.height, m_pHUD, m_pObjectManager};
 	m_pLevelManager = new LevelManager{ m_pKirby, m_pObjectManager, m_pCamera };
 	
@@ -43,6 +46,7 @@ void Game::Cleanup( )
 	delete m_pCamera;
 	delete m_pKirby;
 	delete m_pObjectManager;
+	delete m_pProjectileManager;
 
 	// delete m_pMrTickTock;
 }
@@ -53,6 +57,7 @@ void Game::Update( float elapsedSec )
 	m_pKirby->Update(elapsedSec);
 	m_pCamera->Update(elapsedSec, m_pKirby);
 	m_pObjectManager->Update(elapsedSec, m_pCamera->GetVisibleArea());
+	m_pProjectileManager->Update(elapsedSec);
 	
 	// m_pMrTickTock->Update(elapsedSec);
 }
@@ -69,7 +74,7 @@ void Game::Draw( ) const
 	m_pCamera->Transform();
 	m_pKirby->Draw();
 	m_pObjectManager->Draw();
-	
+	m_pProjectileManager->Draw();
 	
 	// m_pMrTickTock->Draw();
 	glPopMatrix();

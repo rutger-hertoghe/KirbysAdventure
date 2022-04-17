@@ -2,9 +2,8 @@
 #include "StonePower.h"
 
 StonePower::StonePower()
-	: PowerUp(PowerUpType::stone, nullptr, true, true, true)
+	: PowerUp(PowerUpType::stone, true, true, true)
 {
-	
 }
 
 void StonePower::OnKeyDownEvent(const Rectf& shape, float xDirection)

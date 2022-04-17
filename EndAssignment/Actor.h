@@ -29,8 +29,6 @@ public:
 	Point2f GetLocation() const;
 	PowerUp* GetPowerUp() const;
 
-	void SetProjectileManager(ProjectileManager* pProjectileMgr);
-
 	void SetInhalationVelocities(const Rectf& kirbyRect);
 	bool IsInhalable() const;
 	bool IsBeingInhaled() const;
@@ -50,7 +48,6 @@ protected:
 	bool m_IsBeingInhaled;
 
 	PowerUp* m_pPowerUp;
-	ProjectileManager* m_pProjectileManager;
 
 	void SetBaseVelocity(float xVelocity, float yVelocity);
 	void SetBaseVelocity(const Vector2f& velocity);

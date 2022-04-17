@@ -10,7 +10,6 @@ const float Actor::m_Gravity{ -500.f };
 
 Actor::Actor()
 	: GameObject{}
-	, m_pProjectileManager{nullptr}
 	, m_pPowerUp{ nullptr }
 	, m_BaseVelocity{0.f, 0.f}
 	, m_IsOnGround{false}
@@ -87,11 +86,6 @@ Point2f Actor::GetLocation() const
 PowerUp* Actor::GetPowerUp() const
 {
 	return m_pPowerUp;
-}
-
-void Actor::SetProjectileManager(ProjectileManager* pProjectileMgr)
-{
-	m_pProjectileManager = pProjectileMgr;
 }
 
 void Actor::SetIsOnGround()

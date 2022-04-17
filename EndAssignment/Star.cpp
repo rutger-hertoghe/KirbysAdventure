@@ -17,4 +17,5 @@ void Star::Update(float elapsedSec)
 	{
 		m_IsReadyToDestroy = true;
 	}
+	DestroyOnCollision();
 }

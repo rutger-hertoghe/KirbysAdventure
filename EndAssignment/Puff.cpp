@@ -23,4 +23,5 @@ void Puff::Update(float elapsedSec)
 	{
 		m_IsReadyToDestroy = true;
 	}
+	DestroyOnCollision();
 }
