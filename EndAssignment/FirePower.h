@@ -6,7 +6,7 @@ class ProjectileManager;
 class FirePower final : public PowerUp
 {
 public:
-	explicit FirePower(ProjectileManager* pProjectileManager);
+	explicit FirePower();
 
 	virtual void OnKeyDownEvent(const Rectf& shape, float xDirection) override;
 	virtual void ContinuousKeyEvent(const Rectf& shape, float xDirection) override;

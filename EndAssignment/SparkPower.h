@@ -6,7 +6,7 @@ class ProjectileManager;
 class SparkPower final : public PowerUp
 {
 public:
-	explicit SparkPower(ProjectileManager* pProjectileManager);
+	explicit SparkPower();
 
 	virtual void OnKeyDownEvent(const Rectf& shape, float xDirection) override;
 	virtual void ContinuousKeyEvent(const Rectf& shape, float xDirection) override;

@@ -20,7 +20,7 @@ public:
 
 	// TODO: Implement parasol & mike powerup (mike is lowest priority)
 
-	explicit PowerUp(PowerUpType type, ProjectileManager* pMgr, bool hasStart, bool hasContinuous, bool hasEnd, bool hasCompleteSpriteSet = false);
+	explicit PowerUp(PowerUpType type, bool hasStart, bool hasContinuous, bool hasEnd, bool hasCompleteSpriteSet = false);
 
 	virtual void OnKeyDownEvent(const Rectf& shape, float xDirection)		= 0;
 	virtual void ContinuousKeyEvent(const Rectf& shape, float xDirection)	= 0;
@@ -51,6 +51,5 @@ protected:
 
 	bool m_IsActive;
 	PowerUpType m_Type;
-	ProjectileManager* m_pProjectileManager;
 };
 

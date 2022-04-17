@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Bounder.h"
 #include "Sprite.h"
+#include "ObjectManager.h"
 #include "ProjectileManager.h"
 #include "ThrowingStar.h"
 #include "LevelManager.h"
@@ -176,7 +177,7 @@ void Bounder::ThrowStar()
 	spawnRect.bottom = m_Shape.bottom + m_Shape.height / 2;
 	spawnRect.width = dimSize;
 	spawnRect.height = dimSize;
-	m_pProjectileManager->Add(new ThrowingStar{ spawnRect, m_XDirection });
+	ProjectileManager::GetProjectileMngr()->Add(new ThrowingStar{spawnRect, m_XDirection});
 }
 
 void Bounder::JumpTowardsKirby()

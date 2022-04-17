@@ -67,7 +67,7 @@ void Sparky::Update(float elapsedSec)
 
 void Sparky::InitializePowerUp()
 {
-	SetPowerUp(new SparkPower{ m_pProjectileManager });
+	SetPowerUp(new SparkPower{});
 }
 
 void Sparky::DoChecksOnKirby(Kirby* pKirby)

@@ -97,7 +97,7 @@ void HotHead::Reset()
 
 void HotHead::InitializePowerUp()
 {
-	SetPowerUp(new FirePower{m_pProjectileManager});
+	SetPowerUp(new FirePower{});
 }
 
 void HotHead::InitializeSprites()

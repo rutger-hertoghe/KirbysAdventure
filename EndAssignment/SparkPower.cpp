@@ -1,11 +1,12 @@
 #include "pch.h"
 #include "SparkPower.h"
+#include "ObjectManager.h"
 #include "ProjectileManager.h"
 #include "Spark.h"
 #include <iostream>
 
-SparkPower::SparkPower(ProjectileManager* pProjectileManager)
-	: PowerUp{PowerUpType::spark, pProjectileManager, true, true, false}
+SparkPower::SparkPower()
+	: PowerUp{PowerUpType::spark, true, true, false}
 	, m_CanSpawn{ false }
 	, m_TimeBetweenSpawns{ 0.05f }
 	, m_TimeSinceSpawn{ 0.0f }
@@ -28,7 +29,7 @@ void SparkPower::ContinuousKeyEvent(const Rectf& shape, float xDirection)
 	const Vector2f spawnVelocities{ velocity * cosf(spawnAngle), velocity * sinf(spawnAngle) };
 	if (m_CanSpawn)
 	{
-		m_pProjectileManager->Add(new Spark{ m_Owner, spawnRect, spawnVelocities });
+		ProjectileManager::GetProjectileMngr()->Add(new Spark{m_Owner, spawnRect, spawnVelocities});
 		m_CanSpawn = false;
 	}
 }

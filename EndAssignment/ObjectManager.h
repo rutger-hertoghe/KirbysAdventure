@@ -19,12 +19,13 @@ public:
 	ObjectManager& operator=(ObjectManager&& other) = delete;
 	~ObjectManager();
 
-	static ProjectileManager* GetProjectileMngr();
+	static ObjectManager* GetObjectMngr();
 
 	void Draw() const;
 	void Update(float elapsedSec, const Rectf& visibleArea);
 
 	void AddItem(Item* pItem);
+	void AddRemovalFX(const Point2f& location, RemovalFX::FXType type);
 
 	void ClearEnemyVector();
 	void ClearObjectVector();
@@ -34,8 +35,7 @@ public:
 	// void ResetEnemies();
 
 private:
-	// OBJECTMANAGER OWNS THE PROJECTILE MANAGER AND MANAGES IT
-	static ProjectileManager* m_pProjectileManager;
+	static ObjectManager* m_pObjectManager;
 
 	Rectf m_VisibleArea;
 
@@ -62,8 +62,6 @@ private:
 	void DeleteEnemies();
 	void DeleteItems();
 	void DeleteFXs();
-
-	void AddRemovalFX(const Point2f& location, RemovalFX::FXType type);
 
 	void LoadObjectsFromFile(const std::string& filePath);
 	void CreateObject(const std::string& objectName, const Point2f& location);

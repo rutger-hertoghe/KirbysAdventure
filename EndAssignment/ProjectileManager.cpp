@@ -9,8 +9,17 @@
 #include "ObjectManager.h"
 #include "Enemy.h"
 
+ProjectileManager* ProjectileManager::m_pProjectileManager{ nullptr };
+
 ProjectileManager::ProjectileManager()
 {
+	if (m_pProjectileManager)
+	{
+		delete m_pProjectileManager;
+	}
+
+	m_pProjectileManager = this;
+
 	InitializeSprites();
 }
 
@@ -27,6 +36,11 @@ ProjectileManager::~ProjectileManager()
 		delete pSprite;
 		pSprite = nullptr;
 	}
+}
+
+ProjectileManager* ProjectileManager::GetProjectileMngr()
+{
+	return m_pProjectileManager;
 }
 
 void ProjectileManager::Draw() const

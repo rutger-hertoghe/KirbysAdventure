@@ -1,9 +1,7 @@
 #pragma once
 class Kirby;
-class Level;
 class HUD;
 class Camera;
-class PowerStar;
 class ProjectileManager;
 class ObjectManager;
 class LevelManager;
@@ -41,6 +39,7 @@ private:
 	HUD* m_pHUD;
 	Camera* m_pCamera;
 	ObjectManager* m_pObjectManager;
+	ProjectileManager* m_pProjectileManager;
 	LevelManager* m_pLevelManager;
 
 	// FUNCTIONS
