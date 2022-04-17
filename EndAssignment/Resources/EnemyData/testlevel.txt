@@ -1,1 +1,6 @@
-bounder, 150, 100
+oneup, 150, 100
+starblock, 100, 100
+starblock, 100, 84
+starblock, 100, 68
+starblock, 100, 116
+healthbug, 180, 100

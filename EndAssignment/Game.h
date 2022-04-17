@@ -7,6 +7,7 @@ class PowerStar;
 class ProjectileManager;
 class ObjectManager;
 class LevelManager;
+class MrTickTock;
 
 class Game final
 {
@@ -35,6 +36,7 @@ private:
 
 	const Window m_Window;
 
+	// MrTickTock* m_pMrTickTock;
 	Kirby* m_pKirby;
 	HUD* m_pHUD;
 	Camera* m_pCamera;

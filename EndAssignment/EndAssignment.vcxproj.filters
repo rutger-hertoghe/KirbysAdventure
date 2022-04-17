@@ -135,9 +135,6 @@
     <ClCompile Include="Item.cpp">
       <Filter>Game Files\GameObjects\Actors\Items</Filter>
     </ClCompile>
-    <ClCompile Include="KirbyStateHandler.cpp">
-      <Filter>Game Files\GameObjects\Actors</Filter>
-    </ClCompile>
     <ClCompile Include="HotHead.cpp">
       <Filter>Game Files\GameObjects\Actors\Enemies</Filter>
     </ClCompile>
@@ -173,6 +170,24 @@
     </ClCompile>
     <ClCompile Include="Parasol.cpp">
       <Filter>Game Files\GameObjects\Actors\Enemies</Filter>
+    </ClCompile>
+    <ClCompile Include="OneUp.cpp">
+      <Filter>Game Files\GameObjects\Actors\Items</Filter>
+    </ClCompile>
+    <ClCompile Include="StarBlock.cpp">
+      <Filter>Game Files\GameObjects\Actors\Items</Filter>
+    </ClCompile>
+    <ClCompile Include="HealthBug.cpp">
+      <Filter>Game Files\GameObjects\Actors\Items</Filter>
+    </ClCompile>
+    <ClCompile Include="KirbyStateHandler.cpp">
+      <Filter>Game Files\Managers</Filter>
+    </ClCompile>
+    <ClCompile Include="RemovalFX.cpp">
+      <Filter>Game Files\GameObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="MrTickTock.cpp">
+      <Filter>Game Files\GameObjects\Actors</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -272,9 +287,6 @@
     <ClInclude Include="Item.h">
       <Filter>Game Files\GameObjects\Actors\Items</Filter>
     </ClInclude>
-    <ClInclude Include="KirbyStateHandler.h">
-      <Filter>Game Files\GameObjects\Actors</Filter>
-    </ClInclude>
     <ClInclude Include="HotHead.h">
       <Filter>Game Files\GameObjects\Actors\Enemies</Filter>
     </ClInclude>
@@ -310,6 +322,24 @@
     </ClInclude>
     <ClInclude Include="Parasol.h">
       <Filter>Game Files\GameObjects\Actors\Enemies</Filter>
+    </ClInclude>
+    <ClInclude Include="OneUp.h">
+      <Filter>Game Files\GameObjects\Actors\Items</Filter>
+    </ClInclude>
+    <ClInclude Include="HealthBug.h">
+      <Filter>Game Files\GameObjects\Actors\Items</Filter>
+    </ClInclude>
+    <ClInclude Include="StarBlock.h">
+      <Filter>Game Files\GameObjects\Actors\Items</Filter>
+    </ClInclude>
+    <ClInclude Include="KirbyStateHandler.h">
+      <Filter>Game Files\Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="RemovalFX.h">
+      <Filter>Game Files\GameObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="MrTickTock.h">
+      <Filter>Game Files\GameObjects\Actors</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

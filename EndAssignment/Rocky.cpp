@@ -2,6 +2,7 @@
 #include "Rocky.h"
 #include "Sprite.h"
 #include "StonePower.h"
+#include "Camera.h"
 
 Rocky::Rocky(const Point2f& location)
 	: Enemy{location}
@@ -65,6 +66,7 @@ void Rocky::ChangeState()
 		{
 			m_pCurrentSprite = GetSpritePtr("rocky_ability");
 			m_Velocity.x = 0;
+			Camera::SetShake();
 		}
 		else
 		{

@@ -11,7 +11,7 @@ public:
 	~LaserBall() override = default;
 
 	virtual void Update(float elapsedSec) override;
-	virtual void DoAbilityCheck(Kirby * pKirby) override;
+	virtual void DoChecksOnKirby(Kirby * pKirby) override;
 	virtual void Reset() override;
 
 private:

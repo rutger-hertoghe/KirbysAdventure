@@ -9,6 +9,8 @@
 #include "ObjectManager.h"
 #include "LevelManager.h"
 
+#include "MrTickTock.h"
+
 Game::Game( const Window& window ) 
 	: m_Window{ window }
 	, m_CurrentLevel{0}
@@ -30,6 +32,8 @@ void Game::Initialize( )
 	m_pObjectManager = new ObjectManager{m_pKirby};
 	m_pCamera = new Camera{ m_pKirby->GetLocation(), m_Window.width, m_Window.height, m_pHUD, m_pObjectManager};
 	m_pLevelManager = new LevelManager{ m_pKirby, m_pObjectManager, m_pCamera };
+	
+	// m_pMrTickTock = new MrTickTock{ Point2f{312.f, 40.f} };
 }
 
 void Game::Cleanup( )
@@ -39,6 +43,8 @@ void Game::Cleanup( )
 	delete m_pCamera;
 	delete m_pKirby;
 	delete m_pObjectManager;
+
+	// delete m_pMrTickTock;
 }
 
 void Game::Update( float elapsedSec )
@@ -47,6 +53,8 @@ void Game::Update( float elapsedSec )
 	m_pKirby->Update(elapsedSec);
 	m_pCamera->Update(elapsedSec, m_pKirby);
 	m_pObjectManager->Update(elapsedSec, m_pCamera->GetVisibleArea());
+	
+	// m_pMrTickTock->Update(elapsedSec);
 }
 
 void Game::Draw( ) const
@@ -61,6 +69,9 @@ void Game::Draw( ) const
 	m_pCamera->Transform();
 	m_pKirby->Draw();
 	m_pObjectManager->Draw();
+	
+	
+	// m_pMrTickTock->Draw();
 	glPopMatrix();
 
 	// UI AREA
@@ -84,19 +95,9 @@ void Game::ProcessKeyUpEvent( const SDL_KeyboardEvent& e )
 	case SDLK_p:
 		m_LegacyMode = !m_LegacyMode;
 		break;
-	case SDLK_a:
-		if (m_pKirby->HasPowerUp())
-		{
-			// TODO: Move this code into Kirby so that it can be triggered upon health loss
-			PowerStar* pPowerStar{ new PowerStar{m_pKirby->GetLocation()} };
-			pPowerStar->SetCurrentLevel(m_pLevelManager->GetCurrentLevel());
-			pPowerStar->SetDirection(-m_pKirby->GetDirection());
-			m_pKirby->TransferPowerUp(pPowerStar);
-			m_pObjectManager->AddItem(pPowerStar);
-		}
-		break;
+	
 	case SDLK_t:
-		m_pObjectManager->ResetEnemies();
+		// m_pObjectManager->ResetEnemies();
 		break;
 	}
 }

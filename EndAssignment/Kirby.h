@@ -2,6 +2,7 @@
 #include "Vector2f.h"
 #include "Level.h"
 #include "Actor.h"
+#include "utils.h"
 
 class Sprite;
 class Texture;
@@ -12,6 +13,7 @@ class GameObject;
 class KirbyStateHandler;
 class SoundEffect;
 class LevelManager;
+class ObjectManager;
 
 class Kirby final : public Actor
 {
@@ -76,7 +78,9 @@ public:
 	bool IsOnGround() const;
 	bool HasLooped() const;
 
+	void IncrementLives();
 	void DecrementHealth(float direction);
+	void FullyHeal();
 
 	virtual void Draw() const override;
 	// bool IsInhaling() const;
@@ -84,16 +88,21 @@ public:
 
 	bool IsBloated() const;
 	bool IsInvulnerable() const;
+
 	void SetBloated();
+
 	void SetPowerState();
 	void SetState(const ActionState& state);
 	void SetMacroState(const MacroState& macroState);
+
+	void SetObjectManager(ObjectManager* objMngr);
 	void SetLevelManager(LevelManager* lvlMngr);
-	
-	bool GiveShakeCommand();
 
 	bool CheckCollisionWith(Actor* pActor);
+	bool CheckCollisionWith(Actor* pActor, utils::HitInfo& hitInfoReference, bool& isVerticalCollision);
 
+	void SetVerticalVelocityToZero();
+	void ForceIsOnGround();
 private:
 	// Primitives
 	const float m_MaxHorSpeed;
@@ -105,7 +114,7 @@ private:
 
 	bool m_IsInvulnerable;
 	bool m_GotDamaged;
-	bool m_ShakeCommand;
+	bool m_IsForcedOnGround;
 
 	bool m_HasReleasedJump;
 	bool m_HasReleasedR;
@@ -114,7 +123,6 @@ private:
 
 	int m_Health;
 	int m_Lives;
-	int m_ParticleFrame;
 
 	float m_ElapsedSec;
 	float m_JumpTime;
@@ -122,13 +130,13 @@ private:
 	// Pointers
 	KirbyStateHandler* m_pStateHandler;
 	LevelManager* m_pLevelManager;
+	ObjectManager* m_pObjectManager;
 	std::vector<SoundEffect*> m_pSounds;
 
 	// Non-Primitves
 	Rectf m_SuctionZone;
 	ActionState m_ActionState;
 	MacroState m_MacroState;	
-
 
 	// Functions
 	void Initialize();
@@ -139,6 +147,7 @@ private:
 	void UpdateState();
 	void ProcessInput(float elapsedSec);
 	void ProcessMovement(float elapsedSec);
+	virtual void SetIsOnGround() override;
 
 	void Flap();
 	void Move(float elapsedSec, bool canAccelerate);
@@ -152,10 +161,10 @@ private:
 	
 	void LockToLevel();
 	std::string GetSpriteNameFromState(const ActionState& state) const;
-	virtual void SetIsOnGround() override;
 	
 	void SpitStar();
 	void SpawnPuff();
+	void ExpelPower();
 	void ToggleRockMode();
 	void KillKirby();
 	void CheckForShakeCommand(bool isAlreadyOnGround);

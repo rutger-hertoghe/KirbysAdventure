@@ -12,12 +12,12 @@ public:
 	~LevelManager();
 
 	void LoadLevel(std::string levelName);
-	Level* GetCurrentLevel() const;
+	static Level* GetCurrentLevel();
 	void DrawLevelLegacy() const;
 	void DrawLevelParallax() const;
 
 private:
-	Level* m_pCurrentLevel;
+	static Level* m_pCurrentLevel;
 	Camera* m_pCamera;
 	Kirby* m_pKirby;
 	ObjectManager* m_pObjectManager;

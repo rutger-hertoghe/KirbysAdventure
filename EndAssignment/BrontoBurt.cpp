@@ -44,7 +44,7 @@ void BrontoBurt::Update(float elapsedSec)
 	ApplyVelocities(elapsedSec, m_Velocity.x * m_XDirection, m_Velocity.y);
 }
 
-void BrontoBurt::DoAbilityCheck(Kirby* pKirby)
+void BrontoBurt::DoChecksOnKirby(Kirby* pKirby)
 {
 	const float kirbyY{ pKirby->GetShape().bottom + pKirby->GetShape().height};
 

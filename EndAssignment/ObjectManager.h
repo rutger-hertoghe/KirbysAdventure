@@ -1,4 +1,6 @@
 #pragma once
+#include "utils.h"
+#include "RemovalFX.h"
 
 class Enemy;
 class Kirby;
@@ -17,42 +19,54 @@ public:
 	ObjectManager& operator=(ObjectManager&& other) = delete;
 	~ObjectManager();
 
+	static ProjectileManager* GetProjectileMngr();
+
 	void Draw() const;
 	void Update(float elapsedSec, const Rectf& visibleArea);
-
-	void SetLevelPointers(Level* levelPtr);
 
 	void AddItem(Item* pItem);
 
 	void ClearEnemyVector();
-	void LoadEnemiesByLevelName(const std::string& levelName);
+	void ClearObjectVector();
+	void LoadObjectsByLevelName(const std::string& levelName);
 
 	// TESTING PURPOSES
-	void ResetEnemies();
-
+	// void ResetEnemies();
 
 private:
+	// OBJECTMANAGER OWNS THE PROJECTILE MANAGER AND MANAGES IT
+	static ProjectileManager* m_pProjectileManager;
+
 	Rectf m_VisibleArea;
 
 	std::vector<Enemy*> m_pEnemies;
 	std::vector<Item*> m_pItems;
+	std::vector<RemovalFX*> m_pRemovalFX;
 
 	Kirby* m_pKirby;
-	// OBJECTMANAGER OWNS THE PROJECTILE MANAGER AND MANAGES IT
-	ProjectileManager* m_pProjectileManager;
 
-	void CheckEnemyRemovalConditions(Enemy*& pEnemy, bool insideXScreenBounds, bool insideYScreenBounds);
+	void DrawEnemies() const;
+	void DrawItems() const;
+	void DrawFXs() const;
+
 	void UpdateEnemies(float elapsedSec);
 	void UpdateItems(float elapsedSec);
+	void UpdateRemovalFXs(float elapsedSec);
 	
 	void UpdateEnemy(Enemy*& pEnemy, float elapsedSec);
+	void CheckEnemyRemovalConditions(Enemy*& pEnemy, bool insideXScreenBounds, bool insideYScreenBounds);
 	void UpdateItem(Item*& pItem, float elapsedSec);
+	void DoItemInhalationActions(Item*& pItem);
+	void DoItemCollision(Item*& pItem, bool isVerticalCollision, const utils::HitInfo& hitInfo);
 
 	void DeleteEnemies();
 	void DeleteItems();
+	void DeleteFXs();
 
-	void LoadEnemiesFromFile(const std::string& filePath);
-	void CreateEnemy(const std::string& enemyName, const Point2f& location);
+	void AddRemovalFX(const Point2f& location, RemovalFX::FXType type);
+
+	void LoadObjectsFromFile(const std::string& filePath);
+	void CreateObject(const std::string& objectName, const Point2f& location);
 
 	void SetEnemyProjectileManagerPointers();
 

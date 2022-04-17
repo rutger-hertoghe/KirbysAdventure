@@ -9,3 +9,13 @@ waddledee, 944, 56
 waddledee, 1000, 88
 brontoburt, 1192, 48
 sparky, 904, 24
+starblock, 744, 120
+starblock, 744, 136
+starblock, 744, 152
+starblock, 760, 120
+starblock, 776, 120
+healthbug, 776, 136
+starblock, 792, 120
+starblock, 808, 120
+starblock, 808, 136
+starblock, 808, 152

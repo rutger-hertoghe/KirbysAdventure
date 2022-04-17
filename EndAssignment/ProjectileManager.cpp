@@ -90,7 +90,7 @@ bool ProjectileManager::ProjectileHasHit(Actor* pActor, Projectile::ActorType hi
 {
 	for (Projectile* pProjectile : m_pProjectiles)
 	{
-		if (HasCollided(pActor, pProjectile) && pProjectile->GetOwner() != hitActorType)
+		if (pProjectile->GetOwner() != hitActorType && HasCollided(pActor, pProjectile))
 		{
 			if (pProjectile->IsPersistent() == false)
 			{

@@ -4,6 +4,7 @@
 #include "Sprite.h"
 #include "ProjectileManager.h"
 #include "utils.h"
+#include "LevelManager.h"
 
 const float Actor::m_Gravity{ -500.f };
 
@@ -11,7 +12,6 @@ Actor::Actor()
 	: GameObject{}
 	, m_pProjectileManager{nullptr}
 	, m_pPowerUp{ nullptr }
-	, m_pCurrentLevel{ nullptr }
 	, m_BaseVelocity{0.f, 0.f}
 	, m_IsOnGround{false}
 	, m_IsInhalable{ true }
@@ -89,11 +89,6 @@ PowerUp* Actor::GetPowerUp() const
 	return m_pPowerUp;
 }
 
-void Actor::SetCurrentLevel(Level* level)
-{
-	m_pCurrentLevel = level;
-}
-
 void Actor::SetProjectileManager(ProjectileManager* pProjectileMgr)
 {
 	m_pProjectileManager = pProjectileMgr;
@@ -101,7 +96,7 @@ void Actor::SetProjectileManager(ProjectileManager* pProjectileMgr)
 
 void Actor::SetIsOnGround()
 {
-	if (m_pCurrentLevel->IsOnGround(m_Shape))
+	if (LevelManager::GetCurrentLevel()->IsOnGround(m_Shape))
 	{
 		m_IsOnGround = true;
 	}
@@ -138,7 +133,7 @@ void Actor::ApplyGravity(float elapsedSec)
 
 void Actor::HandleLevelCollisions()
 {
-	m_pCurrentLevel->HandleCollision(m_Shape, m_Velocity);
+	LevelManager::GetCurrentLevel()->HandleCollision(m_Shape, m_Velocity);
 }
 
 void Actor::ResetArbitraryTimer()
@@ -199,19 +194,6 @@ void Actor::Flicker(float timer, std::string& spriteName)
 	}
 }
 
-Sprite* Actor::GetSpritePtr(const std::string& spriteName) const
-{
-	for (Sprite* pSprite : m_pSprites)
-	{
-		if (pSprite->GetName() == spriteName)
-		{
-			return pSprite;
-		}
-	}
-	std::cout << "SPRITE POINTER '" << spriteName << "' NOT FOUND\n";
-	return nullptr;
-}
-
 void Actor::CreateAltSprites()
 {
 	int originalLength{ int(m_pSprites.size()) };
@@ -222,32 +204,10 @@ void Actor::CreateAltSprites()
 	}
 }
 
-void Actor::SetInitialSprite(const std::string& spriteName)
-{
-	if (spriteName == "")
-	{
-		m_pCurrentSprite = m_pSprites[0];
-	}
-	else
-	{
-		m_pCurrentSprite = GetSpritePtr(spriteName);
-		if (m_pCurrentSprite == nullptr)
-		{
-			m_pCurrentSprite = m_pSprites[0];
-		}
-	}
-}
-
-void Actor::SetDimsFromSprite()
-{
-	m_Shape.width = m_pCurrentSprite->GetFrameDimensions().x;
-	m_Shape.height = m_pCurrentSprite->GetFrameDimensions().y;
-}
-
 void Actor::ChangeDirectionOnBump()
 {
-	if (m_pCurrentLevel->IsAgainstWall(m_Shape, m_XDirection))
+	if (LevelManager::GetCurrentLevel()->IsAgainstWall(m_Shape, m_XDirection))
 	{
-		m_XDirection *= -1;
+		ChangeDirection();
 	}
 }

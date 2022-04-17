@@ -10,6 +10,8 @@ public:
 	Camera(float startLocationX, float startLocationY, float windowWidth, float windowHeight, HUD* pHud, ObjectManager* pObjectManager);
 	Camera(const Point2f& location, float windowWidth, float windowHeight, HUD* pHud, ObjectManager* pObjectManager);
 
+	static void SetShake();
+
 	void Transform(float distanceFactor = 1.f);
 	void Update(float elapsedSec, Kirby* pKirby);
 
@@ -20,6 +22,8 @@ public:
 	Rectf GetVisibleArea();
 
 private:
+	static bool m_IsShaking;
+
 	const float m_HudHeight;
 	const float m_MaxShakeTime;
 	float m_ShakeTimer;
@@ -36,6 +40,7 @@ private:
 	void CalculateVisibleArea();
 	void UpdateLocation(float x, float y, float elapsedSec);
 	void CalculateShake();
+	void UpdateShake(float elapsedSec);
 
 	// TODO: Implement boss camera locking
 };

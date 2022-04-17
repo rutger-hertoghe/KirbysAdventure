@@ -12,7 +12,7 @@ public:
 	~BrontoBurt() override = default;
 
 	virtual void Update(float elapsedSec) override;
-	virtual void DoAbilityCheck(Kirby* pKirby) override;
+	virtual void DoChecksOnKirby(Kirby* pKirby) override;
 private:
 	float m_TargetY;
 	float m_Apex;

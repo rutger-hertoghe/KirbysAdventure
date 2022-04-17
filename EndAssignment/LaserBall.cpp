@@ -50,7 +50,7 @@ void LaserBall::Update(float elapsedSec)
 	
 }
 
-void LaserBall::DoAbilityCheck(Kirby* pKirby)
+void LaserBall::DoChecksOnKirby(Kirby* pKirby)
 {
 	if (IsBeingInhaled()) return;
 

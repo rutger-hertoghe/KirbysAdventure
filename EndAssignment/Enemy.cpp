@@ -104,7 +104,7 @@ void Enemy::Jump(float jumpStrength)
 	}
 }
 
-void Enemy::DoAbilityCheck(Kirby* pKirby)
+void Enemy::DoChecksOnKirby(Kirby* pKirby)
 {
 }
 

@@ -13,7 +13,7 @@ public:
 
 	virtual void Update(float elapsedSec) override;
 
-	virtual void DoAbilityCheck(Kirby* pKirby) override;
+	virtual void DoChecksOnKirby(Kirby* pKirby) override;
 
 private:
 	bool m_IsPowerUsable;

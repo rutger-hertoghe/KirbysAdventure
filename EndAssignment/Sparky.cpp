@@ -70,7 +70,7 @@ void Sparky::InitializePowerUp()
 	SetPowerUp(new SparkPower{ m_pProjectileManager });
 }
 
-void Sparky::DoAbilityCheck(Kirby* pKirby)
+void Sparky::DoChecksOnKirby(Kirby* pKirby)
 {
 	const bool isNotApproachingKirby{(pKirby->GetShape().left - m_Shape.left) * m_XDirection < 0.f};
 	if (m_Velocity.x == 0.f && isNotApproachingKirby)

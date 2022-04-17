@@ -18,7 +18,7 @@ public:
 		sword
 	};
 
-	// TODO: Implement stone, parasol & mike powerup
+	// TODO: Implement parasol & mike powerup (mike is lowest priority)
 
 	explicit PowerUp(PowerUpType type, ProjectileManager* pMgr, bool hasStart, bool hasContinuous, bool hasEnd, bool hasCompleteSpriteSet = false);
 

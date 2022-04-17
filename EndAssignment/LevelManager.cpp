@@ -5,6 +5,8 @@
 #include "Camera.h"
 #include "Kirby.h"
 
+Level* LevelManager::m_pCurrentLevel{ nullptr };
+
 LevelManager::LevelManager(Kirby* pKirby, ObjectManager* pObjectMngr, Camera* pCamera)
 	: m_pKirby(pKirby)
 	, m_pObjectManager{pObjectMngr}
@@ -12,9 +14,8 @@ LevelManager::LevelManager(Kirby* pKirby, ObjectManager* pObjectMngr, Camera* pC
 {
 	Initialize();
 	m_pKirby->SetLevelManager(this);
-	m_pCurrentLevel = m_pLevels[0];
+	LoadLevel("part3");
 	m_pKirby->SetLocation(m_pCurrentLevel->GetStartLocation());
-	LoadLevel("testlevel");
 }
 
 LevelManager::~LevelManager()
@@ -27,19 +28,20 @@ LevelManager::~LevelManager()
 
 void LevelManager::Initialize()
 {
-	m_pLevels.push_back(new Level{ "testlevel", "resources/music/stagemusic1.mp3" });
+	// m_pLevels.push_back(new Level{ "testlevel", "resources/music/stagemusic1.mp3" });
 	m_pLevels.push_back(new Level{ "part1", "resources/music/stagemusic1.mp3" });
 	m_pLevels.push_back(new Level{ "part2", "resources/music/stagemusic1.mp3" });
 	m_pLevels.push_back(new Level{ "part3", "resources/music/stagemusic1.mp3" });
-	m_pLevels.push_back(new Level{ "part4", "resources/music/stagemusic1.mp3" });
-	m_pLevels.push_back(new Level{ "part5", "resources/music/stagemusic1.mp3" });
-	m_pLevels.push_back(new Level{ "part6", "resources/music/stagemusic1.mp3" });
+	// m_pLevels.push_back(new Level{ "part4", "resources/music/stagemusic1.mp3" });
+	// m_pLevels.push_back(new Level{ "part5", "resources/music/stagemusic1.mp3" });
+	// m_pLevels.push_back(new Level{ "part6", "resources/music/stagemusic1.mp3" });
 }
 
 void LevelManager::LoadLevel(std::string levelName)
 {
 	if (levelName == "")
 	{
+		std::cout << "CONNECTED LEVEL NOT FOUND\n";
 		return;
 	}
 
@@ -54,13 +56,10 @@ void LevelManager::LoadLevel(std::string levelName)
 	}
 
 	m_pCamera->UpdateBoundaries(m_pCurrentLevel->GetBoundaries());
-	m_pKirby->SetCurrentLevel(m_pCurrentLevel);
-	m_pObjectManager->LoadEnemiesByLevelName(levelName);
-
-	m_pObjectManager->SetLevelPointers(m_pCurrentLevel);
+	m_pObjectManager->LoadObjectsByLevelName(levelName);
 }
 
-Level* LevelManager::GetCurrentLevel() const
+Level* LevelManager::GetCurrentLevel()
 {
 	return m_pCurrentLevel;
 }

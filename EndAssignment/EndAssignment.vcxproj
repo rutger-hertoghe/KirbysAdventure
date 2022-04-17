@@ -159,8 +159,10 @@
     <ClCompile Include="Core.cpp" />
     <ClCompile Include="Door.cpp" />
     <ClCompile Include="Enemy.cpp" />
+    <ClCompile Include="HealthBug.cpp" />
     <ClCompile Include="LaserBall.cpp" />
     <ClCompile Include="LevelManager.cpp" />
+    <ClCompile Include="MrTickTock.cpp" />
     <ClCompile Include="ObjectManager.cpp" />
     <ClCompile Include="Fireball.cpp" />
     <ClCompile Include="FirePower.cpp" />
@@ -175,6 +177,7 @@
     <ClCompile Include="Level.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Matrix2x3.cpp" />
+    <ClCompile Include="OneUp.cpp" />
     <ClCompile Include="Parasol.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -187,6 +190,7 @@
     <ClCompile Include="Projectile.cpp" />
     <ClCompile Include="ProjectileManager.cpp" />
     <ClCompile Include="Puff.cpp" />
+    <ClCompile Include="RemovalFX.cpp" />
     <ClCompile Include="Rocky.cpp" />
     <ClCompile Include="SoundEffect.cpp" />
     <ClCompile Include="SoundStream.cpp" />
@@ -195,6 +199,7 @@
     <ClCompile Include="Sparky.cpp" />
     <ClCompile Include="Sprite.cpp" />
     <ClCompile Include="Star.cpp" />
+    <ClCompile Include="StarBlock.cpp" />
     <ClCompile Include="StonePower.cpp" />
     <ClCompile Include="structs.cpp" />
     <ClCompile Include="SVGParser.cpp" />
@@ -212,8 +217,10 @@
     <ClInclude Include="Core.h" />
     <ClInclude Include="Door.h" />
     <ClInclude Include="Enemy.h" />
+    <ClInclude Include="HealthBug.h" />
     <ClInclude Include="LaserBall.h" />
     <ClInclude Include="LevelManager.h" />
+    <ClInclude Include="MrTickTock.h" />
     <ClInclude Include="ObjectManager.h" />
     <ClInclude Include="Fireball.h" />
     <ClInclude Include="FirePower.h" />
@@ -227,6 +234,7 @@
     <ClInclude Include="KirbyStateHandler.h" />
     <ClInclude Include="Level.h" />
     <ClInclude Include="Matrix2x3.h" />
+    <ClInclude Include="OneUp.h" />
     <ClInclude Include="Parasol.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="PowerStar.h" />
@@ -234,6 +242,7 @@
     <ClInclude Include="Projectile.h" />
     <ClInclude Include="ProjectileManager.h" />
     <ClInclude Include="Puff.h" />
+    <ClInclude Include="RemovalFX.h" />
     <ClInclude Include="Rocky.h" />
     <ClInclude Include="SoundEffect.h" />
     <ClInclude Include="SoundStream.h" />
@@ -242,6 +251,7 @@
     <ClInclude Include="Sparky.h" />
     <ClInclude Include="Sprite.h" />
     <ClInclude Include="Star.h" />
+    <ClInclude Include="StarBlock.h" />
     <ClInclude Include="StonePower.h" />
     <ClInclude Include="structs.h" />
     <ClInclude Include="SVGParser.h" />

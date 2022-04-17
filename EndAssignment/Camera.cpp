@@ -5,12 +5,16 @@
 #include "ObjectManager.h"
 #include "Kirby.h"
 
+bool Camera::m_IsShaking{ false };
+
 Camera::Camera(float startLocationX, float startLocationY, float windowWidth, float windowHeight, HUD* pHud, ObjectManager* pObjectManager)
 	: m_Location{ startLocationX, startLocationY }
 	, m_WindowSize{ windowWidth, windowHeight}
 	, m_HudHeight{ pHud->GetHeight()}
 	, m_MaxShakeTime{0.2f}
 	, m_ShakeTimer{0.f}
+	, m_XShake{0}
+	, m_YShake{0}
 {
 	const float viewHeight{ 168.f };
 	float gameAreaHeight{ viewHeight + m_HudHeight };
@@ -24,6 +28,11 @@ Camera::Camera(float startLocationX, float startLocationY, float windowWidth, fl
 Camera::Camera(const Point2f& location, float windowWidth, float windowHeight, HUD* pHud, ObjectManager* pObjectManager)
 	: Camera{location.x, location.y, windowWidth, windowHeight, pHud, pObjectManager }
 {
+}
+
+void Camera::SetShake()
+{
+	m_IsShaking = true;
 }
 
 void Camera::Transform(float distanceFactor)
@@ -59,7 +68,8 @@ void Camera::Transform(float distanceFactor)
 
 	if (m_ShakeTimer > 0.f)
 	{
-		glScalef(1.005f, 1.005f, 0.f);
+		const float zoomFactor{ 1.005f }; // To mask that shaking might reveal areas that are outside the level boundaries
+		glScalef(zoomFactor, zoomFactor, 0.f);
 		glTranslatef(float(m_XShake), float(m_YShake), 0.f);
 	}
 }
@@ -99,9 +109,16 @@ void Camera::Update(float elapsedSec, Kirby* pKirby)
 {
 	UpdateLocation(pKirby->GetLocation().x, pKirby->GetLocation().y, elapsedSec);
 	CalculateVisibleArea();
-	if (pKirby->GiveShakeCommand())
+	UpdateShake(elapsedSec);
+}
+
+
+void Camera::UpdateShake(float elapsedSec)
+{
+	if (m_IsShaking)
 	{
 		m_ShakeTimer += elapsedSec;
+		m_IsShaking = false;
 	}
 
 	if (m_ShakeTimer > m_MaxShakeTime)

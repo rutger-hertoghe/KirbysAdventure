@@ -6,12 +6,18 @@
 #include "PowerUp.h"
 #include "HudElement.h"
 
+// TODO: Add dancing kirby + score counter
+
 HUD::HUD()
 	: m_PosDancingKirby{ 187.f, 32.f }
+	, m_PosScore{ 15.f, 23.f }
 	, m_pDancingKirby{nullptr}
 {
 	m_pMainTexture = new Texture{ "resources/UI/HUD_Normal.png" };
 	m_pPowerTextures = new Texture{ "resources/UI/HUD_Powers.png"};
+	m_pNumbers = new Texture{ "resources/UI/HUD_Numbers.png" };
+	m_pScore = new Texture{ "resources/UI/HUD_Score.png" };
+
 	m_Dimensions.x = m_pMainTexture->GetWidth();
 	m_Dimensions.y = m_pMainTexture->GetHeight();
 
@@ -37,6 +43,12 @@ HUD::~HUD()
 	delete m_pPowerTextures;
 	m_pPowerTextures = nullptr;
 
+	delete m_pNumbers;
+	m_pNumbers = nullptr;
+
+	delete m_pScore;
+	m_pScore = nullptr;
+
 	// delete m_pDancingKirby;
 	// m_pDancingKirby = nullptr;
 
@@ -57,9 +69,11 @@ void HUD::Update(float elapsedSec)
 void HUD::Draw(Kirby* kirbyPtr) const
 {
 	m_pMainTexture->Draw();
+	m_pScore->Draw(m_PosScore);
 	// m_pDancingKirby->Draw();
 	DrawPowerPanel(kirbyPtr);
 	DrawHealth(kirbyPtr);
+	DrawLives(kirbyPtr);
 }
 
 void HUD::DrawPowerPanel(Kirby* pKirby) const
@@ -112,6 +126,32 @@ void HUD::DrawHealth(Kirby* kirbyPtr) const
 		}
 		location.x += m_pHealth->GetWidth();
 	}
+}
+
+void HUD::DrawLives(Kirby* kirbyPtr) const
+{
+	const int lives{ kirbyPtr->GetLives() };
+	const int tens{ lives / 10 };
+	const int units{ lives % 10 };
+	const int decimalNumbers{ 10 };
+	
+	Point2f location{ 208.f, 32.f };
+
+	Rectf tensSrcRect{}, unitsSrcRect{};
+	tensSrcRect.width = m_pNumbers->GetWidth() / 10;
+	tensSrcRect.height = m_pNumbers->GetHeight();
+	tensSrcRect.bottom = tensSrcRect.height;
+	tensSrcRect.left = tens * tensSrcRect.width;
+	
+	unitsSrcRect.width = tensSrcRect.width;
+	unitsSrcRect.height = tensSrcRect.height;
+	unitsSrcRect.bottom = unitsSrcRect.height;
+	unitsSrcRect.left = units * unitsSrcRect.width;
+
+	m_pNumbers->Draw(location, tensSrcRect);
+
+	location.x += tensSrcRect.width;
+	m_pNumbers->Draw(location, unitsSrcRect);
 }
 
 float HUD::GetHeight() const

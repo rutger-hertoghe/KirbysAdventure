@@ -3,19 +3,17 @@
 #include "Sprite.h"
 
 PowerStar::PowerStar(const Point2f& location)
-	: Item{false, true, false}
+	: Item{false, false, false, false, true, false}
 {
 	SetLocation(location);
-	m_pCurrentSprite = new Sprite{ 4, 0.5f, "star" };
-	m_Shape.width = m_pCurrentSprite->GetFrameDimensions().x;
-	m_Shape.height = m_pCurrentSprite->GetFrameDimensions().y;
+	InitializeSprites();
+	SetInitialSprite();
+	SetDimsFromSprite();
 	SetBaseVelocity( 80.f, 200.f);
 }
 
 PowerStar::~PowerStar()
 {
-	delete m_pCurrentSprite;
-	m_pCurrentSprite = nullptr;
 }
 
 void PowerStar::Update(float elapsedSec)
@@ -53,4 +51,9 @@ void PowerStar::Update(float elapsedSec)
 void PowerStar::SetDirection(float directionValue)
 {
 	m_XDirection = directionValue;
+}
+
+void PowerStar::InitializeSprites()
+{
+	m_pSprites.push_back(new Sprite{ 4, 0.5f, "star" });
 }

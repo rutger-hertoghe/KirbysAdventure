@@ -107,7 +107,7 @@ void HotHead::InitializeSprites()
 	m_pSprites.push_back(new Sprite{ 1, 0.f, "hothead_ability"});
 }
 
-void HotHead::DoAbilityCheck(Kirby* pKirby)
+void HotHead::DoChecksOnKirby(Kirby* pKirby)
 {
 	const float squaredDistanceValue {GetSquaredDistanceToActor(pKirby) };
 	const float triggerDistance{ 64.f };
