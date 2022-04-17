@@ -1,58 +1,109 @@
 #include "pch.h"
 #include "ObjectManager.h"
 #include "ProjectileManager.h"
-#include "Enemy.h"
-#include "WaddleDee.h"
 #include "Level.h"
-#include "HotHead.h"
 #include "PowerUp.h"
-#include "BrontoBurt.h"
 #include "Camera.h"
-#include "Sparky.h"
 #include <fstream>
 #include <string>
 #include "Item.h"
-#include "PowerStar.h"
 
-ObjectManager::ObjectManager()
-	: m_pKirby{ nullptr }
-	, m_pProjectileManager{ new ProjectileManager{} }
+// Enemy Types
+#include "HotHead.h"
+#include "Enemy.h"
+#include "WaddleDee.h"
+#include "Rocky.h"
+#include "BrontoBurt.h"
+#include "Bounder.h"
+#include "LaserBall.h"
+#include "Sparky.h"
+#include "Parasol.h"
+
+// Item Types
+#include "PowerStar.h"
+#include "OneUp.h"
+#include "HealthBug.h"
+#include "StarBlock.h"
+
+// TODO: Implement removal puffs for enemies & items
+
+ProjectileManager* ObjectManager::m_pProjectileManager{ nullptr };
+
+ObjectManager::ObjectManager(Kirby* pKirby)
+	: m_pKirby{ pKirby }
 {
+	m_pProjectileManager = new ProjectileManager{};
+	m_pKirby->SetProjectileManager(m_pProjectileManager);
+	m_pKirby->SetObjectManager(this);
 }
 
 ObjectManager::~ObjectManager()
 {
 	DeleteEnemies();
 	DeleteItems();
+	DeleteFXs();
 
 	delete m_pProjectileManager;
 }
 
+ProjectileManager* ObjectManager::GetProjectileMngr()
+{
+	return m_pProjectileManager;
+}
+
 void ObjectManager::Draw() const
 {
-	for (Enemy* pEnemy : m_pEnemies)
-	if (pEnemy->IsActive())
-	{
-		pEnemy->Draw();
-	}
+	DrawFXs();
+	DrawItems();
+	DrawEnemies();
+	
+	m_pProjectileManager->Draw();
+}
 
+void ObjectManager::DrawEnemies() const
+{
+	for (Enemy* pEnemy : m_pEnemies)
+	{
+		if (pEnemy->IsActive())
+		{
+			pEnemy->Draw();
+		}
+	}
+}
+
+void ObjectManager::DrawItems() const
+{
 	for (Item* pItem : m_pItems)
 	{
-		if (pItem->IsRemoved() == false)
+		if (pItem->IsRemoved() == false && pItem->NeedsToBeDrawn())
 		{
 			pItem->Draw();
 		}
 	}
-
-	m_pProjectileManager->Draw();
 }
 
-void ObjectManager::Update(float elapsedSec, const Point2f& cameraLocation)
+void ObjectManager::DrawFXs() const
 {
-	m_ViewLocation = cameraLocation;
+	for (RemovalFX* pFX : m_pRemovalFX)
+	{
+		pFX->Draw();
+	}
+}
+
+void ObjectManager::Update(float elapsedSec, const Rectf& visibleArea)
+{
+	m_VisibleArea = visibleArea;
 
 	m_pProjectileManager->Update(elapsedSec);
 
+	UpdateEnemies(elapsedSec);
+	UpdateItems(elapsedSec);
+	UpdateRemovalFXs(elapsedSec);
+	
+}
+
+void ObjectManager::UpdateEnemies(float elapsedSec)
+{
 	for (Enemy*& pEnemy : m_pEnemies)
 	{
 		if (pEnemy)
@@ -60,7 +111,10 @@ void ObjectManager::Update(float elapsedSec, const Point2f& cameraLocation)
 			UpdateEnemy(pEnemy, elapsedSec);
 		}
 	}
+}
 
+void ObjectManager::UpdateItems(float elapsedSec)
+{
 	for (Item*& pItem : m_pItems)
 	{
 		if (pItem)
@@ -79,43 +133,66 @@ void ObjectManager::SetEnemyProjectileManagerPointers()
 	}
 }
 
-void ObjectManager::LinkKirby(Kirby* kirbyPtr)
+bool ObjectManager::InsideXScreenBounds(const Rectf& shape)
 {
-	m_pKirby = kirbyPtr;
-	m_pKirby->SetProjectileManager(m_pProjectileManager);
+	const float viewExtension{ 0.f };
+	return m_VisibleArea.left < shape.left + shape.width + viewExtension
+		&& shape.left < m_VisibleArea.left + m_VisibleArea.width + viewExtension;
 }
 
-void ObjectManager::SetLevelPointers(Level* levelPtr)
+bool ObjectManager::InsideYScreenBounds(const Rectf& shape)
 {
-	for (Enemy* pEnemy : m_pEnemies)
-	{
-		pEnemy->SetCurrentLevel(levelPtr);
-	}
+	const float viewExtension{ 0.f };
+	return m_VisibleArea.bottom < shape.bottom + shape.height + viewExtension
+		&& shape.bottom < m_VisibleArea.bottom + m_VisibleArea.height + viewExtension;
+}
 
-	for (Item* pItem : m_pItems)
+void ObjectManager::UpdateEnemy(Enemy*& pEnemy, float elapsedSec)
+{
+	Rectf enemyShape{ pEnemy->GetShape() };
+	const bool insideXScreenBounds{ InsideXScreenBounds(enemyShape) }, insideYScreenBounds{ InsideYScreenBounds(enemyShape) };
+	if (pEnemy->IsActive())
 	{
-		pItem->SetCurrentLevel(levelPtr);
+		pEnemy->DoChecksOnKirby(m_pKirby);
+
+		if (pEnemy->IsInhalable())
+		{
+			pEnemy->ToggleBeingInhaled(m_pKirby->GetInhalationZone());
+		}
+
+		if (pEnemy->IsBeingInhaled())
+		{
+			pEnemy->SetInhalationVelocities(m_pKirby->GetShape());
+		}
+
+		pEnemy->Update(elapsedSec);
+
+		CheckEnemyRemovalConditions(pEnemy, insideXScreenBounds, insideYScreenBounds);
+	}
+	else if (pEnemy->HasBeenOffScreen() && insideXScreenBounds && insideYScreenBounds)
+	{
+		pEnemy->SetActivity(true);
+	}
+	else if ( pEnemy->HasBeenOffScreen() == false && (insideXScreenBounds == false || insideYScreenBounds == false))
+	{
+		float xDirection{ pEnemy->GetShape().left - m_pKirby->GetShape().left > 0.f ? -1.f : 1.f };
+		pEnemy->SetOffScreen(true, xDirection);
 	}
 }
 
-void ObjectManager::CheckEnemyRemovalConditions(Enemy*& pEnemy)
+void ObjectManager::CheckEnemyRemovalConditions(Enemy*& pEnemy, bool insideXScreenBounds, bool insideYScreenBounds)
 {
 	// CONDITIONS AND VARIABLES
-	const float viewExtension{ 32.f };
-	const bool hasCollidedWithKirby{ pEnemy->IsActive() && m_pKirby->CheckCollisionWith(pEnemy)};
-	const bool outsideExtendedViewingArea
-	{
-		abs(pEnemy->GetShape().left - m_ViewLocation.x) > ((m_ViewSize.x + viewExtension) / 2)
-		|| abs(pEnemy->GetShape().bottom - m_ViewLocation.y) > ((m_ViewSize.y + viewExtension) / 2)
-	};
-	const bool fellOutOfWorld{ pEnemy->GetShape().bottom < -50.f };
+	const bool hasCollidedWithKirby{ pEnemy->IsActive() && m_pKirby->CheckCollisionWith(pEnemy) };
+	const bool outsideExtendedViewingArea{ !insideXScreenBounds || !insideYScreenBounds };
+	const bool fellOutOfWorld{ pEnemy->GetShape().bottom + pEnemy->GetShape().height < -100.f };
 	const bool hasPassedKirby{ m_pKirby->GetDirection() > 0.f ? m_pKirby->GetShape().left > pEnemy->GetShape().left : m_pKirby->GetShape().left < pEnemy->GetShape().left };
-	float direction{};
 
 	// ACTUAL CODE
-	
-	if (m_pProjectileManager->ProjectileHasHit(pEnemy, Projectile::ActorType::enemy, direction) || fellOutOfWorld || outsideExtendedViewingArea)
+
+	if (m_pProjectileManager->ProjectileHasHit(pEnemy, Projectile::ActorType::enemy) || fellOutOfWorld || outsideExtendedViewingArea)
 	{
+		AddRemovalFX(pEnemy->GetLocation(), RemovalFX::FXType::enemy);
 		pEnemy->Reset();
 	}
 	else if (pEnemy->IsBeingInhaled())
@@ -133,49 +210,13 @@ void ObjectManager::CheckEnemyRemovalConditions(Enemy*& pEnemy)
 	else if (hasCollidedWithKirby)
 	{
 		float bounceDirection{ pEnemy->GetShape().left < m_pKirby->GetShape().left ? 1.f : -1.f };
-		m_pKirby->BounceOffInDirection(bounceDirection);
-		m_pKirby->DecrementHealth();
+		m_pKirby->DecrementHealth(bounceDirection);
+		AddRemovalFX(pEnemy->GetLocation(), RemovalFX::FXType::enemy);
 		pEnemy->Reset();
 	}
 }
 
-void ObjectManager::UpdateEnemy(Enemy*& pEnemy, float elapsedSec)
-{
-	const float viewExtension{ 32.f };
-	// const float reductionFactor{ m_ViewSize.x + 2 *  };
-	// const bool insideXScreenBounds{ abs(pEnemy->GetShape().left - m_pKirby->GetShape().left) < (m_ViewSize.x * reductionFactor) };
-	// const bool insideYScreenBounds{ abs(pEnemy->GetShape().bottom - m_pKirby->GetShape().bottom) < (m_ViewSize.y * reductionFactor) };
-	const bool insideXScreenBounds{ abs(pEnemy->GetShape().left - m_ViewLocation.x) < ((m_ViewSize.x + viewExtension) / 2) };
-	const bool insideYScreenBounds{ abs(pEnemy->GetShape().bottom - m_ViewLocation.y) < ((m_ViewSize.y + viewExtension) / 2) };
 
-	if (pEnemy->IsActive())
-	{
-		pEnemy->DoAbilityCheck(m_pKirby);
-
-		if (pEnemy->IsInhalable())
-		{
-			pEnemy->ToggleBeingInhaled(m_pKirby->GetInhalationZone());
-		}
-
-		if (pEnemy->IsBeingInhaled())
-		{
-			pEnemy->SetInhalationVelocities(m_pKirby->GetShape());
-		}
-
-		pEnemy->Update(elapsedSec);
-
-		CheckEnemyRemovalConditions(pEnemy);
-	}
-	else if (pEnemy->HasBeenOffScreen() && insideXScreenBounds && insideYScreenBounds)
-	{
-		pEnemy->SetActivity(true);
-	}
-	else if ( pEnemy->HasBeenOffScreen() == false && (insideXScreenBounds == false || insideYScreenBounds == false))
-	{
-		float xDirection{ pEnemy->GetShape().left - m_pKirby->GetShape().left > 0.f ? -1.f : 1.f };
-		pEnemy->SetOffScreen(true, xDirection);
-	}
-}
 
 void ObjectManager::UpdateItem(Item*& pItem, float elapsedSec)
 {
@@ -185,16 +226,34 @@ void ObjectManager::UpdateItem(Item*& pItem, float elapsedSec)
 		return;
 	}
 
-	const bool hasCollidedWithKirby{ m_pKirby->CheckCollisionWith(pItem)};
-	const bool outsideExtendedViewingArea
-	{
-		abs(pItem->GetShape().left - m_ViewLocation.x) > (m_ViewSize.x * 2 / 3)
-		|| abs(pItem->GetShape().bottom - m_ViewLocation.y) > (m_ViewSize.y * 2 / 3)
-	};
-	const bool fellOutOfWorld{ pItem->GetShape().bottom < -50.f };
-	const bool hasPassedKirby{ m_pKirby->GetDirection() > 0.f ? m_pKirby->GetShape().left > pItem->GetShape().left : m_pKirby->GetShape().left < pItem->GetShape().left };
+	Rectf itemShape{ pItem->GetShape() };
+	utils::HitInfo hitInfo;
+	bool isVerticalCollision;
 
-	if (hasCollidedWithKirby && pItem->HasCollisionEvent())
+	const bool hasCollidedWithKirby{ m_pKirby->CheckCollisionWith(pItem, hitInfo, isVerticalCollision)};
+	const bool insideXScreenBounds{ InsideXScreenBounds(itemShape) };
+	const bool insideYScreenBounds{ InsideYScreenBounds(itemShape) };
+	const bool outsideExtendedViewingArea{ !insideXScreenBounds || !insideYScreenBounds };
+	const bool fellOutOfWorld{ pItem->GetShape().bottom < -50.f };
+
+	if (pItem->IsInhalable())
+	{
+		pItem->ToggleBeingInhaled(m_pKirby->GetInhalationZone());
+	}
+	if (pItem->IsBeingInhaled())
+	{
+		DoItemInhalationActions(pItem);
+	}
+	else if (pItem->IsDestructible() && m_pProjectileManager->ProjectileHasHit(pItem, Projectile::ActorType::enemy))
+	{
+		pItem->Remove();
+		AddRemovalFX(pItem->GetLocation(), RemovalFX::FXType::item);
+	}
+	else if (hasCollidedWithKirby && pItem->IsSolid())
+	{
+		DoItemCollision(pItem, isVerticalCollision, hitInfo);
+	}
+	else if (hasCollidedWithKirby && pItem->HasCollisionEvent())
 	{
 		pItem->DoCollisionEvent();
 		pItem->Remove();
@@ -203,29 +262,88 @@ void ObjectManager::UpdateItem(Item*& pItem, float elapsedSec)
 	{
 		pItem->Remove();
 	}
-
-	if (pItem->IsInhalable())
-	{
-		pItem->ToggleBeingInhaled(m_pKirby->GetInhalationZone());
-	}
 	
-	if (pItem->IsBeingInhaled())
+	if (pItem->IsRemoved() == false)
 	{
-		if (hasPassedKirby)
-		{
-			if (pItem->IsBloatItem())
-			{
-				m_pKirby->SetBloated();
-			}
-			if (pItem->HasPowerUp())
-			{
-				pItem->TransferPowerUp(m_pKirby);
-			}
-			pItem->Remove();
-		}
-		pItem->SetInhalationVelocities(m_pKirby->GetShape());
+		pItem->Update(elapsedSec);
 	}
-	pItem->Update(elapsedSec);
+}
+
+void ObjectManager::UpdateRemovalFXs(float elapsedSec)
+{
+	int idx{};
+	if (m_pRemovalFX.size() > 0)
+	{
+		while (idx < m_pRemovalFX.size())
+		{
+			if (m_pRemovalFX[idx])
+			{
+				m_pRemovalFX[idx]->Update(elapsedSec);
+
+				if (m_pRemovalFX[idx]->IsReadyToDestroy())
+				{
+					delete m_pRemovalFX[idx];
+					m_pRemovalFX[idx] = nullptr;
+					std::swap(m_pRemovalFX[idx], m_pRemovalFX[m_pRemovalFX.size() - 1]);
+					m_pRemovalFX.pop_back();
+				}
+			}
+			++idx;
+		}
+	}
+}
+
+void ObjectManager::DoItemInhalationActions(Item*& pItem)
+{
+	const bool hasPassedKirby{ m_pKirby->GetDirection() > 0.f ? m_pKirby->GetShape().left > pItem->GetShape().left : m_pKirby->GetShape().left < pItem->GetShape().left };
+	if (hasPassedKirby)
+	{
+		if (pItem->IsBloatItem())
+		{
+			m_pKirby->SetBloated();
+		}
+		if (pItem->HasPowerUp())
+		{
+			pItem->TransferPowerUp(m_pKirby);
+		}
+		if (pItem->HasCollisionEvent())
+		{
+			pItem->DoCollisionEvent();
+		}
+		pItem->Remove();
+	}
+	pItem->SetInhalationVelocities(m_pKirby->GetShape());
+}
+
+void ObjectManager::DoItemCollision(Item*& pItem, bool isVerticalCollision, const utils::HitInfo& hitInfo)
+{
+	if (isVerticalCollision)
+	{
+		if (hitInfo.lambda < 0.5f)
+		{
+			// TODO: fix stuttering bug when on star block
+			m_pKirby->SetLocation(Point2f{ m_pKirby->GetShape().left, pItem->GetShape().bottom + pItem->GetShape().height});
+			m_pKirby->ForceIsOnGround();
+			m_pKirby->SetVerticalVelocityToZero();
+		}
+		else
+		{
+			float fallPixel{ 1.f }; // Pixel offset so that kirby doesn't stick to roof
+			m_pKirby->SetLocation(Point2f{ m_pKirby->GetShape().left, pItem->GetShape().bottom - m_pKirby->GetShape().height - fallPixel });
+			m_pKirby->SetVerticalVelocityToZero();
+		}
+	}
+	else
+	{
+		if (hitInfo.lambda < 0.5f)
+		{
+			m_pKirby->SetLocation(Point2f{ pItem->GetShape().left + pItem->GetShape().width, m_pKirby->GetShape().bottom });
+		}
+		else
+		{
+			m_pKirby->SetLocation(Point2f{ pItem->GetShape().left - m_pKirby->GetShape().width, m_pKirby->GetShape().bottom });
+		}
+	}
 }
 
 void ObjectManager::DeleteEnemies()
@@ -246,14 +364,19 @@ void ObjectManager::DeleteItems()
 	m_pItems.clear();
 }
 
-void ObjectManager::SupplyViewportDimensions(const Point2f& viewDimensions)
+void ObjectManager::DeleteFXs()
 {
-	m_ViewSize = viewDimensions;
+	for (RemovalFX* pFX : m_pRemovalFX)
+	{
+		delete pFX;
+	}
+	m_pRemovalFX.clear();
+
 }
 
-std::vector<Enemy*>& ObjectManager::GetEnemyVector()
+void ObjectManager::AddRemovalFX(const Point2f& location, RemovalFX::FXType type)
 {
-	return m_pEnemies;
+	m_pRemovalFX.push_back(new RemovalFX{ location , type });
 }
 
 void ObjectManager::AddItem(Item* pItem)
@@ -270,22 +393,40 @@ void ObjectManager::ClearEnemyVector()
 	m_pEnemies.clear();
 }
 
-void ObjectManager::LoadEnemiesByLevelName(const std::string& levelName)
+void ObjectManager::ClearObjectVector()
+{
+	for (Item* pItem : m_pItems)
+	{
+		delete pItem;
+	}
+	m_pItems.clear();
+}
+
+void ObjectManager::LoadObjectsByLevelName(const std::string& levelName)
 {
 	std::string filePath{ "resources/enemydata/" + levelName + ".txt" };
-	LoadEnemiesFromFile(filePath);
+	LoadObjectsFromFile(filePath);
 
 	SetEnemyProjectileManagerPointers();
 }
 
-void ObjectManager::LoadEnemiesFromFile(const std::string& filePath)
+//void ObjectManager::ResetEnemies()
+//{
+//	for (Enemy* pEnemy : m_pEnemies)
+//	{
+//		pEnemy->Reset();
+//		pEnemy->SetActivity(true);
+//	}
+//}
+
+void ObjectManager::LoadObjectsFromFile(const std::string& filePath)
 {
 	std::fstream file;
 	file.open(filePath, std::ios::in);
 
 	if (!file)
 	{
-		std::cout << "COULD NOT FIND ENEMY FILE \n";
+		std::cout << "COULD NOT FIND OBJECT FILE \n";
 		return;
 	}
 
@@ -314,26 +455,54 @@ void ObjectManager::LoadEnemiesFromFile(const std::string& filePath)
 		float yCoordinate{ std::stof(bufferString.substr(splitPositions[1] + 1, splitPositions[2])) };
 		Point2f location{ xCoordinate, yCoordinate };
 
-		CreateEnemy(enemyName, location);
+		CreateObject(enemyName, location);
 	}
 }
 
-void ObjectManager::CreateEnemy(const std::string& enemyName, const Point2f& location)
+void ObjectManager::CreateObject(const std::string& objectName, const Point2f& location)
 {
-	if (enemyName == "waddledee")
+	if (objectName == "waddledee")
 	{
 		m_pEnemies.push_back(new WaddleDee{ location });
 	}
-	else if (enemyName == "brontoburt")
+	else if (objectName == "brontoburt")
 	{
 		m_pEnemies.push_back(new BrontoBurt{ location });
 	}
-	else if (enemyName == "hothead")
+	else if (objectName == "hothead")
 	{
 		m_pEnemies.push_back(new HotHead{ location });
 	}
-	else if (enemyName == "sparky")
+	else if (objectName == "sparky")
 	{
 		m_pEnemies.push_back(new Sparky{ location });
+	}
+	else if (objectName == "bounder")
+	{
+		m_pEnemies.push_back(new Bounder{ location });
+	}
+	else if (objectName == "laserball")
+	{
+		m_pEnemies.push_back(new LaserBall{ location });
+	}
+	else if (objectName == "rocky")
+	{
+		m_pEnemies.push_back(new Rocky{ location });
+	}
+	else if (objectName == "parasol")
+	{
+		m_pEnemies.push_back(new Parasol{ location });
+	}
+	else if (objectName == "starblock")
+	{
+		m_pItems.push_back(new StarBlock{ location });
+	}
+	else if (objectName == "oneup")
+	{
+		m_pItems.push_back(new OneUp{ location , m_pKirby});
+	}
+	else if (objectName == "healthbug")
+	{
+		m_pItems.push_back(new HealthBug{ location, m_pKirby });
 	}
 }

@@ -14,14 +14,19 @@ PowerUp::PowerUp(PowerUpType type, ProjectileManager* pMgr, bool hasStart, bool 
 {
 }
 
-bool PowerUp::IsOneShot()
-{
-	return false;
-}
+//bool PowerUp::IsOneShot()
+//{
+//	return false;
+//}
 
 int PowerUp::GetPowerPanelSlot() const
 {
 	return int(m_Type) + 1;
+}
+
+PowerUp::PowerUpType PowerUp::GetType() const
+{
+	return m_Type;
 }
 
 bool PowerUp::HasStart() const
@@ -44,7 +49,12 @@ bool PowerUp::HasCompleteSpriteSet() const
 	return m_HasCompleteSpriteSet;
 }
 
-void PowerUp::SetKirbyAsOwner()
+void PowerUp::SetOwnerType(Projectile::ActorType owner)
 {
-	m_Owner = Projectile::ActorType::kirby;
+	m_Owner = owner;
+}
+
+void PowerUp::SetInactive()
+{
+	m_IsActive = false;
 }

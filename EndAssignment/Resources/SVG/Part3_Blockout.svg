@@ -26,15 +26,15 @@
        id="path3360" />
     <path
        style="fill:#000000"
-       d="M 168,80 V 64 h -16 v 16 z"
+       d="M 172,80 v -20 h -24 v 20 z"
        id="path3358" />
     <path
        style="fill:#000000"
-       d="M 136,112 V 96 h -16 v 16 z"
+       d="M 116, 96 v 20 h 24 v -20 z"
        id="path3356" />
     <path
        style="fill:#000000"
-       d="M 104,144 V 112 H 88 v 32 z"
+       d="M 108,144 v -40 h -24 v 40 z"
        id="path3354" />
     <path
        style="fill:#000000"

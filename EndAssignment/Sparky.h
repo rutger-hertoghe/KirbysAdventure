@@ -13,11 +13,14 @@ public:
 
 	virtual void Update(float elapsedSec) override;
 
-	virtual void Reset() override;
-	virtual void InitializePowerUp() override;
-	virtual void DoAbilityCheck(Kirby* pKirby) override;
+	virtual void DoChecksOnKirby(Kirby* pKirby) override;
 
 private:
+	bool m_IsPowerUsable;
+	bool m_IsInert;
+
 	virtual void InitializeSprites() override;
+	virtual void InitializePowerUp() override;
+	void HandleJumping();
 };
 

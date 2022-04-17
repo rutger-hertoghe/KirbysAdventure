@@ -57,6 +57,11 @@ void GameObject::UpdateSprite(float elapsedSec)
 	else m_HasLooped = false;
 }
 
+void GameObject::ChangeDirection()
+{
+	m_XDirection *= -1.f;
+}
+
 Rectf GameObject::GetShape() const
 {
 	return m_Shape;
@@ -67,3 +72,37 @@ float GameObject::GetDirection() const
 	return m_XDirection;
 }
 
+void GameObject::SetInitialSprite(const std::string& spriteName)
+{
+	if (spriteName == "")
+	{
+		m_pCurrentSprite = m_pSprites[0];
+	}
+	else
+	{
+		m_pCurrentSprite = GetSpritePtr(spriteName);
+		if (m_pCurrentSprite == nullptr)
+		{
+			m_pCurrentSprite = m_pSprites[0];
+		}
+	}
+}
+
+void GameObject::SetDimsFromSprite()
+{
+	m_Shape.width = m_pCurrentSprite->GetFrameDimensions().x;
+	m_Shape.height = m_pCurrentSprite->GetFrameDimensions().y;
+}
+
+Sprite* GameObject::GetSpritePtr(const std::string& spriteName) const
+{
+	for (Sprite* pSprite : m_pSprites)
+	{
+		if (pSprite->GetName() == spriteName)
+		{
+			return pSprite;
+		}
+	}
+	std::cout << "SPRITE POINTER '" << spriteName << "' NOT FOUND\n";
+	return nullptr;
+}

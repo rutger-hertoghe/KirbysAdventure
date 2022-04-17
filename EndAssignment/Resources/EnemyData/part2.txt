@@ -1,0 +1,5 @@
+bounder, 24, 220
+bounder, 88, 88
+bounder, 136, 88
+bounder, 200, 200
+oneup, 104, 24

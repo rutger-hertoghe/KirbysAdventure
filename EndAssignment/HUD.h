@@ -20,9 +20,12 @@ public:
 
 private:
 	Point2f m_PosDancingKirby;
+	Point2f m_PosScore;
 
+	Texture* m_pNumbers;
 	Texture* m_pMainTexture;
 	Texture* m_pPowerTextures;
+	Texture* m_pScore;
 	
 	HudElement* m_pHealth;
 	HudElement* m_pHealthLost;
@@ -31,5 +34,6 @@ private:
 
 	void DrawPowerPanel(Kirby* kirbyPtr) const;
 	void DrawHealth(Kirby* kirbyPtr) const;
+	void DrawLives(Kirby* kirbyPtr) const;
 };
 

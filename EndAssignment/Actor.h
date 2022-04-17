@@ -29,9 +29,7 @@ public:
 	Point2f GetLocation() const;
 	PowerUp* GetPowerUp() const;
 
-	void SetCurrentLevel(Level* level);
 	void SetProjectileManager(ProjectileManager* pProjectileMgr);
-	virtual void SetIsOnGround();
 
 	void SetInhalationVelocities(const Rectf& kirbyRect);
 	bool IsInhalable() const;
@@ -52,21 +50,20 @@ protected:
 	bool m_IsBeingInhaled;
 
 	PowerUp* m_pPowerUp;
-	Level* m_pCurrentLevel;
 	ProjectileManager* m_pProjectileManager;
 
 	void SetBaseVelocity(float xVelocity, float yVelocity);
 	void SetBaseVelocity(const Vector2f& velocity);
 	void SetBaseVelocity(const Point2f& velocity);
+	virtual void SetIsOnGround();
 	void ApplyVelocities(float elapsedSec, float xVelocity, float yVelocity);
 	void ApplyGravity(float elapsedSec);
 	void HandleLevelCollisions();
 	void ResetArbitraryTimer();
 
 	void Flicker(float timer, std::string& spriteName);
-	Sprite* GetSpritePtr(const std::string& spriteName) const;
 	void CreateAltSprites();
-	void SetInitialSprite(const std::string& spriteName = "");
-	void SetDimsFromSprite();
+
+	void ChangeDirectionOnBump();
 };
 

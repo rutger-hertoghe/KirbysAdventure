@@ -86,12 +86,29 @@ bool ProjectileManager::ProjectileHasHit(Actor* pActor, Projectile::ActorType hi
 	return false;
 }
 
+bool ProjectileManager::ProjectileHasHit(Actor* pActor, Projectile::ActorType hitActorType)
+{
+	for (Projectile* pProjectile : m_pProjectiles)
+	{
+		if (pProjectile->GetOwner() != hitActorType && HasCollided(pActor, pProjectile))
+		{
+			if (pProjectile->IsPersistent() == false)
+			{
+				pProjectile->SetReadyToDestroy();
+			}
+			return true;
+		}
+	}
+	return false;
+}
+
 void ProjectileManager::InitializeSprites()
 {
 	m_pSprites.push_back(new Sprite{ 4, 0.2f, "fire" });
 	m_pSprites.push_back(new Sprite{ 4, 0.2f, "star" });
 	m_pSprites.push_back(new Sprite{ 1, 0.f, "puff" });
 	m_pSprites.push_back(new Sprite{ 3, 0.2f, "spark" });
+	m_pSprites.push_back(new Sprite{ 1, 0.f, "throwingstar" });
 }
 
 bool ProjectileManager::HasCollided(const Actor* pActor, const Projectile* pProjectile)

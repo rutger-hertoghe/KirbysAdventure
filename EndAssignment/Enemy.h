@@ -18,8 +18,8 @@ public:
 	void SetActivity(bool active);
 	bool HasBeenOffScreen() const;
 	void SetOffScreen(bool offscreen, float direction = 1.f);
+	virtual void DoChecksOnKirby(Kirby* kirbyPtr);
 	virtual void InitializePowerUp();
-	virtual void DoAbilityCheck(Kirby* kirbyPtr);
 
 protected:
 	// TODO: Clean states that are not even being used, clean class in general
@@ -40,15 +40,14 @@ protected:
 
 	ActionState m_ActionState;
 
-	void CorrectVelocities();
-
 	virtual void InitializeSprites() = 0;
 	void DeleteSprites();
 
 	void StandardUpdateSequence(float elapsedSec);
-	void ChangeDirectionOnBump();
 	void Jump(float jumpStrength);
 
 	float GetSquaredDistanceToActor(Actor* actor);
+
+	// TODO: Implement parasol enemy, implement rock enemy
 };
 

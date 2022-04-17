@@ -31,6 +31,11 @@ protected:
 	std::vector<Sprite*> m_pSprites;
 
 	void UpdateSprite(float elapsedSec);
+	void ChangeDirection();
+
+	void SetInitialSprite(const std::string& spriteName = "");
+	void SetDimsFromSprite();
+	Sprite* GetSpritePtr(const std::string& spriteName) const;
 
 private:
 	

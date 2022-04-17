@@ -84,9 +84,6 @@
     <ClCompile Include="Camera.cpp">
       <Filter>Game Files</Filter>
     </ClCompile>
-    <ClCompile Include="Platform.cpp">
-      <Filter>Game Files</Filter>
-    </ClCompile>
     <ClCompile Include="PowerUp.cpp">
       <Filter>Game Files\PowerUps</Filter>
     </ClCompile>
@@ -138,9 +135,6 @@
     <ClCompile Include="Item.cpp">
       <Filter>Game Files\GameObjects\Actors\Items</Filter>
     </ClCompile>
-    <ClCompile Include="KirbyStateHandler.cpp">
-      <Filter>Game Files\GameObjects\Actors</Filter>
-    </ClCompile>
     <ClCompile Include="HotHead.cpp">
       <Filter>Game Files\GameObjects\Actors\Enemies</Filter>
     </ClCompile>
@@ -158,6 +152,42 @@
     </ClCompile>
     <ClCompile Include="LevelManager.cpp">
       <Filter>Game Files\Managers</Filter>
+    </ClCompile>
+    <ClCompile Include="ThrowingStar.cpp">
+      <Filter>Game Files\GameObjects\Projectiles</Filter>
+    </ClCompile>
+    <ClCompile Include="Bounder.cpp">
+      <Filter>Game Files\GameObjects\Actors\Enemies</Filter>
+    </ClCompile>
+    <ClCompile Include="LaserBall.cpp">
+      <Filter>Game Files\GameObjects\Actors\Enemies</Filter>
+    </ClCompile>
+    <ClCompile Include="StonePower.cpp">
+      <Filter>Game Files\PowerUps</Filter>
+    </ClCompile>
+    <ClCompile Include="Rocky.cpp">
+      <Filter>Game Files\GameObjects\Actors\Enemies</Filter>
+    </ClCompile>
+    <ClCompile Include="Parasol.cpp">
+      <Filter>Game Files\GameObjects\Actors\Enemies</Filter>
+    </ClCompile>
+    <ClCompile Include="OneUp.cpp">
+      <Filter>Game Files\GameObjects\Actors\Items</Filter>
+    </ClCompile>
+    <ClCompile Include="StarBlock.cpp">
+      <Filter>Game Files\GameObjects\Actors\Items</Filter>
+    </ClCompile>
+    <ClCompile Include="HealthBug.cpp">
+      <Filter>Game Files\GameObjects\Actors\Items</Filter>
+    </ClCompile>
+    <ClCompile Include="KirbyStateHandler.cpp">
+      <Filter>Game Files\Managers</Filter>
+    </ClCompile>
+    <ClCompile Include="RemovalFX.cpp">
+      <Filter>Game Files\GameObjects</Filter>
+    </ClCompile>
+    <ClCompile Include="MrTickTock.cpp">
+      <Filter>Game Files\GameObjects\Actors</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -204,9 +234,6 @@
       <Filter>Game Files</Filter>
     </ClInclude>
     <ClInclude Include="Camera.h">
-      <Filter>Game Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Platform.h">
       <Filter>Game Files</Filter>
     </ClInclude>
     <ClInclude Include="PowerUp.h">
@@ -260,9 +287,6 @@
     <ClInclude Include="Item.h">
       <Filter>Game Files\GameObjects\Actors\Items</Filter>
     </ClInclude>
-    <ClInclude Include="KirbyStateHandler.h">
-      <Filter>Game Files\GameObjects\Actors</Filter>
-    </ClInclude>
     <ClInclude Include="HotHead.h">
       <Filter>Game Files\GameObjects\Actors\Enemies</Filter>
     </ClInclude>
@@ -280,6 +304,42 @@
     </ClInclude>
     <ClInclude Include="LevelManager.h">
       <Filter>Game Files\Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="ThrowingStar.h">
+      <Filter>Game Files\GameObjects\Projectiles</Filter>
+    </ClInclude>
+    <ClInclude Include="Bounder.h">
+      <Filter>Game Files\GameObjects\Actors\Enemies</Filter>
+    </ClInclude>
+    <ClInclude Include="LaserBall.h">
+      <Filter>Game Files\GameObjects\Actors\Enemies</Filter>
+    </ClInclude>
+    <ClInclude Include="StonePower.h">
+      <Filter>Game Files\PowerUps</Filter>
+    </ClInclude>
+    <ClInclude Include="Rocky.h">
+      <Filter>Game Files\GameObjects\Actors\Enemies</Filter>
+    </ClInclude>
+    <ClInclude Include="Parasol.h">
+      <Filter>Game Files\GameObjects\Actors\Enemies</Filter>
+    </ClInclude>
+    <ClInclude Include="OneUp.h">
+      <Filter>Game Files\GameObjects\Actors\Items</Filter>
+    </ClInclude>
+    <ClInclude Include="HealthBug.h">
+      <Filter>Game Files\GameObjects\Actors\Items</Filter>
+    </ClInclude>
+    <ClInclude Include="StarBlock.h">
+      <Filter>Game Files\GameObjects\Actors\Items</Filter>
+    </ClInclude>
+    <ClInclude Include="KirbyStateHandler.h">
+      <Filter>Game Files\Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="RemovalFX.h">
+      <Filter>Game Files\GameObjects</Filter>
+    </ClInclude>
+    <ClInclude Include="MrTickTock.h">
+      <Filter>Game Files\GameObjects\Actors</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

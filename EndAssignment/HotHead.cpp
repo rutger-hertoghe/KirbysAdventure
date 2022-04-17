@@ -12,6 +12,9 @@ HotHead::HotHead(const Point2f& location)
 	SetBaseVelocity(50.f, 0.f);
 
 	InitializeSprites();
+	CreateAltSprites();
+	SetInitialSprite();
+	SetDimsFromSprite();
 
 	m_XDirection = 1.f;
 	InitializePowerUp();
@@ -40,24 +43,27 @@ void HotHead::Update(float elapsedSec)
 			m_pCurrentSprite = GetSpritePtr("hothead_charge");
 			m_Velocity.x = 0.f;
 		}
-		else if (m_ArbitraryTimer > powerExecutionStart && m_IsUsingPower == false)
+		else if (powerExecutionStart < m_ArbitraryTimer && m_ArbitraryTimer < maxPowerTime && m_IsUsingPower == false )
 		{
 			m_IsUsingPower = true;
 			m_pCurrentSprite = GetSpritePtr("hothead_ability");
 		}
-		else if (m_ArbitraryTimer > powerExecutionStart && m_ArbitraryTimer < maxPowerTime && m_IsUsingPower)
+		else if (powerExecutionStart < m_ArbitraryTimer && m_ArbitraryTimer < maxPowerTime && m_IsUsingPower)
 		{
 			m_pPowerUp->ContinuousKeyEvent(m_Shape, m_XDirection);
 			m_pPowerUp->Update(elapsedSec);
 		}
-		else if (m_ArbitraryTimer > maxPowerTime && m_IsUsingPower)
+		else if (maxPowerTime < m_ArbitraryTimer && m_IsUsingPower)
 		{
 			m_pCurrentSprite = GetSpritePtr("hothead");
 			m_Velocity.x = m_BaseVelocity.x;
+			m_IsUsingPower = false;
 		}
-		else if (m_ArbitraryTimer > maxInertiaTime)
+		else if (maxInertiaTime < m_ArbitraryTimer)
 		{
 			m_ArbitraryTimer = 0.f;
+			m_IsInert = false;
+			m_IsPowerUsable = true;
 		}
 	}
 
@@ -77,6 +83,7 @@ void HotHead::Update(float elapsedSec)
 	ApplyGravity(elapsedSec);
 	HandleLevelCollisions();
 	SetIsOnGround();
+	ChangeDirectionOnBump();
 }
 
 void HotHead::Reset()
@@ -98,13 +105,9 @@ void HotHead::InitializeSprites()
 	m_pSprites.push_back(new Sprite{ 2, 0.3f, "hothead" });
 	m_pSprites.push_back(new Sprite{ 1, 0.f, "hothead_charge" });
 	m_pSprites.push_back(new Sprite{ 1, 0.f, "hothead_ability"});
-	CreateAltSprites();
-
-	SetInitialSprite();
-	SetDimsFromSprite();
 }
 
-void HotHead::DoAbilityCheck(Kirby* pKirby)
+void HotHead::DoChecksOnKirby(Kirby* pKirby)
 {
 	const float squaredDistanceValue {GetSquaredDistanceToActor(pKirby) };
 	const float triggerDistance{ 64.f };

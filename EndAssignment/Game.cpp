@@ -1,21 +1,15 @@
 #include "pch.h"
 #include "Game.h"
 #include "utils.h"
-#include "PowerUp.h"
-#include "FirePower.h"
-#include "SparkPower.h"
-#include "GameObject.h"
 #include "Kirby.h"
-#include "Level.h"
 #include "HUD.h"
 #include "Camera.h"
-#include <iostream>
-#include "Fireball.h"
 #include "Projectile.h"
-#include "ProjectileManager.h"
 #include "PowerStar.h"
 #include "ObjectManager.h"
 #include "LevelManager.h"
+
+#include "MrTickTock.h"
 
 Game::Game( const Window& window ) 
 	: m_Window{ window }
@@ -32,18 +26,14 @@ Game::~Game( )
 
 void Game::Initialize( )
 {
+	// TODO: Implement boss enemy
 	m_pKirby = new Kirby{};
 	m_pHUD = new HUD{};
-	m_pObjectManager = new ObjectManager{};
-	m_pLevelManager = new LevelManager{m_pKirby, m_pObjectManager};
-
-	m_pCamera = new Camera{ m_pKirby->GetLocation(), m_Window.width, m_Window.height, m_pLevelManager->GetCurrentLevel()->GetBoundaries(), *m_pHUD};
-	m_pLevelManager->LinkCamera(m_pCamera);
-
-	m_pObjectManager->LinkKirby(m_pKirby);
-	m_pObjectManager->SupplyViewportDimensions(m_pCamera->GetViewDimensions());
-
-	m_pLevelManager->LoadLevel("part1");
+	m_pObjectManager = new ObjectManager{m_pKirby};
+	m_pCamera = new Camera{ m_pKirby->GetLocation(), m_Window.width, m_Window.height, m_pHUD, m_pObjectManager};
+	m_pLevelManager = new LevelManager{ m_pKirby, m_pObjectManager, m_pCamera };
+	
+	// m_pMrTickTock = new MrTickTock{ Point2f{312.f, 40.f} };
 }
 
 void Game::Cleanup( )
@@ -53,30 +43,42 @@ void Game::Cleanup( )
 	delete m_pCamera;
 	delete m_pKirby;
 	delete m_pObjectManager;
+
+	// delete m_pMrTickTock;
 }
 
 void Game::Update( float elapsedSec )
 {
 	m_pHUD->Update(elapsedSec);
 	m_pKirby->Update(elapsedSec);
-	m_pCamera->Update(m_pKirby->GetLocation(), elapsedSec);
-	m_pObjectManager->Update(elapsedSec, m_pCamera->GetLocation());
+	m_pCamera->Update(elapsedSec, m_pKirby);
+	m_pObjectManager->Update(elapsedSec, m_pCamera->GetVisibleArea());
+	
+	// m_pMrTickTock->Update(elapsedSec);
 }
 
 void Game::Draw( ) const
 {
 	ClearBackground( );
-	// GAME AREA
-	if (m_LegacyMode)
-	{
-		m_pLevelManager->DrawLevelLegacy();
-	}
-	else
-	{
-		m_pLevelManager->DrawLevelParallax();
-	}
+	
+	// BACKGROUND AREA
+	DrawLevel();
 
-	DrawGeneral();
+	// GAME AREA
+	glPushMatrix();
+	m_pCamera->Transform();
+	m_pKirby->Draw();
+	m_pObjectManager->Draw();
+	
+	
+	// m_pMrTickTock->Draw();
+	glPopMatrix();
+
+	// UI AREA
+	glPushMatrix();
+	m_pCamera->TransformHUD();
+	m_pHUD->Draw(m_pKirby);
+	glPopMatrix();
 }
 
 void Game::ProcessKeyDownEvent( const SDL_KeyboardEvent & e )
@@ -93,17 +95,9 @@ void Game::ProcessKeyUpEvent( const SDL_KeyboardEvent& e )
 	case SDLK_p:
 		m_LegacyMode = !m_LegacyMode;
 		break;
-	case SDLK_a:
-		if (m_pKirby->HasPowerUp())
-		{
-			PowerStar* pPowerStar{ new PowerStar{m_pKirby->GetLocation()} };
-			pPowerStar->SetCurrentLevel(m_pLevelManager->GetCurrentLevel());
-			pPowerStar->SetDirection(-m_pKirby->GetDirection());
-			m_pKirby->TransferPowerUp(pPowerStar);
-			m_pObjectManager->AddItem(pPowerStar);
-		}
-		break;
-	case SDLK_UP:
+	
+	case SDLK_t:
+		// m_pObjectManager->ResetEnemies();
 		break;
 	}
 }
@@ -129,19 +123,16 @@ void Game::ClearBackground( ) const
 	glClear( GL_COLOR_BUFFER_BIT );
 }
 
-void Game::DrawGeneral() const
+void Game::DrawLevel() const
 {
-	glPushMatrix();
-	m_pCamera->Transform();
-	m_pKirby->Draw();
-	m_pObjectManager->Draw();
-	glPopMatrix();
-
-	// UI AREA
-	glPushMatrix();
-	m_pCamera->TransformHUD();
-	m_pHUD->Draw(m_pKirby);
-	glPopMatrix();
+	if (m_LegacyMode)
+	{
+		m_pLevelManager->DrawLevelLegacy();
+	}
+	else
+	{
+		m_pLevelManager->DrawLevelParallax();
+	}
 }
 
 

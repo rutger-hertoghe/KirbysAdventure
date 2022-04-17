@@ -6,12 +6,18 @@
 #include "Level.h"
 #include "ProjectileManager.h"
 #include "Star.h"
-#include "Utils.h"
 #include "Puff.h"
 #include "KirbyStateHandler.h"
 #include "LevelManager.h"
 #include "SoundEffect.h"
 #include "Door.h"
+#include "StonePower.h"
+#include "PowerStar.h"
+#include "ObjectManager.h"
+#include "Camera.h"
+
+// TODO: Fix bug where power is also triggered upon exhaling
+// TODO: Fix bug where spit star doesn't happen fast enough after button press/is sometimes ignored
 
 Kirby::Kirby()
 	: m_ActionState{ ActionState::idle }
@@ -21,15 +27,15 @@ Kirby::Kirby()
 	, m_MaxJumpTime{ 0.15f }
 	, m_JumpTime{ 0.f }
 	, m_MacroState{ MacroState::basic }
-	, m_Health{ 6 }
-	, m_Lives{ 5 }
+	, m_Health{ 3 }
+	, m_Lives{ 25 }
 	, m_MaxHealth{ 6 }
 	, m_IsInvulnerable{false}
 	, m_CanSpitStar{false}
-	, m_ParticleFrame{ 0 }
 	, m_MaxParticleFrames{50}
 	, m_GotDamaged{false}
 	, m_HasReleasedJump{true}
+	, m_HasReleasedR{true}
 {
 	Initialize();
 }
@@ -72,6 +78,7 @@ void Kirby::InitializeSprites()
 	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_sliding" });
 	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_ducking" });
 	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_sliding" });
+	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_stone_continuous" });
 	animationSpeed = 0.15f;
 	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_bloated_idle" });
 	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_spark_start" });
@@ -94,8 +101,12 @@ void Kirby::InitializeSprites()
 	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_inflated" });
 
 	nrFrames = 3;
+	animationSpeed = 0.2f;
+	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_stone_start" });
+	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_stone_end" });
 	animationSpeed = 0.3f;
 	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_swallowing" });
+	
 
 	nrFrames = 4;
 	animationSpeed = 0.2f;
@@ -117,11 +128,6 @@ void Kirby::InitializeSprites()
 	animationSpeed = 1.6f;
 	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_idle", 2 });
 	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_idle", 2 });
-
-	// Air particle sprite:
-	nrFrames = 1;
-	animationSpeed = 0.f;
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "airparticle" });
 
 	CreateAltSprites();
 }
@@ -151,7 +157,7 @@ void Kirby::Draw() const
 
 void Kirby::Update(float elapsedSec)
 {
-	UpdateInvulnerability(elapsedSec);
+	UpdateDamaged(elapsedSec);
 	UpdateSprite(elapsedSec);
 	SetIsOnGround();
 	ProcessInput(elapsedSec);
@@ -171,19 +177,41 @@ void Kirby::Update(float elapsedSec)
 	float direction{};
 	if (m_pProjectileManager->ProjectileHasHit(this, Projectile::ActorType::kirby, direction))
 	{
-		DecrementHealth();
-		BounceOffInDirection(direction);
+		DecrementHealth(direction);
 	}
 }
 
 #pragma region UpdateHelpers
 void Kirby::SetIsOnGround()
 {
-	Actor::SetIsOnGround();
+	bool isAlreadyOnGround = m_IsOnGround;
+
+	if (m_IsForcedOnGround == false)
+	{
+		Actor::SetIsOnGround();
+	}
+	else
+	{
+		m_IsForcedOnGround = false;
+	}
+
 	if (m_IsOnGround && m_HasReleasedJump)
 	{
 		m_JumpTime = 0.f;
 	}
+
+	CheckForShakeCommand(isAlreadyOnGround);
+}
+
+void Kirby::SetVerticalVelocityToZero()
+{
+	m_Velocity.y = 0.f;
+}
+
+void Kirby::ForceIsOnGround()
+{
+	m_IsForcedOnGround = true;
+	m_IsOnGround = true;
 }
 
 void Kirby::UpdateState()
@@ -217,7 +245,7 @@ void Kirby::LockToLevel()
 	const float kirbyTop{ kirbyBottom + m_Shape.height };
 	const float yOffsetScalar{ m_pCurrentSprite->GetFrameDimensions().y / m_Shape.height };
 	const float topBorder{ yOffsetScalar * m_Shape.height };
-	Rectf boundaries{ m_pCurrentLevel->GetBoundaries() };
+	Rectf boundaries{ LevelManager::GetCurrentLevel()->GetBoundaries()};
 
 	if (kirbyBottom > boundaries.height - topBorder)
 	{
@@ -294,13 +322,8 @@ void Kirby::ProcessKeyUp(const SDL_KeyboardEvent& e)
 	case SDLK_r:
 		DoRUpActions();
 		break;
-	case SDLK_RETURN:
-		Door info{ m_pCurrentLevel->GetDoorInfo(m_Shape) };
-		if (info.GetExitLevelName() != "")
-		{
-			m_pLevelManager->LoadLevel(info.GetExitLevelName());
-			SetLocation(info.GetExitLocation());
-		}
+	case SDLK_a:
+		ExpelPower();
 		break;
 	}
 }
@@ -309,6 +332,13 @@ void Kirby::ProcessKeyDown(const SDL_KeyboardEvent& e)
 {
 	switch (e.keysym.sym)
 	{
+	case SDLK_a:
+		if (m_MacroState == MacroState::bloated) 
+		{
+			m_MacroState = MacroState::basic;
+			m_CanSpitStar = false;
+		}
+		break;
 	case SDLK_r:
 		DoRDownActions();
 		break;
@@ -371,6 +401,7 @@ void Kirby::DoDownHeldActions(bool isKeyDown)
 void Kirby::DoUpHeldActions(bool isImmobile, float elapsedSec)
 {
 	if (isImmobile) return;
+
 	if (m_MacroState != MacroState::bloated)
 	{
 		Flap();
@@ -383,8 +414,17 @@ void Kirby::DoUpHeldActions(bool isImmobile, float elapsedSec)
 
 void Kirby::DoRDownActions()
 {
+	if (m_HasReleasedR == false) return; // Do not execute down events anymore if R hasn't gone up yet
+
+
 	// Deflate if inflated; possible both with & without powerup, so handled first
-	if (m_MacroState == MacroState::inflated)
+	Door info{ LevelManager::GetCurrentLevel()->GetDoorInfo(m_Shape)};
+	if (info.GetExitLevelName() != "")
+	{
+		m_pLevelManager->LoadLevel(info.GetExitLevelName());
+		SetLocation(info.GetExitLocation());
+	}
+	else if (m_MacroState == MacroState::inflated)
 	{
 		m_Velocity.y = 0.f;
 		m_MacroState = MacroState::basic;
@@ -394,15 +434,16 @@ void Kirby::DoRDownActions()
 	else if (HasPowerUp() && m_MacroState == MacroState::basic)
 	{
 		GetPowerUp()->OnKeyDownEvent(m_Shape, m_XDirection);
+		if (GetPowerUp()->GetType() == PowerUp::PowerUpType::stone)
+		{
+			ToggleRockMode();
+		}
 	}
 	// Spit star; 
 	else if (m_MacroState == MacroState::bloated)
 	{
 		if (m_CanSpitStar)
 		{
-			SetState(ActionState::spitting);
-			m_MacroState = MacroState::basic;
-			m_pSounds[0]->Play(0);
 			SpitStar();
 		}
 	}
@@ -411,6 +452,7 @@ void Kirby::DoRDownActions()
 	{
 		m_MacroState = MacroState::inhalation;
 	}
+	m_HasReleasedR = false;
 }
 void Kirby::DoRHeldActions()
 {
@@ -433,6 +475,7 @@ void Kirby::DoRUpActions()
 	{
 		GetPowerUp()->OnKeyUpEvent(m_Shape, m_XDirection);
 	}
+	m_HasReleasedR = true;
 }
 
 void Kirby::DoSpaceDownActions()
@@ -505,15 +548,16 @@ void Kirby::Flap()
 
 void Kirby::SpitStar()
 {
+	SetState(ActionState::spitting);
+	m_MacroState = MacroState::basic;
+	m_pSounds[0]->Play(0);
+
 	// Copy shape first to manipulate copied shape properties underneath, then offset to match sprite center and not spawn inside Kirby
 	Rectf spawnRect{ m_Shape };																
 	const float yOffset{ (m_pCurrentSprite->GetFrameDimensions().y - m_Shape.height) / 2 }; 
 	spawnRect.left += m_XDirection * m_Shape.width;	
 	spawnRect.bottom += yOffset;
 	m_pProjectileManager->Add(new Star{ spawnRect, m_XDirection });
-
-	// Play sound
-	m_pSounds[0]->Play(0);
 
 	// Spitting out the star should remove the power
 	DeletePowerUp();
@@ -528,17 +572,39 @@ void Kirby::SpawnPuff()
 	m_pProjectileManager->Add(new Puff{ spawnLocation, m_XDirection });
 }
 
+void Kirby::ExpelPower()
+{
+	if (HasPowerUp())
+	{
+		PowerStar* pPowerStar{ new PowerStar{GetLocation()} };
+		pPowerStar->SetDirection(-GetDirection());
+		TransferPowerUp(pPowerStar);
+		m_pObjectManager->AddItem(pPowerStar);
+	}
+}
+
+void Kirby::ToggleRockMode()
+{
+	m_IsInvulnerable = !m_IsInvulnerable;
+
+	if (m_IsOnGround)
+	{
+		const float bump{ 100.f };
+		m_Velocity.y += bump;
+	}
+}
+
 Rectf Kirby::GetInhalationZone() const
 {
 	// Return offscreen rectangle so no enemies get influenced
 	if (m_MacroState != MacroState::inhalation)
 	{
-		return Rectf{ -10.f, -10.f, 0.f, 0.f };
+		return Rectf{ -100.f, -100.f, 0.f, 0.f };
 	}
 
-	Point2f inhalationZoneDims{ 64.f, 48.f };
+	Point2f inhalationZoneDims{ 56.f, 48.f };
 	Rectf inhalationZone{ 0.f, m_Shape.bottom, inhalationZoneDims.x, inhalationZoneDims.y };
-	inhalationZone.left = (m_XDirection > 0.f) ? m_Shape.left + m_Shape.width : m_Shape.left - inhalationZoneDims.x;
+	inhalationZone.left = (m_XDirection > 0.f) ? m_Shape.left + m_Shape.width / 2 : m_Shape.left - inhalationZoneDims.x - m_Shape.width / 2;
 	inhalationZone.bottom = (m_Shape.bottom + m_pCurrentSprite->GetFrameDimensions().y / 2) - (inhalationZoneDims.y / 2);
 	return inhalationZone;
 }
@@ -580,12 +646,17 @@ void Kirby::SetMacroState(const MacroState& macroState)
 	m_MacroState = macroState;
 }
 
+void Kirby::SetObjectManager(ObjectManager* objMngr)
+{
+	m_pObjectManager = objMngr;
+}
+
 void Kirby::SetLevelManager(LevelManager* lvlMngr)
 {
 	m_pLevelManager = lvlMngr;
 }
 
-bool Kirby::CheckCollisionWith(Actor* pActor)
+bool Kirby::CheckCollisionWith(Actor* pActor, utils::HitInfo& hitInfoReference, bool& isVerticalCollision)
 {
 	Rectf actorShape{ pActor->GetShape() };
 	std::vector<Point2f> vertices;
@@ -606,17 +677,25 @@ bool Kirby::CheckCollisionWith(Actor* pActor)
 	
 	Point2f verticalRayStart{m_Shape.left + m_Shape.width / 2, m_Shape.bottom};
 	Point2f verticalRayEnd{ m_Shape.left + m_Shape.width / 2, m_Shape.bottom + height };
-	utils::HitInfo hitInfo{};
 	
-	if (utils::Raycast(vertices, horizontalRayStart, horizontalRayEnd, hitInfo))
+	if (utils::Raycast(vertices, horizontalRayStart, horizontalRayEnd, hitInfoReference))
 	{
+		isVerticalCollision = false;
 		return true;
 	}
-	if (utils::Raycast(vertices, verticalRayStart, verticalRayEnd, hitInfo))
+	if (utils::Raycast(vertices, verticalRayStart, verticalRayEnd, hitInfoReference))
 	{
+		isVerticalCollision = true;
 		return true;
 	}
 	return false;
+}
+
+bool Kirby::CheckCollisionWith(Actor* pActor)
+{
+	utils::HitInfo throwAwayInfo{};
+	bool throwAwayBool{};
+	return CheckCollisionWith(pActor, throwAwayInfo, throwAwayBool);
 }
 
 std::string Kirby::GetSpriteNameFromState(const ActionState& state) const
@@ -757,24 +836,36 @@ bool Kirby::IsOnGround() const
 	return m_IsOnGround;
 }
 
-void Kirby::DecrementHealth()
+void Kirby::IncrementLives()
+{
+	++m_Lives;
+}
+
+void Kirby::DecrementHealth(float direction)
 {
 	if (m_IsInvulnerable) return;
 
 	SetState(ActionState::hurt);
+	BounceOffInDirection(direction);
 
 	--m_Health;
 	m_IsInvulnerable = true;
 	m_GotDamaged = true;
+	ExpelPower();
 	if (m_Health <= 0)
 	{
 		KillKirby();
 	}
 }
 
-void Kirby::UpdateInvulnerability(float elapsedSec)
+void Kirby::FullyHeal()
 {
-	if (!m_IsInvulnerable) return;
+	m_Health = m_MaxHealth;
+}
+
+void Kirby::UpdateDamaged(float elapsedSec)
+{
+	if (!m_GotDamaged) return;
 	
 	std::string spriteName = m_pCurrentSprite->GetName();
 
@@ -787,6 +878,7 @@ void Kirby::UpdateInvulnerability(float elapsedSec)
 	{
 		SetVulnerable(spriteName);
 		ResetArbitraryTimer();
+		m_GotDamaged = false;
 	}
 }
 
@@ -805,7 +897,7 @@ void Kirby::KillKirby()
 {
 	--m_Lives;
 	m_Health = m_MaxHealth;
-	SetLocation(m_pCurrentLevel->GetStartLocation());
+	SetLocation(LevelManager::GetCurrentLevel()->GetStartLocation());
 	m_Velocity.y = 0;
 	m_Velocity.x = 0;
 	DeletePowerUp();
@@ -815,10 +907,25 @@ void Kirby::KillKirby()
 	m_MacroState = MacroState::basic;
 }
 
-void Kirby::BounceOffInDirection(float direction)
+void Kirby::CheckForShakeCommand(bool isAlreadyOnGround)
+{
+	bool isOnGround = m_IsOnGround;
+
+	if (HasPowerUp()) {
+		if (GetPowerUp()->IsActive() && GetPowerUp()->GetType() == PowerUp::PowerUpType::stone)
+		{
+			if (isAlreadyOnGround != isOnGround && m_IsOnGround)
+			{
+				Camera::SetShake();
+			}
+		}
+	}
+}
+
+void Kirby::BounceOffInDirection(float bounceDirection)
 {
 	Point2f velocity{ 150.f, 50.f };
-	m_Velocity.x = velocity.x * direction;
+	m_Velocity.x = velocity.x * bounceDirection;
 	m_Velocity.y = velocity.y;
 }
 
