@@ -7,7 +7,7 @@
 
 bool Camera::m_IsShaking{ false };
 
-Camera::Camera(float startLocationX, float startLocationY, float windowWidth, float windowHeight, HUD* pHud, ObjectManager* pObjectManager)
+Camera::Camera(float startLocationX, float startLocationY, float windowWidth, float windowHeight, HUD* pHud)
 	: m_Location{ startLocationX, startLocationY }
 	, m_WindowSize{ windowWidth, windowHeight}
 	, m_HudHeight{ pHud->GetHeight()}
@@ -15,6 +15,9 @@ Camera::Camera(float startLocationX, float startLocationY, float windowWidth, fl
 	, m_ShakeTimer{0.f}
 	, m_XShake{0}
 	, m_YShake{0}
+	, m_LockLocation{0.f, 0.f}
+	, m_IsLocked{false}
+	, m_IsUnlocking{false}
 {
 	const float viewHeight{ 168.f };
 	float gameAreaHeight{ viewHeight + m_HudHeight };
@@ -25,8 +28,8 @@ Camera::Camera(float startLocationX, float startLocationY, float windowWidth, fl
 	m_VisibleArea.height = viewHeight;
 }
 
-Camera::Camera(const Point2f& location, float windowWidth, float windowHeight, HUD* pHud, ObjectManager* pObjectManager)
-	: Camera{location.x, location.y, windowWidth, windowHeight, pHud, pObjectManager }
+Camera::Camera(const Point2f& location, float windowWidth, float windowHeight, HUD* pHud)
+	: Camera{location.x, location.y, windowWidth, windowHeight, pHud }
 {
 }
 
@@ -107,7 +110,19 @@ void Camera::CalculateShake()
 
 void Camera::Update(float elapsedSec, Kirby* pKirby)
 {
-	UpdateLocation(pKirby->GetLocation().x, pKirby->GetLocation().y, elapsedSec);
+	if (m_IsLocked)
+	{
+		MoveToLockLocation(elapsedSec);
+		LockKirbyToVisibleArea(pKirby);
+	}
+	else if (m_IsUnlocking)
+	{
+		MoveBackToKirby(elapsedSec, pKirby);
+	}
+	else
+	{
+		UpdateLocation(pKirby->GetLocation().x, pKirby->GetLocation().y, elapsedSec);
+	}
 	CalculateVisibleArea();
 	UpdateShake(elapsedSec);
 }
@@ -132,6 +147,59 @@ void Camera::UpdateShake(float elapsedSec)
 	}
 }
 
+void Camera::LockKirbyToVisibleArea(Kirby* pKirby)
+{
+	Rectf kirbyShape{ pKirby->GetShape() };
+	Point2f lockLocation{kirbyShape.left, kirbyShape.bottom};
+	if (kirbyShape.left < m_VisibleArea.left)
+	{
+		lockLocation.x = m_VisibleArea.left;
+	}
+	else if (kirbyShape.left + kirbyShape.width > m_VisibleArea.left + m_VisibleArea.width)
+
+	{
+		lockLocation.x = m_VisibleArea.left + m_VisibleArea.width - kirbyShape.width;
+	}
+
+	if (kirbyShape.bottom < m_VisibleArea.bottom)
+	{
+		lockLocation.y = m_VisibleArea.bottom;
+	}
+	else if (kirbyShape.bottom + kirbyShape.height > m_VisibleArea.bottom + m_VisibleArea.height)
+
+	{
+		lockLocation.y = m_VisibleArea.bottom + m_VisibleArea.height - kirbyShape.height;
+	}
+
+	pKirby->SetLocation(lockLocation);
+}
+
+void Camera::MoveToLockLocation(float elapsedSec)
+{
+	const float tolerance{ 2.f };
+	const float speed{ 200.f };
+	const float locationDifference{ m_LockLocation.x - m_Location.x};
+	if (abs(locationDifference) > tolerance)
+	{
+		m_Location.x += speed * elapsedSec * (locationDifference / abs(locationDifference));
+	}
+}
+
+void Camera::MoveBackToKirby(float elapsedSec, Kirby* pKirby)
+{
+	const float tolerance{ 2.f };
+	const float speed{ 200.f };
+	const float locationDifference{ pKirby->GetShape().left - m_Location.x};
+	if (abs(locationDifference) > tolerance)
+	{
+		m_Location.x += speed * elapsedSec * (locationDifference / abs(locationDifference));
+	}
+	else
+	{
+		m_IsUnlocking = false;
+	}
+}
+
 void Camera::TransformHUD()
 {
 	glScalef(m_ScalingFactor.x, m_ScalingFactor.y, 1.f); // Scaling to fit window
@@ -140,6 +208,24 @@ void Camera::TransformHUD()
 void Camera::UpdateBoundaries(const Rectf& levelBounds)
 {
 	m_LevelBoundaries = levelBounds;
+}
+
+void Camera::SetLocked(const Point2f& lockLocation)
+{
+	m_IsLocked = true;
+	m_LockLocation = lockLocation;
+	CalculateVisibleArea();
+}
+
+bool Camera::IsLocked() const
+{
+	return m_IsLocked;
+}
+
+void Camera::Unlock()
+{
+	m_IsLocked = false;
+	m_IsUnlocking = true;
 }
 
 Point2f Camera::GetLocation()

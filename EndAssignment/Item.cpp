@@ -8,6 +8,7 @@ Item::Item(bool effectOnCollision, bool removedOnCollision, bool isSolid, bool i
 	, m_HasCollisionEvent{ effectOnCollision }
 	, m_IsPersistentOffScreen{persistsOffscreen}
 	, m_IsRemovedOnCollision{ removedOnCollision }
+	, m_IsDestructible{isDestructible}
 	, m_IsSolid{isSolid}
 	, m_IsRemoved{false}
 	, m_NeedsToBeDrawn{true}

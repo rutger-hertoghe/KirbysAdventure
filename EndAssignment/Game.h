@@ -5,7 +5,6 @@ class Camera;
 class ProjectileManager;
 class ObjectManager;
 class LevelManager;
-class MrTickTock;
 
 class Game final
 {
@@ -48,4 +47,5 @@ private:
 	void ClearBackground( ) const;
 
 	void DrawLevel() const;
+	void PrintInfo() const;
 };

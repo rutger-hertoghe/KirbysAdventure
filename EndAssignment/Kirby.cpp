@@ -27,8 +27,7 @@ Kirby::Kirby()
 	, m_MaxJumpTime{ 0.15f }
 	, m_JumpTime{ 0.f }
 	, m_MacroState{ MacroState::basic }
-	, m_Health{ 3 }
-	, m_Lives{ 25 }
+	, m_Lives{ 4 }
 	, m_MaxHealth{ 6 }
 	, m_IsInvulnerable{false}
 	, m_CanSpitStar{false}
@@ -37,6 +36,7 @@ Kirby::Kirby()
 	, m_HasReleasedJump{true}
 	, m_HasReleasedR{true}
 {
+	m_Health = m_MaxHealth;
 	Initialize();
 }
 
@@ -173,12 +173,7 @@ void Kirby::Update(float elapsedSec)
 		}
 		GetPowerUp()->Update(elapsedSec);
 	}
-	
-	float direction{};
-	if (ProjectileManager::GetProjectileMngr()->ProjectileHasHit(this, Projectile::ActorType::kirby, direction))
-	{
-		DecrementHealth(direction);
-	}
+	CheckHitByProjectile();	
 }
 
 #pragma region UpdateHelpers
@@ -201,6 +196,15 @@ void Kirby::SetIsOnGround()
 	}
 
 	CheckForShakeCommand(isAlreadyOnGround);
+}
+
+void Kirby::CheckHitByProjectile()
+{
+	float direction{};
+	if (ProjectileManager::GetProjectileMngr()->ProjectileHasHit(this, Projectile::ActorType::kirby, direction))
+	{
+		DecrementHealth(direction);
+	}
 }
 
 void Kirby::SetVerticalVelocityToZero()
@@ -245,6 +249,7 @@ void Kirby::LockToLevel()
 	const float kirbyTop{ kirbyBottom + m_Shape.height };
 	const float yOffsetScalar{ m_pCurrentSprite->GetFrameDimensions().y / m_Shape.height };
 	const float topBorder{ yOffsetScalar * m_Shape.height };
+
 	Rectf boundaries{ LevelManager::GetCurrentLevel()->GetBoundaries()};
 
 	if (kirbyBottom > boundaries.height - topBorder)
@@ -263,6 +268,8 @@ void Kirby::LockToLevel()
 #pragma endregion
 
 #pragma region InputHandling
+
+// TODO: Change all "R" key code to "E" key code
 void Kirby::ProcessInput(float elapsedSec)
 {
 	const Uint8* pStates = SDL_GetKeyboardState(nullptr);
@@ -302,7 +309,7 @@ void Kirby::ProcessInput(float elapsedSec)
 		DoUpHeldActions(isImmobile, elapsedSec);
 	}
 
-	if (pStates[SDL_SCANCODE_R])
+	if (pStates[SDL_SCANCODE_E])
 	{
 		DoRHeldActions();
 	}
@@ -319,10 +326,10 @@ void Kirby::ProcessKeyUp(const SDL_KeyboardEvent& e)
 	case SDLK_SPACE:
 		DoSpaceUpActions();
 		break;
-	case SDLK_r:
+	case SDLK_e:
 		DoRUpActions();
 		break;
-	case SDLK_a:
+	case SDLK_r:
 		ExpelPower();
 		break;
 	}
@@ -332,14 +339,14 @@ void Kirby::ProcessKeyDown(const SDL_KeyboardEvent& e)
 {
 	switch (e.keysym.sym)
 	{
-	case SDLK_a:
+	case SDLK_r:
 		if (m_MacroState == MacroState::bloated) 
 		{
 			m_MacroState = MacroState::basic;
 			m_CanSpitStar = false;
 		}
 		break;
-	case SDLK_r:
+	case SDLK_e:
 		DoRDownActions();
 		break;
 	// TEST CODE
@@ -421,7 +428,7 @@ void Kirby::DoRDownActions()
 	Door info{ LevelManager::GetCurrentLevel()->GetDoorInfo(m_Shape)};
 	if (info.GetExitLevelName() != "")
 	{
-		m_pLevelManager->LoadLevel(info.GetExitLevelName());
+		LevelManager::GetLevelMngr()->LoadLevel(info.GetExitLevelName());
 		SetLocation(info.GetExitLocation());
 	}
 	else if (m_MacroState == MacroState::inflated)
@@ -579,7 +586,7 @@ void Kirby::ExpelPower()
 		PowerStar* pPowerStar{ new PowerStar{GetLocation()} };
 		pPowerStar->SetDirection(-GetDirection());
 		TransferPowerUp(pPowerStar);
-		m_pObjectManager->AddItem(pPowerStar);
+		ObjectManager::GetObjectMngr()->AddItem(pPowerStar);
 	}
 }
 
@@ -644,16 +651,6 @@ void Kirby::SetState(const ActionState& state)
 void Kirby::SetMacroState(const MacroState& macroState)
 {
 	m_MacroState = macroState;
-}
-
-void Kirby::SetObjectManager(ObjectManager* objMngr)
-{
-	m_pObjectManager = objMngr;
-}
-
-void Kirby::SetLevelManager(LevelManager* lvlMngr)
-{
-	m_pLevelManager = lvlMngr;
 }
 
 bool Kirby::CheckCollisionWith(Actor* pActor, utils::HitInfo& hitInfoReference, bool& isVerticalCollision)

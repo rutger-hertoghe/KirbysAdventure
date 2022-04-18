@@ -3,3 +3,4 @@ waddledee, 266, 136
 waddledee, 344, 136
 rocky, 150, 88
 parasol, 88, 24
+mrticktock, 310, 56

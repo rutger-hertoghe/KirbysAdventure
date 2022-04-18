@@ -23,35 +23,10 @@ void Sparky::Update(float elapsedSec)
 
 	ApplyVelocities(elapsedSec, m_XDirection * m_Velocity.x, m_Velocity.y);
 	if (m_IsBeingInhaled) return; // If enemy is being inhaled, code below can not be executed
-
-	const float powerDuration{ 2.f };
-	const float inertiaDuration{ 3.f };
-	const float maxInertiaTime{ powerDuration + inertiaDuration };
+	
 	if (HasPowerUp())
 	{
-		if (m_IsPowerUsable && m_IsInert == false)
-		{
-			m_IsInert = true;
-			m_IsPowerUsable = false;
-			m_pCurrentSprite = GetSpritePtr("sparky_ability");
-			m_Velocity.x = 0.f;
-			m_pPowerUp->OnKeyDownEvent(m_Shape, m_XDirection);
-		}
-		else if (m_ArbitraryTimer < powerDuration && m_IsInert)
-		{
-			m_pPowerUp->ContinuousKeyEvent(m_Shape, m_XDirection);
-			m_pPowerUp->Update(elapsedSec);
-		}
-		else if (powerDuration < m_ArbitraryTimer && m_pPowerUp->IsActive())
-		{
-			m_pCurrentSprite = GetSpritePtr("sparky");
-			m_pPowerUp->OnKeyUpEvent(m_Shape, m_XDirection);
-		}
-		else if (maxInertiaTime < m_ArbitraryTimer && m_IsInert)
-		{
-			m_ArbitraryTimer = 0.f;
-			m_IsInert = false;
-		}
+		UpdatePowerState(elapsedSec);
 	}
 
 	if (m_IsInert == true) // Counter should only run when using power or during inertia period
@@ -105,5 +80,35 @@ void Sparky::HandleJumping()
 		m_pCurrentSprite = GetSpritePtr("sparky_jump");
 		m_Velocity.x = m_BaseVelocity.x;
 		m_Velocity.y = m_BaseVelocity.y;
+	}
+}
+
+void Sparky::UpdatePowerState(float elapsedSec)
+{
+	const float powerDuration{ 2.f };
+	const float inertiaDuration{ 3.f };
+	const float maxInertiaTime{ powerDuration + inertiaDuration };
+	if (m_IsPowerUsable && m_IsInert == false)
+	{
+		m_IsInert = true;
+		m_IsPowerUsable = false;
+		m_pCurrentSprite = GetSpritePtr("sparky_ability");
+		m_Velocity.x = 0.f;
+		m_pPowerUp->OnKeyDownEvent(m_Shape, m_XDirection);
+	}
+	else if (m_ArbitraryTimer < powerDuration && m_IsInert)
+	{
+		m_pPowerUp->ContinuousKeyEvent(m_Shape, m_XDirection);
+		m_pPowerUp->Update(elapsedSec);
+	}
+	else if (powerDuration < m_ArbitraryTimer && m_pPowerUp->IsActive())
+	{
+		m_pCurrentSprite = GetSpritePtr("sparky");
+		m_pPowerUp->OnKeyUpEvent(m_Shape, m_XDirection);
+	}
+	else if (maxInertiaTime < m_ArbitraryTimer && m_IsInert)
+	{
+		m_ArbitraryTimer = 0.f;
+		m_IsInert = false;
 	}
 }

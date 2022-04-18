@@ -95,9 +95,6 @@ public:
 	void SetState(const ActionState& state);
 	void SetMacroState(const MacroState& macroState);
 
-	void SetObjectManager(ObjectManager* objMngr);
-	void SetLevelManager(LevelManager* lvlMngr);
-
 	bool CheckCollisionWith(Actor* pActor);
 	bool CheckCollisionWith(Actor* pActor, utils::HitInfo& hitInfoReference, bool& isVerticalCollision);
 
@@ -129,8 +126,6 @@ private:
 
 	// Pointers
 	KirbyStateHandler* m_pStateHandler;
-	LevelManager* m_pLevelManager;
-	ObjectManager* m_pObjectManager;
 	std::vector<SoundEffect*> m_pSounds;
 
 	// Non-Primitves
@@ -158,7 +153,7 @@ private:
 
 	void UpdateDamaged(float elapsedSec);
 	void SetVulnerable(std::string spriteName);
-	
+	void CheckHitByProjectile();
 	void LockToLevel();
 	std::string GetSpriteNameFromState(const ActionState& state) const;
 	

@@ -8,19 +8,21 @@ class ObjectManager;
 class LevelManager final
 {
 public:
-	LevelManager(Kirby* pKirby, ObjectManager* pObjectMngr, Camera* pCamera);
+	LevelManager(Kirby* pKirby, Camera* pCamera);
 	~LevelManager();
 
-	void LoadLevel(std::string levelName);
+	static LevelManager* GetLevelMngr();
 	static Level* GetCurrentLevel();
+
+	void LoadLevel(std::string levelName);
 	void DrawLevelLegacy() const;
 	void DrawLevelParallax() const;
 
 private:
-	static Level* m_pCurrentLevel;
+	static LevelManager* m_pLevelManager;
+	Level* m_pCurrentLevel;
 	Camera* m_pCamera;
 	Kirby* m_pKirby;
-	ObjectManager* m_pObjectManager;
 
 	std::vector<Level*> m_pLevels;
 

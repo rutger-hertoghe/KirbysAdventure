@@ -5,16 +5,20 @@
 #include "Camera.h"
 #include "Kirby.h"
 
-Level* LevelManager::m_pCurrentLevel{ nullptr };
+LevelManager* LevelManager::m_pLevelManager{ nullptr };
 
-LevelManager::LevelManager(Kirby* pKirby, ObjectManager* pObjectMngr, Camera* pCamera)
+LevelManager::LevelManager(Kirby* pKirby, Camera* pCamera)
 	: m_pKirby(pKirby)
-	, m_pObjectManager{pObjectMngr}
 	, m_pCamera{ pCamera }
 {
+	if (m_pLevelManager)
+	{
+		delete m_pLevelManager;
+	}
+	m_pLevelManager = this;
+
 	Initialize();
-	m_pKirby->SetLevelManager(this);
-	LoadLevel("part3");
+	LoadLevel("part1");
 	m_pKirby->SetLocation(m_pCurrentLevel->GetStartLocation());
 }
 
@@ -24,6 +28,11 @@ LevelManager::~LevelManager()
 	{
 		delete pLevel;
 	}
+}
+
+LevelManager* LevelManager::GetLevelMngr()
+{
+	return m_pLevelManager;
 }
 
 void LevelManager::Initialize()
@@ -38,14 +47,15 @@ void LevelManager::Initialize()
 }
 
 void LevelManager::LoadLevel(std::string levelName)
-{
+{	
+	ObjectManager* pObjectMngr{ ObjectManager::GetObjectMngr() };;
 	if (levelName == "")
 	{
 		std::cout << "CONNECTED LEVEL NOT FOUND\n";
 		return;
 	}
 
-	m_pObjectManager->ClearEnemyVector();
+	pObjectMngr->Clear();
 
 	for (Level*& pLevel : m_pLevels)
 	{
@@ -56,12 +66,12 @@ void LevelManager::LoadLevel(std::string levelName)
 	}
 
 	m_pCamera->UpdateBoundaries(m_pCurrentLevel->GetBoundaries());
-	m_pObjectManager->LoadObjectsByLevelName(levelName);
+	pObjectMngr->LoadObjectsByLevelName(levelName);
 }
 
 Level* LevelManager::GetCurrentLevel()
 {
-	return m_pCurrentLevel;
+	return m_pLevelManager->m_pCurrentLevel;
 }
 
 void LevelManager::DrawLevelLegacy() const
