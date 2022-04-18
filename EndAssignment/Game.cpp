@@ -10,8 +10,6 @@
 #include "ProjectileManager.h"
 #include "LevelManager.h"
 
-#include "MrTickTock.h"
-
 Game::Game( const Window& window ) 
 	: m_Window{ window }
 	, m_CurrentLevel{0}
@@ -33,10 +31,8 @@ void Game::Initialize( )
 	m_pObjectManager = new ObjectManager{m_pKirby};
 	m_pObjectManager = new ObjectManager{m_pKirby};
 	m_pProjectileManager = new ProjectileManager{};
-	m_pCamera = new Camera{ m_pKirby->GetLocation(), m_Window.width, m_Window.height, m_pHUD, m_pObjectManager};
-	m_pLevelManager = new LevelManager{ m_pKirby, m_pObjectManager, m_pCamera };
-	
-	// m_pMrTickTock = new MrTickTock{ Point2f{312.f, 40.f} };
+	m_pCamera = new Camera{ m_pKirby->GetLocation(), m_Window.width, m_Window.height, m_pHUD};
+	m_pLevelManager = new LevelManager{ m_pKirby, m_pCamera };
 }
 
 void Game::Cleanup( )
@@ -47,8 +43,6 @@ void Game::Cleanup( )
 	delete m_pKirby;
 	delete m_pObjectManager;
 	delete m_pProjectileManager;
-
-	// delete m_pMrTickTock;
 }
 
 void Game::Update( float elapsedSec )
@@ -56,10 +50,8 @@ void Game::Update( float elapsedSec )
 	m_pHUD->Update(elapsedSec);
 	m_pKirby->Update(elapsedSec);
 	m_pCamera->Update(elapsedSec, m_pKirby);
-	m_pObjectManager->Update(elapsedSec, m_pCamera->GetVisibleArea());
+	m_pObjectManager->Update(elapsedSec, m_pCamera);
 	m_pProjectileManager->Update(elapsedSec);
-	
-	// m_pMrTickTock->Update(elapsedSec);
 }
 
 void Game::Draw( ) const
@@ -72,11 +64,9 @@ void Game::Draw( ) const
 	// GAME AREA
 	glPushMatrix();
 	m_pCamera->Transform();
-	m_pKirby->Draw();
 	m_pObjectManager->Draw();
+	m_pKirby->Draw();
 	m_pProjectileManager->Draw();
-	
-	// m_pMrTickTock->Draw();
 	glPopMatrix();
 
 	// UI AREA
@@ -89,6 +79,13 @@ void Game::Draw( ) const
 void Game::ProcessKeyDownEvent( const SDL_KeyboardEvent & e )
 {
 	m_pKirby->ProcessKeyDown(e);
+
+	switch (e.keysym.sym)
+	{
+	case SDLK_i:
+		PrintInfo();
+		break;
+	}
 }
 
 void Game::ProcessKeyUpEvent( const SDL_KeyboardEvent& e )
@@ -140,4 +137,14 @@ void Game::DrawLevel() const
 	}
 }
 
-
+void Game::PrintInfo() const
+{
+	std::cout << "CONTROLS:\n";
+	std::cout << "A/left arrow: move left, slide left if ducked \n";
+	std::cout << "D/right arrow: move right, slide right if ducked \n";
+	std::cout << "W/up arrow: inflate / fly up / jump if bloated\n";
+	std::cout << "S/down arrow: duck \n";
+	std::cout << "Space: jump\n";
+	std::cout << "E: inhale enemies & items / use power / exhale if flying / shoot star if enemy swallowed \n";
+	std::cout << "R: discard power \n";
+}

@@ -23,5 +23,6 @@ private:
 
 	virtual void InitializeSprites() override;
 	virtual void InitializePowerUp() override;
+	void UpdatePowerState(float elapsedSec, float maxPowerTime, float powerExecutionStart, float maxInertiaTime);
 };
 

@@ -36,35 +36,7 @@ void HotHead::Update(float elapsedSec)
 
 	if (HasPowerUp())
 	{
-		if (m_IsPowerUsable)
-		{
-			m_IsPowerUsable = false;
-			m_IsInert = true;
-			m_pCurrentSprite = GetSpritePtr("hothead_charge");
-			m_Velocity.x = 0.f;
-		}
-		else if (powerExecutionStart < m_ArbitraryTimer && m_ArbitraryTimer < maxPowerTime && m_IsUsingPower == false )
-		{
-			m_IsUsingPower = true;
-			m_pCurrentSprite = GetSpritePtr("hothead_ability");
-		}
-		else if (powerExecutionStart < m_ArbitraryTimer && m_ArbitraryTimer < maxPowerTime && m_IsUsingPower)
-		{
-			m_pPowerUp->ContinuousKeyEvent(m_Shape, m_XDirection);
-			m_pPowerUp->Update(elapsedSec);
-		}
-		else if (maxPowerTime < m_ArbitraryTimer && m_IsUsingPower)
-		{
-			m_pCurrentSprite = GetSpritePtr("hothead");
-			m_Velocity.x = m_BaseVelocity.x;
-			m_IsUsingPower = false;
-		}
-		else if (maxInertiaTime < m_ArbitraryTimer)
-		{
-			m_ArbitraryTimer = 0.f;
-			m_IsInert = false;
-			m_IsPowerUsable = true;
-		}
+		UpdatePowerState(elapsedSec, maxPowerTime, powerExecutionStart, maxInertiaTime);
 	}
 
 	if (m_IsInert == true) // Counter should only run when using power or during inertia period
@@ -98,6 +70,39 @@ void HotHead::Reset()
 void HotHead::InitializePowerUp()
 {
 	SetPowerUp(new FirePower{});
+}
+
+void HotHead::UpdatePowerState(float elapsedSec, float maxPowerTime, float powerExecutionStart, float maxInertiaTime)
+{
+	if (m_IsPowerUsable)
+	{
+		m_IsPowerUsable = false;
+		m_IsInert = true;
+		m_pCurrentSprite = GetSpritePtr("hothead_charge");
+		m_Velocity.x = 0.f;
+	}
+	else if (powerExecutionStart < m_ArbitraryTimer && m_ArbitraryTimer < maxPowerTime && m_IsUsingPower == false)
+	{
+		m_IsUsingPower = true;
+		m_pCurrentSprite = GetSpritePtr("hothead_ability");
+	}
+	else if (powerExecutionStart < m_ArbitraryTimer && m_ArbitraryTimer < maxPowerTime && m_IsUsingPower)
+	{
+		m_pPowerUp->ContinuousKeyEvent(m_Shape, m_XDirection);
+		m_pPowerUp->Update(elapsedSec);
+	}
+	else if (maxPowerTime < m_ArbitraryTimer && m_IsUsingPower)
+	{
+		m_pCurrentSprite = GetSpritePtr("hothead");
+		m_Velocity.x = m_BaseVelocity.x;
+		m_IsUsingPower = false;
+	}
+	else if (maxInertiaTime < m_ArbitraryTimer)
+	{
+		m_ArbitraryTimer = 0.f;
+		m_IsInert = false;
+		m_IsPowerUsable = true;
+	}
 }
 
 void HotHead::InitializeSprites()

@@ -29,7 +29,9 @@ void FirePower::ContinuousKeyEvent(const Rectf& shape, float xDirection)
 		float pixelReduction{ -2.f }; // To correct whether kirby's fireballs go through wall
 		Rectf spawnLocation{ 0.f, shape.bottom, shape.width, shape.height };
 		spawnLocation.left = shape.left + (xDirection > 0.f ? shape.width + pixelReduction: -shape.width - pixelReduction);
+
 		Vector2f directionVector{ xDirection, float(m_YDirection * 3) };
+
 		ProjectileManager* pProjectileMngr = ProjectileManager::GetProjectileMngr();
 		if (pProjectileMngr)
 		{

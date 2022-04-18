@@ -20,16 +20,17 @@ void PowerStar::Update(float elapsedSec)
 {
 	m_ArbitraryTimer += elapsedSec;
 
+	// TODO: Remove hardcoded values!!
 	// Check timed events such as flickering out of existence and actual disappearing
-	if (m_ArbitraryTimer > 10.f)
+	if (m_ArbitraryTimer > 5.f)
 	{
 		m_IsRemoved = true;
 	}
-	else if (m_ArbitraryTimer > 8.f &&  int(m_ArbitraryTimer * 40) % 2 == 0 )
+	else if (m_ArbitraryTimer > 4.f &&  int(m_ArbitraryTimer * 40) % 2 == 0 )
 	{
 		m_NeedsToBeDrawn = !m_NeedsToBeDrawn;
 	}
-	else if (m_ArbitraryTimer > 5.f &&  int(m_ArbitraryTimer * 10) % 2 == 0 )
+	else if (m_ArbitraryTimer > 3.f &&  int(m_ArbitraryTimer * 10) % 2 == 0 )
 	{
 		m_NeedsToBeDrawn = !m_NeedsToBeDrawn;
 	}

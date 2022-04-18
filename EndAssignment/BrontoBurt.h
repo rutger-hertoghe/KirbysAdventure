@@ -17,5 +17,9 @@ private:
 	float m_TargetY;
 	float m_Apex;
 	virtual void InitializeSprites() override;
+	void AnimateOnlyIfGoingUp(float elapsedSec);
+	void SlowFall(float elapsedSec);
+	void BoostUpIfLowEnough();
+	void CorrectApex();
 };
 

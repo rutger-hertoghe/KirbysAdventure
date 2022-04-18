@@ -22,5 +22,6 @@ private:
 	virtual void InitializeSprites() override;
 	virtual void InitializePowerUp() override;
 	void HandleJumping();
+	void UpdatePowerState(float elapsedSec);
 };
 

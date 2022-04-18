@@ -25,20 +25,22 @@
 #include "HealthBug.h"
 #include "StarBlock.h"
 
+// Boss
+#include "MrTickTock.h"
+
 // TODO: Implement removal puffs for enemies & items
 
 ObjectManager* ObjectManager::m_pObjectManager{ nullptr };
 
 ObjectManager::ObjectManager(Kirby* pKirby)
 	: m_pKirby{ pKirby }
+	, m_pMrTickTock{nullptr}
 {
 	if (m_pObjectManager)
 	{
 		delete m_pObjectManager;
 	}
 	m_pObjectManager = this;
-
-	m_pKirby->SetObjectManager(this);
 }
 
 ObjectManager::~ObjectManager()
@@ -46,6 +48,10 @@ ObjectManager::~ObjectManager()
 	DeleteEnemies();
 	DeleteItems();
 	DeleteFXs();
+	if (m_pMrTickTock)
+	{
+		delete m_pMrTickTock;
+	}
 }
 
 ObjectManager* ObjectManager::GetObjectMngr()
@@ -58,6 +64,11 @@ void ObjectManager::Draw() const
 	DrawFXs();
 	DrawItems();
 	DrawEnemies();
+
+	if (m_pMrTickTock)
+	{
+		m_pMrTickTock->Draw();
+	}
 }
 
 void ObjectManager::DrawEnemies() const
@@ -90,14 +101,67 @@ void ObjectManager::DrawFXs() const
 	}
 }
 
-void ObjectManager::Update(float elapsedSec, const Rectf& visibleArea)
+void ObjectManager::Update(float elapsedSec, Camera* pCamera)
 {
-	m_VisibleArea = visibleArea;
+	m_VisibleArea = pCamera->GetVisibleArea();
 
 	UpdateEnemies(elapsedSec);
 	UpdateItems(elapsedSec);
 	UpdateRemovalFXs(elapsedSec);
 	
+	if (m_pMrTickTock)
+	{
+		if (m_pMrTickTock->IsDead())
+		{
+			if (pCamera->IsLocked())
+			{
+				pCamera->Unlock();
+			}
+			return;
+		}
+		Point2f tickTockLocation{ m_pMrTickTock->GetShape().left, m_pMrTickTock->GetShape().bottom };
+		if (utils::IsPointInRect(tickTockLocation, m_VisibleArea))
+		{
+			pCamera->SetLocked(tickTockLocation);
+		}
+		
+		// TODO: Implement inhalation code
+		/*if (m_pMrTickTock->IsInhalable())
+		{
+			m_pMrTickTock->ToggleBeingInhaled(m_pKirby->GetInhalationZone());
+		}
+
+		if (m_pMrTickTock->IsBeingInhaled())
+		{
+			m_pMrTickTock->SetInhalationVelocities(m_pKirby->GetShape());
+		}*/
+
+		m_pMrTickTock->Update(elapsedSec);
+		if (ProjectileManager::GetProjectileMngr()->ProjectileHasHit(m_pMrTickTock, Projectile::ActorType::enemy))
+		{
+			m_pMrTickTock->DecrementHealth();
+		}
+		else if (m_pKirby->CheckCollisionWith(m_pMrTickTock))
+		{
+			float bounceDirection{ m_pMrTickTock->GetShape().left < m_pMrTickTock->GetShape().left ? 1.f : -1.f };
+			if (m_pKirby->HasPowerUp())
+			{
+				const float velocityTreshold{ -5.f };
+				if ((m_pKirby->GetVelocity().y < velocityTreshold) && (m_pKirby->GetPowerUp()->GetType() == PowerUp::PowerUpType::stone))
+				{
+					m_pMrTickTock->DecrementHealth();
+				}
+				else
+				{
+					m_pKirby->DecrementHealth(bounceDirection);
+				}
+			}
+			else
+			{
+				m_pKirby->DecrementHealth(bounceDirection);
+			}
+		}
+	}
 }
 
 void ObjectManager::UpdateEnemies(float elapsedSec)
@@ -212,8 +276,6 @@ void ObjectManager::CheckEnemyRemovalConditions(Enemy*& pEnemy, bool insideXScre
 		pEnemy->Reset();
 	}
 }
-
-
 
 void ObjectManager::UpdateItem(Item*& pItem, float elapsedSec)
 {
@@ -399,12 +461,34 @@ void ObjectManager::ClearObjectVector()
 	m_pItems.clear();
 }
 
+void ObjectManager::ClearFXVector()
+{
+	for (RemovalFX* pFX : m_pRemovalFX)
+	{
+		delete pFX;
+	}
+	m_pRemovalFX.clear();
+}
+
 void ObjectManager::LoadObjectsByLevelName(const std::string& levelName)
 {
 	std::string filePath{ "resources/enemydata/" + levelName + ".txt" };
 	LoadObjectsFromFile(filePath);
 
 	SetEnemyProjectileManagerPointers();
+}
+
+void ObjectManager::Clear()
+{
+	ClearObjectVector();
+	ClearEnemyVector();
+	ClearFXVector();
+
+	if (m_pMrTickTock)
+	{
+		delete m_pMrTickTock;
+		m_pMrTickTock = nullptr;
+	}
 }
 
 //void ObjectManager::ResetEnemies()
@@ -501,5 +585,13 @@ void ObjectManager::CreateObject(const std::string& objectName, const Point2f& l
 	else if (objectName == "healthbug")
 	{
 		m_pItems.push_back(new HealthBug{ location, m_pKirby });
+	}
+	else if (objectName == "mrticktock")
+	{
+		if (m_pMrTickTock)
+		{
+			delete m_pMrTickTock;
+		}
+		m_pMrTickTock = new MrTickTock{ location };
 	}
 }
