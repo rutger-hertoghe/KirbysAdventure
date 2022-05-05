@@ -31,8 +31,8 @@ public:
 	void LoadObjectsByLevelName(const std::string& levelName);
 
 	void Clear();
-	// TESTING PURPOSES
-	// void ResetEnemies();
+	
+	Rectf GetVisibleArea() const;
 
 private:
 	static ObjectManager* m_pObjectManager;

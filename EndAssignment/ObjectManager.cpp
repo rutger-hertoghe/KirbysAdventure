@@ -489,6 +489,11 @@ void ObjectManager::Clear()
 	}
 }
 
+Rectf ObjectManager::GetVisibleArea() const
+{
+	return m_VisibleArea;
+}
+
 //void ObjectManager::ResetEnemies()
 //{
 //	for (Enemy* pEnemy : m_pEnemies)
@@ -590,6 +595,6 @@ void ObjectManager::CreateObject(const std::string& objectName, const Point2f& l
 		{
 			delete m_pMrTickTock;
 		}
-		m_pMrTickTock = new MrTickTock{ location };
+		m_pMrTickTock = new MrTickTock{ location, m_pKirby };
 	}
 }

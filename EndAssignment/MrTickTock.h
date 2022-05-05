@@ -1,9 +1,11 @@
 #pragma once
 #include "Actor.h"
+#include "Kirby.h"
+
 class MrTickTock final : public Actor
 {
 public:
-	explicit MrTickTock(const Point2f& location);
+	explicit MrTickTock(const Point2f& location, Kirby* pKirby);
 	MrTickTock(const MrTickTock& other) = delete;
 	MrTickTock& operator=(const MrTickTock& other) = delete;
 	MrTickTock(MrTickTock&& other) = delete;
@@ -15,23 +17,34 @@ public:
 	bool IsDead() const;
 
 private:
+	enum class ActionState
+	{
+		movingToKirby,
+		hopping,
+		ringing,
+		ringingWithNotes,
+		dead,
+		idle
+	};
+
+
 	const int m_MaxLives;
 	int m_Lives;
+	bool m_GotDamaged;
 
 	float m_InvulnerabilityTimer;
 	
 	int m_Sprite;
 	Point2f m_CameraLockLocation;
 
-	bool m_GotDamaged;
-	bool m_IsDead;
+	ActionState m_ActionState;
+
+	Kirby* m_pKirby;
 
 	void InitializeSprites();
 	void Kill();
 	void UpdateInvulnerability(float elapsedSec);
 
-	// TESTING FUNCTIONS, WILL NOT BE IN FINAL GAME
-	void ChangeSpriteAfterTwoSeconds();
-
+	void SelectRandomState();
 };
 

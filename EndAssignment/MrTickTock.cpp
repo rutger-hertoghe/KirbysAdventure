@@ -2,14 +2,15 @@
 #include "MrTickTock.h"
 #include "Sprite.h"
 
-MrTickTock::MrTickTock(const Point2f& location)
+MrTickTock::MrTickTock(const Point2f& location, Kirby* pKirby)
 	: Actor{}
+	, m_pKirby{pKirby}
 	, m_CameraLockLocation{location}
 	, m_Sprite{0}
 	, m_MaxLives{ 3 }
 	, m_InvulnerabilityTimer{0.f}
 	, m_GotDamaged{false}
-	, m_IsDead{false}
+	, m_ActionState{ActionState::idle}
 {
 	m_Lives = m_MaxLives;
 	m_IsInhalable = false;
@@ -36,13 +37,37 @@ void MrTickTock::Update(float elapsedSec)
 
 	ApplyVelocities(elapsedSec, m_XDirection * m_Velocity.x, m_Velocity.y);
 
-	if (m_IsDead)
+	if (m_ActionState  == ActionState::dead)
 	{
 		return;
 	}
 
 	m_ArbitraryTimer += elapsedSec;
-	ChangeSpriteAfterTwoSeconds();
+
+	if (m_ActionState == ActionState::movingToKirby)
+	{
+		float locationDifference{ m_Shape.left - m_pKirby->GetLocation().x };
+		if (abs(locationDifference) > 32.f)
+		{
+			m_Velocity.x = (locationDifference > 0.f) ? -100.f : 100.f;
+		}
+		else if (abs(locationDifference) > 0.f)
+		{ 
+			m_ActionState = ActionState::idle;
+		}
+		else
+		{
+			m_Velocity.x -= m_Velocity.x / 10;
+		}
+	}
+	else if (m_ActionState == ActionState::idle)
+	{
+		if (m_ArbitraryTimer > 1.f)
+		{
+			SelectRandomState();
+			m_ArbitraryTimer = 0.f;
+		}
+	}
 
 	UpdateInvulnerability(elapsedSec);
 	
@@ -67,7 +92,7 @@ void MrTickTock::DecrementHealth()
 
 bool MrTickTock::IsDead() const
 {
-	return m_IsDead;
+	return m_ActionState == ActionState::dead;
 }
 
 void MrTickTock::InitializeSprites()
@@ -82,7 +107,7 @@ void MrTickTock::InitializeSprites()
 void MrTickTock::Kill()
 {
 	m_pCurrentSprite = GetSpritePtr("mrticktock_dead");
-	m_IsDead = true;
+	m_ActionState = ActionState::dead;
 	m_IsInhalable = true;
 }
 
@@ -105,12 +130,8 @@ void MrTickTock::UpdateInvulnerability(float elapsedSec)
 	}
 }
 
-void MrTickTock::ChangeSpriteAfterTwoSeconds()
+void MrTickTock::SelectRandomState()
 {
-	if (m_ArbitraryTimer > 2.f)
-	{
-		m_ArbitraryTimer = 0.f;
-		++m_Sprite %= int(3);
-		m_pCurrentSprite = m_pSprites[m_Sprite];
-	}
+	// m_ActionState = ActionState(rand() % 4);
+	m_ActionState = ActionState::movingToKirby;
 }

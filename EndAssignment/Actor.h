@@ -34,6 +34,8 @@ public:
 	bool IsBeingInhaled() const;
 	void ToggleBeingInhaled(const Rectf& inhalationZone);
 
+	bool IsOnScreen() const;
+
 protected:
 	static const float m_Gravity;
 	
