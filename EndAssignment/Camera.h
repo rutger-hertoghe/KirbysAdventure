@@ -51,7 +51,5 @@ private:
 	void LockKirbyToVisibleArea(Kirby* pKirby);
 	void MoveToLockLocation(float elapsedSec);
 	void MoveBackToKirby(float elapsedSec, Kirby* pKirby);
-
-	// TODO: Implement boss camera locking
 };
 
