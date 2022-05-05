@@ -14,5 +14,6 @@ public:
 	void SetDirection(float directionValue);
 private:
 	void InitializeSprites();
+	void UpdateStarFlicker();
 };
 
