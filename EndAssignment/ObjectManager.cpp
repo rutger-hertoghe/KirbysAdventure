@@ -28,8 +28,6 @@
 // Boss
 #include "MrTickTock.h"
 
-// TODO: Implement removal puffs for enemies & items
-
 ObjectManager* ObjectManager::m_pObjectManager{ nullptr };
 
 ObjectManager::ObjectManager(Kirby* pKirby)
