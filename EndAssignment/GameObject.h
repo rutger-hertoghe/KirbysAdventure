@@ -30,9 +30,12 @@ protected:
 	Sprite* m_pCurrentSprite;
 
 	std::vector<Sprite*> m_pSprites;
+	std::unordered_map<std::string, Sprite*> m_pSpritesMap;
 
 	void UpdateSprite(float elapsedSec);
 	void ChangeDirection();
+
+	void AddSprite(int nrFrames, float loopTime, const std::string& textureName, int rows = 1, bool invulnerabilitySprite = false);
 
 	void SetInitialSprite(const std::string& spriteName = "");
 	void SetDimsFromSprite();

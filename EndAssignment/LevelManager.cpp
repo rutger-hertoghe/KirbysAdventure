@@ -48,14 +48,14 @@ void LevelManager::Initialize()
 
 void LevelManager::LoadLevel(std::string levelName)
 {	
-	ObjectManager* pObjectMngr{ ObjectManager::GetObjectMngr() };;
+	// ObjectManager* pObjectMngr{ ObjectManager::GetObjectMngr() };;
 	if (levelName == "")
 	{
 		std::cout << "CONNECTED LEVEL NOT FOUND\n";
 		return;
 	}
 
-	pObjectMngr->Clear();
+	// pObjectMngr->Clear();
 
 	for (Level*& pLevel : m_pLevels)
 	{
@@ -66,7 +66,7 @@ void LevelManager::LoadLevel(std::string levelName)
 	}
 
 	m_pCamera->UpdateBoundaries(m_pCurrentLevel->GetBoundaries());
-	pObjectMngr->LoadObjectsByLevelName(levelName);
+	// pObjectMngr->LoadObjectsByLevelName(levelName);
 }
 
 Level* LevelManager::GetCurrentLevel()

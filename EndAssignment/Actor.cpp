@@ -190,12 +190,12 @@ void Actor::Flicker(float timer, std::string& spriteName)
 
 void Actor::CreateAltSprites()
 {
-	int originalLength{ int(m_pSprites.size()) };
+	/*int originalLength{ int(m_pSprites.size()) };
 	for (int idx{}; idx < originalLength; idx++)
 	{
 		Sprite* pSprite{ m_pSprites[idx] };
 		m_pSprites.push_back(new Sprite{ pSprite->GetNrOfFrames(), pSprite->GetLoopTime(), pSprite->GetName(), pSprite->GetTextureRows(), true });
-	}
+	}*/
 }
 
 void Actor::ChangeDirectionOnBump()

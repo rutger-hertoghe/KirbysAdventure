@@ -28,9 +28,8 @@ void Game::Initialize( )
 	// TODO: Implement boss enemy
 	m_pKirby = new Kirby{};
 	m_pHUD = new HUD{};
-	m_pObjectManager = new ObjectManager{m_pKirby};
-	m_pObjectManager = new ObjectManager{m_pKirby};
-	m_pProjectileManager = new ProjectileManager{};
+	//m_pObjectManager = new ObjectManager{m_pKirby};
+	//m_pProjectileManager = new ProjectileManager{};
 	m_pCamera = new Camera{ m_pKirby->GetLocation(), m_Window.width, m_Window.height, m_pHUD};
 	m_pLevelManager = new LevelManager{ m_pKirby, m_pCamera };
 }
@@ -41,8 +40,8 @@ void Game::Cleanup( )
 	delete m_pHUD;
 	delete m_pCamera;
 	delete m_pKirby;
-	delete m_pObjectManager;
-	delete m_pProjectileManager;
+	//delete m_pObjectManager;
+	//delete m_pProjectileManager;
 }
 
 void Game::Update( float elapsedSec )
@@ -50,8 +49,8 @@ void Game::Update( float elapsedSec )
 	m_pHUD->Update(elapsedSec);
 	m_pKirby->Update(elapsedSec);
 	m_pCamera->Update(elapsedSec, m_pKirby);
-	m_pObjectManager->Update(elapsedSec, m_pCamera);
-	m_pProjectileManager->Update(elapsedSec);
+	//m_pObjectManager->Update(elapsedSec, m_pCamera);
+	//m_pProjectileManager->Update(elapsedSec);
 }
 
 void Game::Draw( ) const
@@ -66,7 +65,7 @@ void Game::Draw( ) const
 	m_pCamera->Transform();
 	m_pObjectManager->Draw();
 	m_pKirby->Draw();
-	m_pProjectileManager->Draw();
+	//m_pProjectileManager->Draw();
 	glPopMatrix();
 
 	// UI AREA

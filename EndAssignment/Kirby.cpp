@@ -58,7 +58,8 @@ void Kirby::Initialize()
 	InitializeSprites();
 	
 	// InitializeHurtSprites();
-	m_pCurrentSprite = GetSpritePtr("kirby_idle");
+	// m_pCurrentSprite = GetSpritePtr("kirby_idle");
+	m_pCurrentSprite = m_pSpritesMap["kirby_idle"];
 	SetDimsFromSprite();
 
 	m_pStateHandler = new KirbyStateHandler(this);
@@ -69,64 +70,119 @@ void Kirby::InitializeSprites()
 {
 	int nrFrames{ 1 };
 	float animationSpeed{ 0.f };
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_jumping" });
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_falling" });
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_inhaling" });
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_jumping" });
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_falling" });
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ducking" });
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_sliding" });
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_ducking" });
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_sliding" });
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_stone_continuous" });
+	AddSprite(nrFrames, animationSpeed, "kirby_jumping");
+	AddSprite(nrFrames, animationSpeed, "kirby_falling");
+	AddSprite(nrFrames, animationSpeed, "kirby_inhaling");
+	AddSprite(nrFrames, animationSpeed, "kirby_ability_jumping");
+	AddSprite(nrFrames, animationSpeed, "kirby_ability_falling");
+	AddSprite(nrFrames, animationSpeed, "kirby_ducking");
+	AddSprite(nrFrames, animationSpeed, "kirby_sliding");
+	AddSprite(nrFrames, animationSpeed, "kirby_ability_ducking");
+	AddSprite(nrFrames, animationSpeed, "kirby_ability_sliding");
+	AddSprite(nrFrames, animationSpeed, "kirby_ability_stone_continuous");
+
+	//m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_jumping" });
+	//m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_falling" });
+	//m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_inhaling" });
+	//m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_jumping" });
+	//m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_falling" });
+	//m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ducking" });
+	//m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_sliding" });
+	//m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_ducking" });
+	//m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_sliding" });
+	//m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_stone_continuous" });
+
 	animationSpeed = 0.15f;
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_bloated_idle" });
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_spark_start" });
+
+	AddSprite(nrFrames, animationSpeed, "kirby_bloated_idle");
+	AddSprite(nrFrames, animationSpeed, "kirby_ability_spark_start");
+
+	//m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_bloated_idle" });
+	//m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_spark_start" });
+	
 	animationSpeed = 0.4f;
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_hurt" });
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_inflated_hurt" });
+	AddSprite(nrFrames, animationSpeed, "kirby_hurt");
+	AddSprite(nrFrames, animationSpeed, "kirby_inflated_hurt");
+
+	//m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_hurt" });
+	//m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_inflated_hurt" });
 
 	nrFrames = 2;
 	animationSpeed = 0.05f;
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_fire_continuous" });
+
+	AddSprite(nrFrames, animationSpeed, "kirby_ability_fire_continuous");
+
+	//m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_fire_continuous" });
+
 	animationSpeed = 0.1f;
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_spark_continuous" });
+	
+	AddSprite(nrFrames, animationSpeed, "kirby_ability_spark_continuous");
+
+	// m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_spark_continuous" });
+
 	animationSpeed = 0.15f;
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_start_inhaling" });
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_exhaling" });
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_flapping" });
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_flapping" });
+
+	AddSprite(nrFrames, animationSpeed, "kirby_start_inhaling");
+	AddSprite(nrFrames, animationSpeed, "kirby_exhaling");
+	AddSprite(nrFrames, animationSpeed, "kirby_flapping");
+	AddSprite(nrFrames, animationSpeed, "kirby_ability_flapping");
+
+	//m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_start_inhaling" });
+	//m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_exhaling" });
+	//m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_flapping" });
+	//m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_flapping" });
+
 	animationSpeed = 0.75f;
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_inflated" });
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_inflated" });
+	AddSprite(nrFrames, animationSpeed, "kirby_inflated");
+	AddSprite(nrFrames, animationSpeed, "kirby_ability_inflated");
+
+	//m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_inflated" });
+	//m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_inflated" });
 
 	nrFrames = 3;
 	animationSpeed = 0.2f;
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_stone_start" });
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_stone_end" });
+
+	AddSprite(nrFrames, animationSpeed, "kirby_ability_stone_start");
+	AddSprite(nrFrames, animationSpeed, "kirby_ability_stone_end");
+	//m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_stone_start" });
+	//m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_stone_end" });
 	animationSpeed = 0.3f;
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_swallowing" });
+	AddSprite(nrFrames, animationSpeed, "kirby_swallowing");
+	//m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_swallowing" });
 
 	nrFrames = 4;
 	animationSpeed = 0.2f;
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_flipping" });
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_flipping" });
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_bloat" });
+	AddSprite(nrFrames, animationSpeed, "kirby_flipping");
+	AddSprite(nrFrames, animationSpeed, "kirby_ability_flipping");
+	AddSprite(nrFrames, animationSpeed, "kirby_bloat");
+	//m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_flipping" });
+	//m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_flipping" });
+	//m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_bloat" });
 	animationSpeed = 0.4f;
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_inflating" });
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_deflating" });
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_inflating" });
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_deflating" });
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_spitting" });
+	AddSprite(nrFrames, animationSpeed, "kirby_inflating");
+	AddSprite(nrFrames, animationSpeed, "kirby_deflating");
+	AddSprite(nrFrames, animationSpeed, "kirby_ability_inflating");
+	AddSprite(nrFrames, animationSpeed, "kirby_ability_deflating");
+	AddSprite(nrFrames, animationSpeed, "kirby_spitting");
+	//m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_inflating" });
+	//m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_deflating" });
+	//m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_inflating" });
+	//m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_deflating" });
+	//m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_spitting" });
 	animationSpeed = 0.7f;
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_walking" });
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_walking" });
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_bloated_walking" });
+	AddSprite(nrFrames, animationSpeed, "kirby_walking");
+	AddSprite(nrFrames, animationSpeed, "kirby_ability_walking");
+	AddSprite(nrFrames, animationSpeed, "kirby_bloated_walking");
+	//m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_walking" });
+	//m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_walking" });
+	//m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_bloated_walking" });
 
 	nrFrames = 16;
 	animationSpeed = 1.6f;
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_idle", 2 });
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_idle", 2 });
+	AddSprite(nrFrames, animationSpeed, "kirby_idle");
+	AddSprite(nrFrames, animationSpeed, "kirby_ability_idle");
+	//m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_idle", 2 });
+	//m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_idle", 2 });
 
 	CreateAltSprites();
 }
@@ -265,6 +321,7 @@ void Kirby::LockToLevel()
 	}
 }
 #pragma endregion
+
 
 #pragma region InputHandling
 

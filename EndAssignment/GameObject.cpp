@@ -62,6 +62,11 @@ void GameObject::ChangeDirection()
 	m_XDirection *= -1.f;
 }
 
+void GameObject::AddSprite(int nrFrames, float loopTime, const std::string& textureName, int rows, bool invulnerabilitySprite)
+{
+	m_pSpritesMap.insert(std::pair<std::string, Sprite*>(textureName, new Sprite{ nrFrames, loopTime, textureName, rows, invulnerabilitySprite }));
+}
+
 Rectf GameObject::GetShape() const
 {
 	return m_Shape;
