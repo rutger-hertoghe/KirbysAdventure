@@ -1,16 +1,21 @@
 #pragma once
 #include "Kirby.h"
 
+using Action = Kirby::ActionState;
+using Macro = Kirby::MacroState;
+
+// TODO: Replace long stuff with shorter stuff
+
 class KirbyStateHandler final
 {
 public:
 	explicit KirbyStateHandler(Kirby* pKirby);
-	void HandleState(Kirby::ActionState actionState, Kirby::MacroState macroState);
+	void HandleState(Action actionState, Macro macroState);
 
 private:
 	Kirby* m_pKirby;
 
-	void HandleIdle(Kirby::ActionState actionState, Kirby::MacroState macroState);
+	void HandleIdle(Action actionState, Macro macroState);
 	void HandleWalking(Kirby::ActionState actionState, Kirby::MacroState macroState);
 	void HandleJumping(Kirby::MacroState macroState);
 	void HandleFlipping(Kirby::MacroState macroState);

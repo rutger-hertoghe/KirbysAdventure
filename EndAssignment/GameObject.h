@@ -26,6 +26,7 @@ protected:
 	
 	float m_XDirection;
 
+	// TODO: sprite info terug in sprites steken en projectile management fixen OF ervoor zorgen dat sprite ALTIJD gereset wordt
 	Sprite* m_pCurrentSprite;
 
 	std::vector<Sprite*> m_pSprites;

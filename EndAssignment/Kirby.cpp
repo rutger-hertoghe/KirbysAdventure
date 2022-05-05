@@ -106,7 +106,6 @@ void Kirby::InitializeSprites()
 	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_stone_end" });
 	animationSpeed = 0.3f;
 	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_swallowing" });
-	
 
 	nrFrames = 4;
 	animationSpeed = 0.2f;
