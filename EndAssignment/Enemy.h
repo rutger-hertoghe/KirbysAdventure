@@ -22,23 +22,10 @@ public:
 	virtual void InitializePowerUp();
 
 protected:
-	// TODO: Clean states that are not even being used, clean class in general
-	enum class ActionState
-	{
-		dormant,
-		moving,
-		power_start,
-		power_continuous,
-		power_end,
-		dying
-	};
-
 	bool m_CanJump;
-	// bool m_IsActive;
+	bool m_IsActive;
 	bool m_HasBeenOffScreen;
 	Point2f m_StartLocation;
-
-	ActionState m_ActionState;
 
 	virtual void InitializeSprites() = 0;
 	void DeleteSprites();
