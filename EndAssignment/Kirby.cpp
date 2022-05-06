@@ -46,11 +46,15 @@ Kirby::~Kirby()
 	delete m_pStateHandler;
 	m_pStateHandler = nullptr;
 
-	for (SoundEffect* pSound : m_pSounds)
+	std::unordered_map<std::string, SoundEffect*>::iterator it = m_pSounds.begin();
+
+	while (it != m_pSounds.end())
 	{
-		if (pSound) delete pSound;
+		if (it->second) 
+		{
+			delete it->second;
+		}
 	}
-	m_pSounds.clear();
 }
 
 void Kirby::Initialize()
@@ -62,7 +66,15 @@ void Kirby::Initialize()
 	SetDimsFromSprite();
 
 	m_pStateHandler = new KirbyStateHandler(this);
-	m_pSounds.push_back(new SoundEffect{ "resources/sounds/spitstar.wav" });
+	AddSoundEffect("spitstar");
+	AddSoundEffect("inflate");
+	AddSoundEffect("exhale");
+}
+
+void Kirby::AddSoundEffect(std::string fileName)
+{
+	std::string path{ "resources/sounds/" + fileName + ".wav" };
+	m_pSounds.insert(std::pair<std::string, SoundEffect*>(fileName, new SoundEffect{ path }));
 }
 
 void Kirby::InitializeSprites()
@@ -200,7 +212,7 @@ void Kirby::SetIsOnGround()
 void Kirby::CheckHitByProjectile()
 {
 	float direction{};
-	if (ProjectileManager::GetProjectileMngr()->ProjectileHasHit(this, Projectile::ActorType::kirby, direction))
+	if (ProjectileManager::GetProjectileMngr()->ProjectileHasHit(this, direction))
 	{
 		DecrementHealth(direction);
 	}
@@ -408,8 +420,16 @@ void Kirby::DoUpHeldActions(bool isImmobile, float elapsedSec)
 {
 	if (isImmobile) return;
 
+	// TODO: Fix bug where bloated kirby can in rare cases double jump on apex of jump
+	// TODO: Fix bug where bloated kirby can in rare cases double jump on apex of jump
+
 	if (m_MacroState != MacroState::bloated)
 	{
+		if (m_MacroState != MacroState::inflated)
+		{
+			m_MacroState = MacroState::inflated;
+			m_pSounds["inflate"]->Play(0);
+		}
 		Flap();
 	}
 	else if (CanJump())
@@ -546,7 +566,6 @@ bool Kirby::CanJump() const
 
 void Kirby::Flap()
 {
-	m_MacroState = MacroState::inflated;
 	m_Velocity.y = m_JumpSpeed;
 	m_JumpTime = m_MaxJumpTime;
 }
@@ -556,7 +575,7 @@ void Kirby::SpitStar()
 {
 	SetState(ActionState::spitting);
 	m_MacroState = MacroState::basic;
-	m_pSounds[0]->Play(0);
+	m_pSounds["spitstar"]->Play(0);
 
 	// Copy shape first to manipulate copied shape properties underneath, then offset to match sprite center and not spawn inside Kirby
 	Rectf spawnRect{ m_Shape };																
@@ -576,6 +595,7 @@ void Kirby::SpawnPuff()
 	Rectf spawnLocation{ 0.f, m_Shape.bottom, m_Shape.width, m_Shape.height };
 	spawnLocation.left = m_Shape.left + (m_XDirection > 0.f ? m_Shape.width : -m_Shape.width);
 	ProjectileManager::GetProjectileMngr()->Add(new Puff{spawnLocation, m_XDirection});
+	m_pSounds["exhale"]->Play(0);
 }
 
 void Kirby::ExpelPower()

@@ -5,7 +5,7 @@
 #include "ProjectileManager.h"
 #include "utils.h"
 #include "LevelManager.h"
-#include "ObjectManager.h"
+
 
 const float Actor::m_Gravity{ -500.f };
 
@@ -167,17 +167,6 @@ void Actor::ToggleBeingInhaled(const Rectf& inhalationZone)
 	{
 		m_IsBeingInhaled = true;
 	}
-}
-
-bool Actor::IsOnScreen() const
-{
-	const float viewExtension{ 0.f };
-	Rectf visibleArea{ ObjectManager::GetObjectMngr()->GetVisibleArea()};
-	const bool isInsideXScreenBounds(visibleArea.left < m_Shape.left + m_Shape.width + viewExtension
-		&& m_Shape.left < visibleArea.left + visibleArea.width + viewExtension);
-	const bool  isInsideYScreenBounds(visibleArea.bottom < m_Shape.bottom + m_Shape.height + viewExtension
-		&& m_Shape.bottom < visibleArea.bottom + visibleArea.height + viewExtension);
-	return (isInsideXScreenBounds && isInsideYScreenBounds);
 }
 
 void Actor::Flicker(float timer, std::string& spriteName)

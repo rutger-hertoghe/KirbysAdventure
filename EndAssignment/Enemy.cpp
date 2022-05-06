@@ -50,10 +50,14 @@ bool Enemy::HasBeenOffScreen() const
 	return m_HasBeenOffScreen;
 }
 
-void Enemy::SetOffScreen(bool offscreen, float direction)
+void Enemy::SetOffScreen(bool offscreen)
 {
-	m_XDirection = direction;
 	m_HasBeenOffScreen = true;
+}
+
+void Enemy::SetDirection(float direction)
+{
+	m_XDirection = direction / abs(direction);
 }
 
 void Enemy::InitializePowerUp()

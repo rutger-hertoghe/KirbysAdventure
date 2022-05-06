@@ -53,9 +53,10 @@ private:
 	void UpdateEnemies(float elapsedSec);
 	void UpdateItems(float elapsedSec);
 	void UpdateRemovalFXs(float elapsedSec);
+	void UpdateTickTock(float elapsedSec, Camera* pCamera);
 	
 	void UpdateEnemy(Enemy*& pEnemy, float elapsedSec);
-	void CheckEnemyRemovalConditions(Enemy*& pEnemy, bool insideXScreenBounds, bool insideYScreenBounds);
+	void CheckEnemyRemovalConditions(Enemy*& pEnemy);
 	void UpdateItem(Item*& pItem, float elapsedSec);
 	void DoItemInhalationActions(Item*& pItem);
 	void DoItemCollision(Item*& pItem, bool isVerticalCollision, const utils::HitInfo& hitInfo);
@@ -72,8 +73,5 @@ private:
 	void CreateObject(const std::string& objectName, const Point2f& location);
 
 	void SetEnemyProjectileManagerPointers();
-
-	bool InsideXScreenBounds(const Rectf& shape);
-	bool InsideYScreenBounds(const Rectf& shape);
 };
 

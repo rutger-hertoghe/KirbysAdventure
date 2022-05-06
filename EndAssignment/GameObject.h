@@ -16,6 +16,7 @@ public:
 
 	Rectf GetShape() const;
 	float GetDirection() const;
+	bool IsOnScreen() const;
 
 protected:
 	Rectf m_Shape;

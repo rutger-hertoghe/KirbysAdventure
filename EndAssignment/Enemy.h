@@ -17,7 +17,8 @@ public:
 	virtual void Reset();
 	void SetActivity(bool active);
 	bool HasBeenOffScreen() const;
-	void SetOffScreen(bool offscreen, float direction = 1.f);
+	void SetOffScreen(bool offscreen);
+	void SetDirection(float direction );
 	virtual void DoChecksOnKirby(Kirby* kirbyPtr);
 	virtual void InitializePowerUp();
 
