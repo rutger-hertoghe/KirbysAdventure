@@ -18,7 +18,7 @@ LevelManager::LevelManager(Kirby* pKirby, Camera* pCamera)
 	m_pLevelManager = this;
 
 	Initialize();
-	LoadLevel("part1");
+	LoadLevel("part3");
 	m_pKirby->SetLocation(m_pCurrentLevel->GetStartLocation());
 }
 

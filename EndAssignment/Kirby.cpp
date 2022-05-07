@@ -43,38 +43,22 @@ Kirby::Kirby()
 Kirby::~Kirby()
 {
 	DeleteSprites();
+	DeleteSounds();
+
 	delete m_pStateHandler;
 	m_pStateHandler = nullptr;
-
-	std::unordered_map<std::string, SoundEffect*>::iterator it = m_pSounds.begin();
-
-	while (it != m_pSounds.end())
-	{
-		if (it->second) 
-		{
-			delete it->second;
-		}
-	}
 }
 
 void Kirby::Initialize()
 {
 	InitializeSprites();
-	
+	InitializeSounds();
+
 	// InitializeHurtSprites();
 	m_pCurrentSprite = GetSpritePtr("kirby_idle");
 	SetDimsFromSprite();
 
 	m_pStateHandler = new KirbyStateHandler(this);
-	AddSoundEffect("spitstar");
-	AddSoundEffect("inflate");
-	AddSoundEffect("exhale");
-}
-
-void Kirby::AddSoundEffect(std::string fileName)
-{
-	std::string path{ "resources/sounds/" + fileName + ".wav" };
-	m_pSounds.insert(std::pair<std::string, SoundEffect*>(fileName, new SoundEffect{ path }));
 }
 
 void Kirby::InitializeSprites()
@@ -143,6 +127,20 @@ void Kirby::InitializeSprites()
 	CreateAltSprites();
 }
 
+void Kirby::InitializeSounds()
+{
+	AddSoundEffect("spitstar");
+	AddSoundEffect("inflate");
+	AddSoundEffect("exhale");
+	AddSoundEffect("inhale");
+}
+
+void Kirby::AddSoundEffect(std::string fileName)
+{
+	std::string path{ "resources/sounds/" + fileName + ".wav" };
+	m_pSounds.insert(std::pair<std::string, SoundEffect*>(fileName, new SoundEffect{ path }));
+}
+
 void Kirby::DeleteSprites()
 {
 	for (Sprite* pSprite : m_pSprites)
@@ -153,6 +151,21 @@ void Kirby::DeleteSprites()
 		}
 	}
 	m_pSprites.clear();
+}
+
+void Kirby::DeleteSounds()
+{
+	std::unordered_map<std::string, SoundEffect*>::iterator it = m_pSounds.begin();
+
+	while (it != m_pSounds.end())
+	{
+		if (it->second)
+		{
+			delete it->second;
+		}
+		m_pSounds.erase(it);
+		it = m_pSounds.begin();
+	}
 }
 
 void Kirby::Draw() const
@@ -199,6 +212,7 @@ void Kirby::SetIsOnGround()
 	else
 	{
 		m_IsForcedOnGround = false;
+		m_IsOnGround = true;
 	}
 
 	if (m_IsOnGround && m_HasReleasedJump)
@@ -322,7 +336,7 @@ void Kirby::ProcessInput(float elapsedSec)
 
 	if (pStates[SDL_SCANCODE_E])
 	{
-		DoRHeldActions();
+		DoEHeldActions();
 	}
 
 	DoDownHeldActions(downKeysDown);
@@ -334,11 +348,12 @@ void Kirby::ProcessKeyUp(const SDL_KeyboardEvent& e)
 {
 	switch (e.keysym.sym)
 	{
+	case SDLK_z:
 	case SDLK_SPACE:
 		DoSpaceUpActions();
 		break;
 	case SDLK_e:
-		DoRUpActions();
+		DoEUpActions();
 		break;
 	case SDLK_r:
 		ExpelPower();
@@ -358,7 +373,7 @@ void Kirby::ProcessKeyDown(const SDL_KeyboardEvent& e)
 		}
 		break;
 	case SDLK_e:
-		DoRDownActions();
+		DoEDownActions();
 		break;
 	// TEST CODE
 	case SDLK_DOWN:
@@ -421,7 +436,6 @@ void Kirby::DoUpHeldActions(bool isImmobile, float elapsedSec)
 	if (isImmobile) return;
 
 	// TODO: Fix bug where bloated kirby can in rare cases double jump on apex of jump
-	// TODO: Fix bug where bloated kirby can in rare cases double jump on apex of jump
 
 	if (m_MacroState != MacroState::bloated)
 	{
@@ -438,7 +452,7 @@ void Kirby::DoUpHeldActions(bool isImmobile, float elapsedSec)
 	}
 }
 
-void Kirby::DoRDownActions()
+void Kirby::DoEDownActions()
 {
 	if (m_HasReleasedR == false) return; // Do not execute down events anymore if R hasn't gone up yet
 
@@ -476,18 +490,19 @@ void Kirby::DoRDownActions()
 	// Inhale; if all above conditions are not met, and Kirby has no powerup
 	else if (HasPowerUp() == false)
 	{
+		m_pSounds["inhale"]->Play(0);
 		m_MacroState = MacroState::inhalation;
 	}
 	m_HasReleasedR = false;
 }
-void Kirby::DoRHeldActions()
+void Kirby::DoEHeldActions()
 {
 	if (HasPowerUp() && m_MacroState == MacroState::basic) // Use Powerup
 	{
 		GetPowerUp()->ContinuousKeyEvent(m_Shape, m_XDirection);
 	}
 }
-void Kirby::DoRUpActions()
+void Kirby::DoEUpActions()
 {
 	if (m_MacroState == MacroState::bloated)
 	{
@@ -495,6 +510,7 @@ void Kirby::DoRUpActions()
 	}
 	else if (m_MacroState == MacroState::inhalation)
 	{
+		SoundEffect::StopAll();
 		m_MacroState = MacroState::basic;
 	}
 	else if (HasPowerUp() && m_MacroState == MacroState::basic)
@@ -651,6 +667,7 @@ bool Kirby::IsInvulnerable() const
 
 void Kirby::SetBloated()
 {
+	SoundEffect::StopAll();
 	SetState(ActionState::bloat);
 	m_MacroState = MacroState::bloated;
 }
@@ -932,7 +949,7 @@ void Kirby::CheckForShakeCommand(bool isAlreadyOnGround)
 		{
 			if (isAlreadyOnGround != isOnGround && m_IsOnGround)
 			{
-				Camera::SetShake();
+				// Camera::SetShake();
 			}
 		}
 	}

@@ -16,6 +16,9 @@ public:
 	virtual std::string GetPowerSuffix() const override;
 
 private:
-	
+	bool m_IsActorOnGround;
+	bool m_WasActorAlreadyOnGround;
+
+	Rectf m_ActorShape;
 };
 

@@ -66,7 +66,7 @@ void Rocky::ChangeState()
 		{
 			m_pCurrentSprite = GetSpritePtr("rocky_ability");
 			m_Velocity.x = 0;
-			Camera::SetShake();
+			// Camera::SetShake();
 		}
 		else
 		{
