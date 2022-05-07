@@ -6,16 +6,16 @@ StonePower::StonePower()
 {
 }
 
-void StonePower::OnKeyDownEvent(const Rectf& shape, float xDirection)
+void StonePower::OnKeyDownEvent()
 {
 	m_IsActive = !m_IsActive;
 }
 
-void StonePower::ContinuousKeyEvent(const Rectf& shape, float xDirection)
+void StonePower::ContinuousKeyEvent()
 {
 }
 
-void StonePower::OnKeyUpEvent(const Rectf& shape, float xDirection)
+void StonePower::OnKeyUpEvent()
 {
 }
 

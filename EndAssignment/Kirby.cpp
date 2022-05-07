@@ -439,7 +439,7 @@ void Kirby::DoRDownActions()
 	// Use PowerUp; if no need to deflate, down event of powerup can be used
 	else if (HasPowerUp() && m_MacroState == MacroState::basic)
 	{
-		GetPowerUp()->OnKeyDownEvent(m_Shape, m_XDirection);
+		GetPowerUp()->OnKeyDownEvent();
 		if (GetPowerUp()->GetType() == PowerUp::PowerUpType::stone)
 		{
 			ToggleRockMode();
@@ -464,7 +464,7 @@ void Kirby::DoRHeldActions()
 {
 	if (HasPowerUp() && m_MacroState == MacroState::basic) // Use Powerup
 	{
-		GetPowerUp()->ContinuousKeyEvent(m_Shape, m_XDirection);
+		GetPowerUp()->ContinuousKeyEvent();
 	}
 }
 void Kirby::DoRUpActions()
@@ -479,7 +479,7 @@ void Kirby::DoRUpActions()
 	}
 	else if (HasPowerUp() && m_MacroState == MacroState::basic)
 	{
-		GetPowerUp()->OnKeyUpEvent(m_Shape, m_XDirection);
+		GetPowerUp()->OnKeyUpEvent();
 	}
 	m_HasReleasedR = true;
 }

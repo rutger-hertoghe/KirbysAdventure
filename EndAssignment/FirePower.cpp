@@ -17,20 +17,22 @@ FirePower::FirePower()
 }
 
 
-void FirePower::OnKeyDownEvent(const Rectf& shape, float xDirection)
+void FirePower::OnKeyDownEvent()
 {
 	m_IsActive = true;
 }
 
-void FirePower::ContinuousKeyEvent(const Rectf& shape, float xDirection)
+void FirePower::ContinuousKeyEvent()
 {
 	if (m_CanSpawn == true)
 	{
 		float pixelReduction{ -2.f }; // To correct whether kirby's fireballs go through wall
-		Rectf spawnLocation{ 0.f, shape.bottom, shape.width, shape.height };
-		spawnLocation.left = shape.left + (xDirection > 0.f ? shape.width + pixelReduction: -shape.width - pixelReduction);
+		Rectf ownerShape{ m_pOwner->GetShape() };
+		float ownerDirection{ m_pOwner->GetDirection() };
+		Rectf spawnLocation{ 0.f, ownerShape.bottom, ownerShape.width, ownerShape.height};
+		spawnLocation.left = ownerShape.left + (ownerDirection > 0.f ? ownerShape.width + pixelReduction : -ownerShape.width - pixelReduction);
 
-		Vector2f directionVector{ xDirection, float(m_YDirection * 3) };
+		Vector2f directionVector{ ownerDirection, float(m_YDirection * 3) };
 
 		ProjectileManager* pProjectileMngr = ProjectileManager::GetProjectileMngr();
 		if (pProjectileMngr)
@@ -42,7 +44,7 @@ void FirePower::ContinuousKeyEvent(const Rectf& shape, float xDirection)
 	}
 }
 
-void FirePower::OnKeyUpEvent(const Rectf& shape, float xDirection)
+void FirePower::OnKeyUpEvent()
 {
 	m_IsActive = false;
 }

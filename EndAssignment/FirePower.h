@@ -8,9 +8,9 @@ class FirePower final : public PowerUp
 public:
 	explicit FirePower();
 
-	virtual void OnKeyDownEvent(const Rectf& shape, float xDirection) override;
-	virtual void ContinuousKeyEvent(const Rectf& shape, float xDirection) override;
-	virtual void OnKeyUpEvent(const Rectf& shape, float xDirection) override;
+	virtual void OnKeyDownEvent() override;
+	virtual void ContinuousKeyEvent() override;
+	virtual void OnKeyUpEvent() override;
 	virtual void Update(float elapsedSec) override;
 
 	virtual bool IsActive() const override;

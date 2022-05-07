@@ -6,9 +6,9 @@ class StonePower final : public PowerUp
 public:
 	explicit StonePower();
 
-	virtual void OnKeyDownEvent(const Rectf& shape, float xDirection) override;
-	virtual void ContinuousKeyEvent(const Rectf& shape, float xDirection) override;
-	virtual void OnKeyUpEvent(const Rectf& shape, float xDirection) override;
+	virtual void OnKeyDownEvent() override;
+	virtual void ContinuousKeyEvent() override;
+	virtual void OnKeyUpEvent() override;
 
 	virtual void Update(float elapsedSec) override;
 

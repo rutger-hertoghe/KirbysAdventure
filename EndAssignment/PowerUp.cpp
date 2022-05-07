@@ -2,14 +2,14 @@
 #include "PowerUp.h"
 #include "Vector2f.h"
 
-PowerUp::PowerUp(PowerUpType type, bool hasStart, bool hasContinuous, bool hasEnd, bool hasCompleteSpriteSet)
+PowerUp::PowerUp(PowerUpType type, Actor* pOwner, bool hasStart, bool hasContinuous, bool hasEnd, bool hasCompleteSpriteSet)
 	: m_Type{ type }
 	, m_HasStart{ hasStart }
 	, m_HasContinuous{ hasContinuous }
 	, m_HasEnd{ hasEnd }
 	, m_HasCompleteSpriteSet{hasCompleteSpriteSet}
 	, m_IsActive{ false }
-	, m_Owner{ Projectile::ActorType::enemy}
+	, m_pOwner{ pOwner}
 {
 }
 
@@ -48,9 +48,9 @@ bool PowerUp::HasCompleteSpriteSet() const
 	return m_HasCompleteSpriteSet;
 }
 
-void PowerUp::SetOwnerType(Projectile::ActorType owner)
+void PowerUp::SetOwner(Actor* pOwner)
 {
-	m_Owner = owner;
+	m_pOwner = pOwner;
 }
 
 void PowerUp::SetInactive()

@@ -1,5 +1,6 @@
 #pragma once
-#include "Projectile.h"
+// #include "Projectile.h"
+#include "Actor.h"
 
 class ProjectileManager;
 
@@ -20,11 +21,11 @@ public:
 
 	// TODO: Implement parasol & mike powerup (mike is lowest priority)
 
-	explicit PowerUp(PowerUpType type, bool hasStart, bool hasContinuous, bool hasEnd, bool hasCompleteSpriteSet = false);
+	explicit PowerUp(PowerUpType type, Actor* pOwner, bool hasStart, bool hasContinuous, bool hasEnd, bool hasCompleteSpriteSet = false);
 
-	virtual void OnKeyDownEvent(const Rectf& shape, float xDirection)		= 0;
-	virtual void ContinuousKeyEvent(const Rectf& shape, float xDirection)	= 0;
-	virtual void OnKeyUpEvent(const Rectf& shape, float xDirection)		= 0;
+	virtual void OnKeyDownEvent()		= 0;
+	virtual void ContinuousKeyEvent()	= 0;
+	virtual void OnKeyUpEvent()		= 0;
 
 	virtual void Update(float elapsedSec) = 0;
 
@@ -39,7 +40,7 @@ public:
 	bool HasEnd() const;
 	bool HasCompleteSpriteSet() const;
 
-	void SetOwnerType(Projectile::ActorType owner);
+	void SetOwner(Actor* pActor);
 	void SetInactive();
 
 protected:
@@ -47,7 +48,7 @@ protected:
 	const bool m_HasContinuous;
 	const bool m_HasEnd;
 	const bool m_HasCompleteSpriteSet;
-	Projectile::ActorType m_Owner;
+	Actor* m_pOwner;
 
 	bool m_IsActive;
 	PowerUpType m_Type;
