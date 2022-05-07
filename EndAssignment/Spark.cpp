@@ -1,8 +1,8 @@
 #include "pch.h"
 #include "Spark.h"
 
-Spark::Spark(ActorType owner, const Rectf& sparkRect, const Vector2f& directionVector)
-	: Projectile{owner, ProjectileType::spark, sparkRect, directionVector}
+Spark::Spark(Actor* pOwner, const Rectf& sparkRect, const Vector2f& directionVector)
+	: Projectile{pOwner, ProjectileType::spark, sparkRect, directionVector}
 {
 }
 

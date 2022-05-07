@@ -6,11 +6,11 @@ class ProjectileManager;
 class SparkPower final : public PowerUp
 {
 public:
-	explicit SparkPower();
+	explicit SparkPower(Actor* pOwner);
 
-	virtual void OnKeyDownEvent(const Rectf& shape, float xDirection) override;
-	virtual void ContinuousKeyEvent(const Rectf& shape, float xDirection) override;
-	virtual void OnKeyUpEvent(const Rectf& shape, float xDirection) override;
+	virtual void OnKeyDownEvent() override;
+	virtual void ContinuousKeyEvent() override;
+	virtual void OnKeyUpEvent() override;
 
 	virtual bool IsActive() const override;
 	virtual std::string GetPowerSuffix() const override;

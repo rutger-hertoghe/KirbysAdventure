@@ -42,7 +42,7 @@ void Sparky::Update(float elapsedSec)
 
 void Sparky::InitializePowerUp()
 {
-	SetPowerUp(new SparkPower{});
+	SetPowerUp(new SparkPower{this});
 }
 
 void Sparky::DoChecksOnKirby(Kirby* pKirby)
@@ -94,17 +94,17 @@ void Sparky::UpdatePowerState(float elapsedSec)
 		m_IsPowerUsable = false;
 		m_pCurrentSprite = GetSpritePtr("sparky_ability");
 		m_Velocity.x = 0.f;
-		m_pPowerUp->OnKeyDownEvent(m_Shape, m_XDirection);
+		m_pPowerUp->OnKeyDownEvent();
 	}
 	else if (m_ArbitraryTimer < powerDuration && m_IsInert)
 	{
-		m_pPowerUp->ContinuousKeyEvent(m_Shape, m_XDirection);
+		m_pPowerUp->ContinuousKeyEvent();
 		m_pPowerUp->Update(elapsedSec);
 	}
 	else if (powerDuration < m_ArbitraryTimer && m_pPowerUp->IsActive())
 	{
 		m_pCurrentSprite = GetSpritePtr("sparky");
-		m_pPowerUp->OnKeyUpEvent(m_Shape, m_XDirection);
+		m_pPowerUp->OnKeyUpEvent();
 	}
 	else if (maxInertiaTime < m_ArbitraryTimer && m_IsInert)
 	{

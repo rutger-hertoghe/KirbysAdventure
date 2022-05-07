@@ -69,7 +69,7 @@ void HotHead::Reset()
 
 void HotHead::InitializePowerUp()
 {
-	SetPowerUp(new FirePower{});
+	SetPowerUp(new FirePower{this});
 }
 
 void HotHead::UpdatePowerState(float elapsedSec, float maxPowerTime, float powerExecutionStart, float maxInertiaTime)
@@ -88,7 +88,7 @@ void HotHead::UpdatePowerState(float elapsedSec, float maxPowerTime, float power
 	}
 	else if (powerExecutionStart < m_ArbitraryTimer && m_ArbitraryTimer < maxPowerTime && m_IsUsingPower)
 	{
-		m_pPowerUp->ContinuousKeyEvent(m_Shape, m_XDirection);
+		m_pPowerUp->ContinuousKeyEvent();
 		m_pPowerUp->Update(elapsedSec);
 	}
 	else if (maxPowerTime < m_ArbitraryTimer && m_IsUsingPower)

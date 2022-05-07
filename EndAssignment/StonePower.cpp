@@ -4,24 +4,28 @@
 #include "LevelManager.h"
 #include "Level.h"
 
-StonePower::StonePower()
-	: PowerUp(PowerUpType::stone, true, true, true)
-	, m_IsActorOnGround(true)
-	, m_WasActorAlreadyOnGround(true)
+StonePower::StonePower(Actor* pOwner)
+	: PowerUp(PowerUpType::stone, pOwner, true, true, true)
+	, m_IsActorOnGround{true}
+	, m_WasActorAlreadyOnGround{true}
 {
 }
 
-void StonePower::OnKeyDownEvent(const Rectf& shape, float xDirection)
+void StonePower::OnKeyDownEvent()
 {
 	m_IsActive = !m_IsActive;
+	if (m_pOwner->IsOnGround())
+	{
+		const float bumpVelocity{ 100.f };
+		m_pOwner->AddVelocity(0.f, bumpVelocity);
+	}
 }
 
-void StonePower::ContinuousKeyEvent(const Rectf& shape, float xDirection)
+void StonePower::ContinuousKeyEvent()
 {
-	m_ActorShape = shape;
 }
 
-void StonePower::OnKeyUpEvent(const Rectf& shape, float xDirection)
+void StonePower::OnKeyUpEvent()
 {
 }
 
@@ -33,9 +37,9 @@ void StonePower::Update(float elapsedSec)
 		{
 			Camera::SetShake();
 		}
-		m_WasActorAlreadyOnGround = m_IsActorOnGround;
-		m_IsActorOnGround = LevelManager::GetCurrentLevel()->IsOnGround(m_ActorShape);
 	}
+	m_WasActorAlreadyOnGround = m_IsActorOnGround;
+	m_IsActorOnGround = m_pOwner->IsOnGround();
 }
 
 bool StonePower::IsActive() const

@@ -3,7 +3,7 @@
 class Puff final : public Projectile
 {
 public:
-	explicit Puff(Rectf puffRect, float xDirection);
+	explicit Puff(Actor* pOwner, Rectf puffRect, float xDirection);
 
 	virtual void Update(float elapsedSec) override;
 private:

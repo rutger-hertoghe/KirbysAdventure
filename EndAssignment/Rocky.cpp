@@ -30,6 +30,8 @@ void Rocky::Update(float elapsedSec)
 	m_ArbitraryTimer += elapsedSec;
 	ChangeState();
 
+	m_pPowerUp->Update(elapsedSec);
+
 	ApplyVelocities(elapsedSec, m_XDirection * m_Velocity.x, m_Velocity.y);
 	UpdateSprite(elapsedSec);
 	ApplyGravity(elapsedSec);
@@ -53,7 +55,7 @@ void Rocky::InitializeSprites()
 
 void Rocky::InitializePowerUp()
 {
-	SetPowerUp(new StonePower{});
+	SetPowerUp(new StonePower{this});
 }
 
 void Rocky::ChangeState()
@@ -66,10 +68,11 @@ void Rocky::ChangeState()
 		{
 			m_pCurrentSprite = GetSpritePtr("rocky_ability");
 			m_Velocity.x = 0;
-			// Camera::SetShake();
+			m_pPowerUp->OnKeyDownEvent();
 		}
 		else
 		{
+			m_pPowerUp->OnKeyDownEvent();
 			m_pCurrentSprite = GetSpritePtr("rocky");
 			m_Velocity.x = m_BaseVelocity.x;
 		}

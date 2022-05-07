@@ -177,7 +177,7 @@ void Bounder::ThrowStar()
 	spawnRect.bottom = m_Shape.bottom + m_Shape.height / 2;
 	spawnRect.width = dimSize;
 	spawnRect.height = dimSize;
-	ProjectileManager::GetProjectileMngr()->Add(new ThrowingStar{spawnRect, m_XDirection});
+	ProjectileManager::GetProjectileMngr()->Add(new ThrowingStar{this, spawnRect, m_XDirection});
 }
 
 void Bounder::JumpTowardsKirby()
