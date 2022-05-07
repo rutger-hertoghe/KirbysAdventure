@@ -5,36 +5,38 @@
 #include "Spark.h"
 #include <iostream>
 
-SparkPower::SparkPower()
-	: PowerUp{PowerUpType::spark, true, true, false}
+SparkPower::SparkPower(Actor* pOwner)
+	: PowerUp{PowerUpType::spark, pOwner, true, true, false}
 	, m_CanSpawn{ false }
 	, m_TimeBetweenSpawns{ 0.05f }
 	, m_TimeSinceSpawn{ 0.0f }
 {
 }
 
-void SparkPower::OnKeyDownEvent(const Rectf& shape, float xDirection)
+void SparkPower::OnKeyDownEvent()
 {
 	m_IsActive = true;
 }
 
-void SparkPower::ContinuousKeyEvent(const Rectf& shape, float xDirection)
+void SparkPower::ContinuousKeyEvent()
 {
+	Rectf ownerShape{ m_pOwner->GetShape() };
+
 	const int directions{ 8 };
 	const int spawnDirection{ rand() % directions };
 	const float spawnAngle{ float(M_PI) / 4 * spawnDirection };
 	const float cosAngle{ cosf(spawnAngle) }, sinAngle{ sinf(spawnAngle) };
 	const float spawnOffset{ 8.f }, velocity{ 100.f };
-	const Rectf spawnRect{ shape.left + (spawnOffset * cosAngle), shape.bottom + (spawnOffset * sinAngle), shape.width, shape.height };
+	const Rectf spawnRect{ ownerShape.left + (spawnOffset * cosAngle), ownerShape.bottom + (spawnOffset * sinAngle), ownerShape.width, ownerShape.height };
 	const Vector2f spawnVelocities{ velocity * cosf(spawnAngle), velocity * sinf(spawnAngle) };
 	if (m_CanSpawn)
 	{
-		ProjectileManager::GetProjectileMngr()->Add(new Spark{m_Owner, spawnRect, spawnVelocities});
+		ProjectileManager::GetProjectileMngr()->Add(new Spark{m_pOwner, spawnRect, spawnVelocities});
 		m_CanSpawn = false;
 	}
 }
 
-void SparkPower::OnKeyUpEvent(const Rectf& shape, float xDirection)
+void SparkPower::OnKeyUpEvent()
 {
 	m_IsActive = false;
 }

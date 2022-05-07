@@ -2,8 +2,8 @@
 #include "ThrowingStar.h"
 #include "Sprite.h"
 
-ThrowingStar::ThrowingStar(Rectf starRect, float xDirection)
-	: Projectile{ Projectile::ActorType::enemy, ProjectileType::throwingStar, starRect, Vector2f{xDirection * 180.f, 120.f} }
+ThrowingStar::ThrowingStar(Actor* pOwner, Rectf starRect, float xDirection)
+	: Projectile{ pOwner, ProjectileType::throwingStar, starRect, Vector2f{xDirection * 180.f, 120.f} }
 	, m_MaxExistenceTime{5.f}
 	, m_ExistenceTime{0.f}
 {

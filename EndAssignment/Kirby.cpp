@@ -29,12 +29,12 @@ Kirby::Kirby()
 	, m_MacroState{ MacroState::basic }
 	, m_Lives{ 4 }
 	, m_MaxHealth{ 6 }
-	, m_IsInvulnerable{false}
 	, m_CanSpitStar{false}
 	, m_MaxParticleFrames{50}
 	, m_GotDamaged{false}
 	, m_HasReleasedJump{true}
 	, m_HasReleasedR{true}
+	, m_IsInvulnerable{ false }
 {
 	m_Health = m_MaxHealth;
 	Initialize();
@@ -473,7 +473,7 @@ void Kirby::DoEDownActions()
 	// Use PowerUp; if no need to deflate, down event of powerup can be used
 	else if (HasPowerUp() && m_MacroState == MacroState::basic)
 	{
-		GetPowerUp()->OnKeyDownEvent(m_Shape, m_XDirection);
+		GetPowerUp()->OnKeyDownEvent();
 		if (GetPowerUp()->GetType() == PowerUp::PowerUpType::stone)
 		{
 			ToggleRockMode();
@@ -499,7 +499,7 @@ void Kirby::DoEHeldActions()
 {
 	if (HasPowerUp() && m_MacroState == MacroState::basic) // Use Powerup
 	{
-		GetPowerUp()->ContinuousKeyEvent(m_Shape, m_XDirection);
+		GetPowerUp()->ContinuousKeyEvent();
 	}
 }
 void Kirby::DoEUpActions()
@@ -515,7 +515,7 @@ void Kirby::DoEUpActions()
 	}
 	else if (HasPowerUp() && m_MacroState == MacroState::basic)
 	{
-		GetPowerUp()->OnKeyUpEvent(m_Shape, m_XDirection);
+		GetPowerUp()->OnKeyUpEvent();
 	}
 	m_HasReleasedR = true;
 }
@@ -598,7 +598,7 @@ void Kirby::SpitStar()
 	const float yOffset{ (m_pCurrentSprite->GetFrameDimensions().y - m_Shape.height) / 2 }; 
 	spawnRect.left += m_XDirection * m_Shape.width;	
 	spawnRect.bottom += yOffset;
-	ProjectileManager::GetProjectileMngr()->Add(new Star{spawnRect, m_XDirection});
+	ProjectileManager::GetProjectileMngr()->Add(new Star{this, spawnRect, m_XDirection});
 
 	// Spitting out the star should remove the power
 	DeletePowerUp();
@@ -610,7 +610,7 @@ void Kirby::SpawnPuff()
 {
 	Rectf spawnLocation{ 0.f, m_Shape.bottom, m_Shape.width, m_Shape.height };
 	spawnLocation.left = m_Shape.left + (m_XDirection > 0.f ? m_Shape.width : -m_Shape.width);
-	ProjectileManager::GetProjectileMngr()->Add(new Puff{spawnLocation, m_XDirection});
+	ProjectileManager::GetProjectileMngr()->Add(new Puff{this, spawnLocation, m_XDirection});
 	m_pSounds["exhale"]->Play(0);
 }
 
@@ -628,12 +628,6 @@ void Kirby::ExpelPower()
 void Kirby::ToggleRockMode()
 {
 	m_IsInvulnerable = !m_IsInvulnerable;
-
-	if (m_IsOnGround)
-	{
-		const float bump{ 100.f };
-		m_Velocity.y += bump;
-	}
 }
 
 Rectf Kirby::GetInhalationZone() const
@@ -862,11 +856,6 @@ int Kirby::GetLives() const
 bool Kirby::HasLooped() const
 {
 	return m_HasLooped;
-}
-
-bool Kirby::IsOnGround() const
-{
-	return m_IsOnGround;
 }
 
 void Kirby::IncrementLives()

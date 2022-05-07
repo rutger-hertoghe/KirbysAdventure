@@ -2,8 +2,8 @@
 #include "Puff.h"
 #include "Sprite.h"
 
-Puff::Puff(Rectf puffRect, float xDirection)
-	: Projectile{ Projectile::ActorType::kirby,  ProjectileType::puff, puffRect, Vector2f{0.f, 0.f} }
+Puff::Puff(Actor* pOwner, Rectf puffRect, float xDirection)
+	: Projectile{ pOwner,  ProjectileType::puff, puffRect, Vector2f{0.f, 0.f} }
 	, m_MaxDistance{ 40.f }
 	, m_FlownDistance{ 0.0f }
 {

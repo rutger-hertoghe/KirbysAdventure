@@ -4,11 +4,11 @@
 class StonePower final : public PowerUp
 {
 public:
-	explicit StonePower();
+	explicit StonePower(Actor* pOwner);
 
-	virtual void OnKeyDownEvent(const Rectf& shape, float xDirection) override;
-	virtual void ContinuousKeyEvent(const Rectf& shape, float xDirection) override;
-	virtual void OnKeyUpEvent(const Rectf& shape, float xDirection) override;
+	virtual void OnKeyDownEvent() override;
+	virtual void ContinuousKeyEvent() override;
+	virtual void OnKeyUpEvent() override;
 
 	virtual void Update(float elapsedSec) override;
 
@@ -18,7 +18,5 @@ public:
 private:
 	bool m_IsActorOnGround;
 	bool m_WasActorAlreadyOnGround;
-
-	Rectf m_ActorShape;
 };
 

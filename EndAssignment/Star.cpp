@@ -1,8 +1,8 @@
 #include "pch.h"
 #include "Star.h"
 
-Star::Star(Rectf starRect, float xDirection)
-	: Projectile{Projectile::ActorType::kirby, ProjectileType::star, starRect, Vector2f{xDirection * 220.f, 0.f} }
+Star::Star(Actor* pOwner, Rectf starRect, float xDirection)
+	: Projectile{pOwner, ProjectileType::star, starRect, Vector2f{xDirection * 220.f, 0.f} }
 {
 }
 

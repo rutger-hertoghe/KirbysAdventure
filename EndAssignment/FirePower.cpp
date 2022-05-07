@@ -6,8 +6,8 @@
 #include "Fireball.h"
 #include "Vector2f.h"
 
-FirePower::FirePower()
-	: PowerUp{PowerUpType::fire, false, true, false}
+FirePower::FirePower(Actor* pOwner)
+	: PowerUp{PowerUpType::fire, pOwner, false, true, false}
 	, m_TimeBetweenSpawns{0.08f}
 	, m_TimeSinceSpawn{0.f}
 	, m_CanSpawn{true}
@@ -17,32 +17,35 @@ FirePower::FirePower()
 }
 
 
-void FirePower::OnKeyDownEvent(const Rectf& shape, float xDirection)
+void FirePower::OnKeyDownEvent()
 {
 	m_IsActive = true;
 }
 
-void FirePower::ContinuousKeyEvent(const Rectf& shape, float xDirection)
+void FirePower::ContinuousKeyEvent()
 {
+	Rectf ownerShape{ m_pOwner->GetShape() };
+	float ownerDirection{ m_pOwner->GetDirection() };
+
 	if (m_CanSpawn == true)
 	{
 		float pixelReduction{ -2.f }; // To correct whether kirby's fireballs go through wall
-		Rectf spawnLocation{ 0.f, shape.bottom, shape.width, shape.height };
-		spawnLocation.left = shape.left + (xDirection > 0.f ? shape.width + pixelReduction: -shape.width - pixelReduction);
+		Rectf spawnLocation{ 0.f, ownerShape.bottom, ownerShape.width, ownerShape.height };
+		spawnLocation.left = ownerShape.left + (ownerDirection > 0.f ? ownerShape.width + pixelReduction: -ownerShape.width - pixelReduction);
 
-		Vector2f directionVector{ xDirection, float(m_YDirection * 3) };
+		Vector2f directionVector{ ownerDirection, float(m_YDirection * 3) };
 
 		ProjectileManager* pProjectileMngr = ProjectileManager::GetProjectileMngr();
 		if (pProjectileMngr)
 		{
-			pProjectileMngr->Add(new Fireball{ m_Owner, spawnLocation, directionVector });
+			pProjectileMngr->Add(new Fireball{ m_pOwner, spawnLocation, directionVector });
 		}
 		else std::cout << "PROJECTILE MANAGER NOT FOUND\n";
 		m_CanSpawn = false;
 	}
 }
 
-void FirePower::OnKeyUpEvent(const Rectf& shape, float xDirection)
+void FirePower::OnKeyUpEvent()
 {
 	m_IsActive = false;
 }

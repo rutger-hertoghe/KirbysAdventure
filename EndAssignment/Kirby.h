@@ -76,7 +76,6 @@ public:
 	//float GetJumptime() const;
 	//float GetMaxJumpTime() const;
 
-	bool IsOnGround() const;
 	bool HasLooped() const;
 
 	void IncrementLives();
@@ -109,7 +108,7 @@ private:
 	const float m_MaxJumpTime;
 	const int m_MaxHealth;
 	const int m_MaxParticleFrames;
-
+	
 	bool m_IsInvulnerable;
 	bool m_GotDamaged;
 	bool m_IsForcedOnGround;

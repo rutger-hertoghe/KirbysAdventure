@@ -37,7 +37,7 @@ void Actor::TransferPowerUp(Actor* newOwner)
 		delete newOwner->m_pPowerUp;
 	}
 	newOwner->m_pPowerUp = m_pPowerUp;
-	newOwner->m_pPowerUp->SetOwnerType(Projectile::ActorType::kirby);
+	newOwner->m_pPowerUp->SetOwner(newOwner);
 	m_pPowerUp = nullptr;
 }
 
@@ -72,6 +72,12 @@ void Actor::SetLocation(float x, float y)
 {
 	m_Shape.left = x;
 	m_Shape.bottom = y;
+}
+
+void Actor::AddVelocity(float x, float y)
+{
+	m_Velocity.x += x;
+	m_Velocity.y += y;
 }
 
 Vector2f Actor::GetVelocity() const
@@ -158,6 +164,11 @@ bool Actor::IsInhalable() const
 bool Actor::IsBeingInhaled() const
 {
 	return m_IsBeingInhaled;
+}
+
+bool Actor::IsOnGround() const
+{
+	return m_IsOnGround;
 }
 
 void Actor::ToggleBeingInhaled(const Rectf& inhalationZone)

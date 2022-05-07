@@ -4,7 +4,7 @@
 class ThrowingStar final : public Projectile
 {
 public:
-	explicit ThrowingStar(Rectf starRect, float xDirection);
+	explicit ThrowingStar(Actor* pOwner, Rectf starRect, float xDirection);
 
 	virtual void Update(float elapsedSec) override;
 

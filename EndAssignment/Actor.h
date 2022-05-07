@@ -25,6 +25,7 @@ public:
 
 	void SetLocation(const Point2f& location);
 	void SetLocation(float x, float y);
+	void AddVelocity(float x, float y);
 	Vector2f GetVelocity() const;
 	Point2f GetLocation() const;
 	PowerUp* GetPowerUp() const;
@@ -32,6 +33,7 @@ public:
 	void SetInhalationVelocities(const Rectf& kirbyRect);
 	bool IsInhalable() const;
 	bool IsBeingInhaled() const;
+	bool IsOnGround() const;
 	void ToggleBeingInhaled(const Rectf& inhalationZone);
 
 protected:

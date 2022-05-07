@@ -1,6 +1,7 @@
 #pragma once
 #include "GameObject.h"
 #include "Vector2f.h"
+#include "Actor.h"
 class Sprite;
 
 class Projectile : public GameObject
@@ -14,12 +15,7 @@ public:
 		throwingStar
 	};
 
-	enum class ActorType {
-		kirby,
-		enemy
-	};
-
-	explicit Projectile(ActorType owner, ProjectileType type, const Rectf& projectileRect, const Vector2f& velocity);
+	explicit Projectile(Actor* pOwner, ProjectileType type, const Rectf& projectileRect, const Vector2f& velocity);
 
 	virtual void Update(float elapsedSec) = 0;
 	void SetSprite(Sprite* spritePtr);
@@ -29,7 +25,7 @@ public:
 	void SetReadyToDestroy();
 
 	int GetTypeInt() const;
-	ActorType GetOwner();
+	Actor* GetOwner();
 
 protected:
 	bool m_IsReadyToDestroy;
@@ -37,7 +33,7 @@ protected:
 
 	Vector2f m_Velocity;
 	ProjectileType m_Type;
-	ActorType m_Owner;
+	Actor* m_pOwner;
 	
 	void ApplyVelocities(float elapsedSec);
 	void DestroyOnCollision();

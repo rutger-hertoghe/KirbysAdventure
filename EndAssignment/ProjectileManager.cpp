@@ -72,10 +72,13 @@ void ProjectileManager::Add(Projectile* projectile)
 
 bool ProjectileManager::ProjectileHasHit(Actor* pActor, float& direction)
 {
-	Projectile::ActorType hitActorType = (typeid(*pActor) == typeid(Kirby)) ? Projectile::ActorType::kirby : Projectile::ActorType::enemy;
+	// TODO: Check whether actors get detected as separate types
 	for (Projectile* pProjectile : m_pProjectiles)
 	{
-		if (HasCollided(pActor, pProjectile) && pProjectile->GetOwner() != hitActorType)
+		Actor* pOwner{ pProjectile->GetOwner() };
+		bool isAnyActorKirby{ (typeid(*pOwner) == typeid(Kirby) || typeid(*pActor) == typeid(Kirby)) };
+
+		if (isAnyActorKirby && pOwner != pActor && HasCollided(pActor, pProjectile))
 		{
 			if (pProjectile->IsPersistent() == false)
 			{
@@ -90,10 +93,12 @@ bool ProjectileManager::ProjectileHasHit(Actor* pActor, float& direction)
 
 bool ProjectileManager::ProjectileHasHit(Actor* pActor)
 {
-	Projectile::ActorType hitActorType = (typeid(*pActor) == typeid(Kirby)) ? Projectile::ActorType::kirby : Projectile::ActorType::enemy;
 	for (Projectile* pProjectile : m_pProjectiles)
 	{
-		if (pProjectile->GetOwner() != hitActorType && HasCollided(pActor, pProjectile))
+		Actor* pOwner{ pProjectile->GetOwner() };
+		bool isAnyActorKirby = (typeid(*pOwner) == typeid(Kirby) || typeid(*pActor) == typeid(Kirby));
+
+		if (isAnyActorKirby && pOwner != pActor && HasCollided(pActor, pProjectile))
 		{
 			if (pProjectile->IsPersistent() == false)
 			{
