@@ -1,8 +1,7 @@
 #include "pch.h"
 #include "Sprite.h"
-#include "PowerUp.h"
-#include "FirePower.h"
 #include "GameObject.h"
+#include "ObjectManager.h"
 
 GameObject::GameObject()
 	: m_AccumulatedTime{ 0.f }
@@ -105,4 +104,22 @@ Sprite* GameObject::GetSpritePtr(const std::string& spriteName) const
 	}
 	std::cout << "SPRITE POINTER '" << spriteName << "' NOT FOUND\n";
 	return nullptr;
+}
+
+bool GameObject::IsOnScreen() const
+{
+	const float viewExtension{ 0.f };
+	Rectf visibleArea{ ObjectManager::GetObjectMngr()->GetVisibleArea() };
+	const bool isInsideXScreenBounds
+	(
+		visibleArea.left < m_Shape.left + m_Shape.width + viewExtension
+		&& m_Shape.left < visibleArea.left + visibleArea.width + viewExtension
+	);
+	const bool  isInsideYScreenBounds
+	(
+		visibleArea.bottom < m_Shape.bottom + m_Shape.height + viewExtension
+		&& m_Shape.bottom < visibleArea.bottom + visibleArea.height + viewExtension
+	);
+
+	return (isInsideXScreenBounds && isInsideYScreenBounds);
 }

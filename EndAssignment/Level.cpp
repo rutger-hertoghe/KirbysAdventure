@@ -39,7 +39,7 @@ Level::~Level()
 
 void Level::Initialize()
 {
-	// m_pLevelMusic->Play(true);
+	m_pLevelMusic->Play(true);
 	InitializeVertices();
 	InitializeTextures();
 	LoadDoorsFromFile();

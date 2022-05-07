@@ -1,13 +1,11 @@
 #include "pch.h"
-#include "ProjectileManager.h"
-#include "Projectile.h"
-#include "Fireball.h"
-#include "Sprite.h"
 #include <iostream>
+#include "ProjectileManager.h"
 #include "utils.h"
 #include "Actor.h"
-#include "ObjectManager.h"
-#include "Enemy.h"
+#include "Kirby.h"
+// CLEANED INCLUDES
+// TODO: Remove above comment if everything's clean
 
 ProjectileManager* ProjectileManager::m_pProjectileManager{ nullptr };
 
@@ -58,18 +56,7 @@ void ProjectileManager::Update(float elapsedSec)
 	{
 		while (idx < m_pProjectiles.size())
 		{
-			if (m_pProjectiles[idx])
-			{
-				m_pProjectiles[idx]->Update(elapsedSec);
-
-				if (m_pProjectiles[idx]->IsReadyToDestroy())
-				{
-					delete m_pProjectiles[idx];
-					m_pProjectiles[idx] = nullptr;
-					std::swap(m_pProjectiles[idx], m_pProjectiles[m_pProjectiles.size() - 1]);
-					m_pProjectiles.pop_back();
-				}
-			}
+			UpdateProjectile(elapsedSec, idx);
 			++idx;
 		}
 	}
@@ -83,8 +70,9 @@ void ProjectileManager::Add(Projectile* projectile)
 	m_pProjectiles[lastIdx]->SetSprite(m_pSprites[typeInt]);
 }
 
-bool ProjectileManager::ProjectileHasHit(Actor* pActor, Projectile::ActorType hitActorType, float& direction)
+bool ProjectileManager::ProjectileHasHit(Actor* pActor, float& direction)
 {
+	Projectile::ActorType hitActorType = (typeid(*pActor) == typeid(Kirby)) ? Projectile::ActorType::kirby : Projectile::ActorType::enemy;
 	for (Projectile* pProjectile : m_pProjectiles)
 	{
 		if (HasCollided(pActor, pProjectile) && pProjectile->GetOwner() != hitActorType)
@@ -100,8 +88,9 @@ bool ProjectileManager::ProjectileHasHit(Actor* pActor, Projectile::ActorType hi
 	return false;
 }
 
-bool ProjectileManager::ProjectileHasHit(Actor* pActor, Projectile::ActorType hitActorType)
+bool ProjectileManager::ProjectileHasHit(Actor* pActor)
 {
+	Projectile::ActorType hitActorType = (typeid(*pActor) == typeid(Kirby)) ? Projectile::ActorType::kirby : Projectile::ActorType::enemy;
 	for (Projectile* pProjectile : m_pProjectiles)
 	{
 		if (pProjectile->GetOwner() != hitActorType && HasCollided(pActor, pProjectile))
@@ -146,4 +135,30 @@ bool ProjectileManager::HasCollided(const Actor* pActor, const Projectile* pProj
 		return true;
 	}
 	return false;
+}
+
+void ProjectileManager::UpdateProjectile(float elapsedSec, int index)
+{
+	// Don't do anything if there's no projectile at index
+	if (!m_pProjectiles[index]) return; 
+
+	m_pProjectiles[index]->Update(elapsedSec);
+
+	if (!m_pProjectiles[index]->IsOnScreen())
+	{
+		m_pProjectiles[index]->SetReadyToDestroy();
+	}
+
+	if (m_pProjectiles[index]->IsReadyToDestroy())
+	{
+		DeleteProjectile(index);
+	}
+}
+
+void ProjectileManager::DeleteProjectile(int index)
+{
+	delete m_pProjectiles[index];
+	m_pProjectiles[index] = nullptr;
+	std::swap(m_pProjectiles[index], m_pProjectiles[m_pProjectiles.size() - 1]);
+	m_pProjectiles.pop_back();
 }

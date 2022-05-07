@@ -1,4 +1,5 @@
 #pragma once
+#include <unordered_map>
 #include "Vector2f.h"
 #include "Level.h"
 #include "Actor.h"
@@ -126,7 +127,7 @@ private:
 
 	// Pointers
 	KirbyStateHandler* m_pStateHandler;
-	std::vector<SoundEffect*> m_pSounds;
+	std::unordered_map<std::string, SoundEffect*> m_pSounds;
 
 	// Non-Primitves
 	Rectf m_SuctionZone;
@@ -136,8 +137,12 @@ private:
 	// Functions
 	void Initialize();
 	void InitializeSprites();
+	void InitializeSounds();
 	// void InitializeHurtSprites();
 	void DeleteSprites();
+	void DeleteSounds();
+
+	void AddSoundEffect(std::string fileName);
 
 	void UpdateState();
 	void ProcessInput(float elapsedSec);
@@ -164,9 +169,9 @@ private:
 	void KillKirby();
 	void CheckForShakeCommand(bool isAlreadyOnGround);
 
-	void DoRDownActions();
-	void DoRHeldActions();
-	void DoRUpActions();
+	void DoEDownActions();
+	void DoEHeldActions();
+	void DoEUpActions();
 
 	void DoSpaceDownActions();
 	void DoSpaceHeldActions(bool isImmobile, float elapsedSec);

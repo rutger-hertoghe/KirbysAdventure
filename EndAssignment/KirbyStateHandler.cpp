@@ -5,433 +5,302 @@
 
 KirbyStateHandler::KirbyStateHandler(Kirby* pKirby)
 	: m_pKirby(pKirby)
+	, m_Conditions{}
 {
 }
 
-void KirbyStateHandler::HandleState(Kirby::ActionState actionState, Kirby::MacroState macroState)
+void KirbyStateHandler::HandleState(Action actionState, Macro macroState)
 {
 	if (m_pKirby == nullptr) return;
+
+	CheckConditions(actionState, macroState);
 
 	switch (actionState)
 	{
 	// BASIC SET
-	case Kirby::ActionState::idle:
+	case Action::idle:
 		HandleIdle(actionState, macroState);
 		break;
-	case Kirby::ActionState::walking:
+	case Action::walking:
 		HandleWalking(actionState, macroState);
 		break;
-	case Kirby::ActionState::jumping:
+	case Action::jumping:
 		HandleJumping(macroState);
 		break;
-	case Kirby::ActionState::flipping:
+	case Action::flipping:
 		HandleFlipping(macroState);
 		break;
-	case Kirby::ActionState::falling:
+	case Action::falling:
 		HandleFalling(macroState);
 		break;
-	case Kirby::ActionState::ducking:
+	case Action::ducking:
 		HandleDucking(macroState);
 		break;
-	case Kirby::ActionState::sliding:
+	case Action::sliding:
 		HandleSliding();
 		break;
 	// INFLATING SET
-	case Kirby::ActionState::inflating:
+	case Action::inflating:
 		HandleInflating();
 		break;
-	case Kirby::ActionState::inflated:
+	case Action::inflated:
 		HandleInflated(macroState);
 		break;
-	case Kirby::ActionState::flapping:
+	case Action::flapping:
 		HandleFlapping(macroState);
 		break;
-	case Kirby::ActionState::deflating:
+	case Action::deflating:
 		HandleDeflating();
 		break;
 	// INHALING/BlOAT SET
-	case Kirby::ActionState::start_inhaling:
+	case Action::start_inhaling:
 		HandleStartInhaling();
 		break;
-	case Kirby::ActionState::inhaling:
+	case Action::inhaling:
 		HandleInhaling(macroState);
 		break;
-	case Kirby::ActionState::bloat:
+	case Action::bloat:
 		HandleBloat();
 		break;
-	case Kirby::ActionState::exhaling:
+	case Action::exhaling:
 		HandleExhaling();
 		break;
-	case Kirby::ActionState::bloated_idle:
+	case Action::bloated_idle:
 		HandleBloatedIdle(actionState,macroState);
 		break;
-	case Kirby::ActionState::bloated_walking:
+	case Action::bloated_walking:
 		HandleBloatedWalking(actionState, macroState);
 		break;
-	case Kirby::ActionState::swallowing:
+	case Action::swallowing:
 		HandleSwallowing();
 		break;
-	case Kirby::ActionState::spitting:
+	case Action::spitting:
 		HandleSpitting();
 		break;
 		// POWER SET
-	case Kirby::ActionState::power_start:
+	case Action::power_start:
 		HandlePowerStart();
 		break;
-	case Kirby::ActionState::power_continuous:
+	case Action::power_continuous:
 		HandlePowerContinuous();
 		break;
-	case Kirby::ActionState::power_end:
+	case Action::power_end:
 		HandlePowerEnd();
 		break;
-	case Kirby::ActionState::hurt:
+	case Action::hurt:
 		HandleHurt(macroState);
 		break;
 	}
+}
 
-	/* CONDITION LIST FOR LATER REFERENCE
+void KirbyStateHandler::CheckConditions(Action actionState, Macro macroState)
+{
 	Vector2f velocity(m_pKirby->GetVelocity());
 	const float yVelocityTreshold{ 100.f };
-	const bool isOnGround{ m_pKirby->IsOnGround() };
-	const bool isMoving{ abs(velocity.x) >= 1.f };
-	const bool isIdle{ !isMoving };
-	const bool isGoingUp{ velocity.y > 1.f };
-	const bool isGoingDown{ velocity.y < -1.f };
-	const bool isJumping{ isGoingUp && !(actionState == Kirby::ActionState::inflating || actionState == Kirby::ActionState::inflated) };
-	const bool isMidAir{ abs(velocity.y) < yVelocityTreshold && !m_pKirby->IsOnGround() };
-	const bool isFalling{ !m_pKirby->IsOnGround() && actionState != Kirby::ActionState::jumping };
-	const bool isLoopDone{ m_pKirby->HasLooped() };
-	const bool isUsingPower{ m_pKirby->HasPower() ? m_pKirby->GetPowerUp()->IsActive() : false };
 
-	const bool isInflated{ macroState == Kirby::MacroState::inflated };
-	const bool isDucking{ macroState == Kirby::MacroState::ducking };
-	const bool isInhaling{ macroState == Kirby::MacroState::inhalation };
-	const bool isBloated{ macroState == Kirby::MacroState::bloated };
-	const bool isSliding{ macroState == Kirby::MacroState::sliding };
-	*/
+	m_Conditions.isOnGround = m_pKirby->IsOnGround();
+	m_Conditions.isMoving = abs(velocity.x) >= 1.f;
+	m_Conditions.isIdle = !m_Conditions.isMoving;
+	m_Conditions.isGoingUp = velocity.y > 1.f;
+	m_Conditions.isGoingDown = velocity.y < -1.f;
+	m_Conditions.isJumping = m_Conditions.isGoingUp && !(actionState == Kirby::ActionState::inflating || actionState == Kirby::ActionState::inflated);
+	m_Conditions.isMidAir = abs(velocity.y) < yVelocityTreshold && !m_pKirby->IsOnGround();
+	m_Conditions.isFalling = !m_pKirby->IsOnGround() && actionState != Kirby::ActionState::jumping;
+	m_Conditions.isLoopDone = m_pKirby->HasLooped();
+	m_Conditions.isUsingPower = m_pKirby->HasPowerUp() ? m_pKirby->GetPowerUp()->IsActive() : false;
+
+	m_Conditions.isInflated = macroState == Kirby::MacroState::inflated;
+	m_Conditions.isDucking = macroState == Kirby::MacroState::ducking;
+	m_Conditions.isInhaling = macroState == Kirby::MacroState::inhalation;
+	m_Conditions.isBloated = macroState == Kirby::MacroState::bloated;
+	m_Conditions.isSliding = macroState == Kirby::MacroState::sliding;
 }
 
-void KirbyStateHandler::HandleIdle(Kirby::ActionState actionState, Kirby::MacroState macroState)
+void KirbyStateHandler::HandleIdle(Action actionState, Macro macroState)
 {
-	const Vector2f velocity(m_pKirby->GetVelocity());
-	const float yVelocityTreshold{ 100.f };
-	const bool isOnGround{ m_pKirby->IsOnGround() };
-	const bool isMoving{ abs(velocity.x) >= 1.f };
-	const bool isGoingUp{ velocity.y > 1.f };
-	const bool isJumping{ isGoingUp && !(actionState == Kirby::ActionState::inflating || actionState == Kirby::ActionState::inflated) };
-	const bool isFalling{ !m_pKirby->IsOnGround() && actionState != Kirby::ActionState::jumping };
-	const bool isUsingPower{ m_pKirby->HasPowerUp() ? m_pKirby->GetPowerUp()->IsActive() : false };
-
-	const bool isInflated{ macroState == Kirby::MacroState::inflated };
-	const bool isDucking{ macroState == Kirby::MacroState::ducking };
-	const bool isInhaling{ macroState == Kirby::MacroState::inhalation };
-
-	if (isInflated)			m_pKirby->SetState(Kirby::ActionState::inflating);
-	else if (isUsingPower)	m_pKirby->SetPowerState();
-	else if (isInhaling)	m_pKirby->SetState(Kirby::ActionState::start_inhaling);
-	else if (isJumping)		m_pKirby->SetState(Kirby::ActionState::jumping);
-	else if (isFalling)		m_pKirby->SetState(Kirby::ActionState::falling);
-	else if (isDucking)		m_pKirby->SetState(Kirby::ActionState::ducking);
-	else if (isMoving)		m_pKirby->SetState(Kirby::ActionState::walking);
+	if		(m_Conditions.isInflated)	m_pKirby->SetState(Action::inflating);
+	else if (m_Conditions.isUsingPower)	m_pKirby->SetPowerState();
+	else if (m_Conditions.isInhaling)	m_pKirby->SetState(Action::start_inhaling);
+	else if (m_Conditions.isJumping)	m_pKirby->SetState(Action::jumping);
+	else if (m_Conditions.isFalling)	m_pKirby->SetState(Action::falling);
+	else if (m_Conditions.isDucking)	m_pKirby->SetState(Action::ducking);
+	else if (m_Conditions.isMoving)		m_pKirby->SetState(Action::walking);
 }
 
-void KirbyStateHandler::HandleWalking(Kirby::ActionState actionState, Kirby::MacroState macroState)
+void KirbyStateHandler::HandleWalking(Action actionState, Macro macroState)
 {
-	const Vector2f velocity(m_pKirby->GetVelocity());
-	const bool isMoving{ abs(velocity.x) >= 1.f };
-	const bool isIdle{ !isMoving };
-	const bool isGoingUp{ velocity.y > 1.f };
-	const bool isJumping{ isGoingUp && !(actionState == Kirby::ActionState::inflating || actionState == Kirby::ActionState::inflated) };
-	const bool isFalling{ !m_pKirby->IsOnGround() && actionState != Kirby::ActionState::jumping };
-	const bool isUsingPower{ m_pKirby->HasPowerUp() ? m_pKirby->GetPowerUp()->IsActive() : false };
-
-	const bool isInflated{ macroState == Kirby::MacroState::inflated };
-	const bool isDucking{ macroState == Kirby::MacroState::ducking };
-	const bool isInhaling{ macroState == Kirby::MacroState::inhalation };
-
-	if (isInflated)			m_pKirby->SetState(Kirby::ActionState::inflating);
-	else if (isUsingPower)	m_pKirby->SetPowerState();
-	else if (isInhaling)	m_pKirby->SetState(Kirby::ActionState::start_inhaling);
-	else if (isJumping)		m_pKirby->SetState(Kirby::ActionState::jumping);
-	else if (isFalling)		m_pKirby->SetState(Kirby::ActionState::falling);
-	else if (isDucking)		m_pKirby->SetState(Kirby::ActionState::ducking);
-	else if (isIdle)		m_pKirby->SetState(Kirby::ActionState::idle);
+	if		(m_Conditions.isInflated)	m_pKirby->SetState(Action::inflating);
+	else if (m_Conditions.isUsingPower)	m_pKirby->SetPowerState();
+	else if (m_Conditions.isInhaling)	m_pKirby->SetState(Action::start_inhaling);
+	else if (m_Conditions.isJumping)	m_pKirby->SetState(Action::jumping);
+	else if (m_Conditions.isFalling)	m_pKirby->SetState(Action::falling);
+	else if (m_Conditions.isDucking)	m_pKirby->SetState(Action::ducking);
+	else if (m_Conditions.isIdle)		m_pKirby->SetState(Action::idle);
 }
 
-void KirbyStateHandler::HandleJumping(Kirby::MacroState macroState)
+void KirbyStateHandler::HandleJumping(Macro macroState)
 {
-	const Vector2f velocity(m_pKirby->GetVelocity());
-	const float yVelocityTreshold{ 100.f };
-	const bool isInflated{ macroState == Kirby::MacroState::inflated };
-	const bool isInhaling{ macroState == Kirby::MacroState::inhalation };
-	const bool isUsingPower{ m_pKirby->HasPowerUp() ? m_pKirby->GetPowerUp()->IsActive() : false };
-	const bool isOnGround{ m_pKirby->IsOnGround() };
-	const bool isMidAir{ abs(velocity.y) < yVelocityTreshold && !m_pKirby->IsOnGround() };
-
-	if (isInflated)			m_pKirby->SetState(Kirby::ActionState::inflating);
-	else if (isUsingPower)	m_pKirby->SetPowerState();
-	else if (isInhaling)	m_pKirby->SetState(Kirby::ActionState::inhaling);
-	else if (isOnGround)	m_pKirby->SetState(Kirby::ActionState::idle);
-	else if (isMidAir)		m_pKirby->SetState(Kirby::ActionState::flipping);
+	if		(m_Conditions.isInflated)	m_pKirby->SetState(Action::inflating);
+	else if (m_Conditions.isUsingPower)	m_pKirby->SetPowerState();
+	else if (m_Conditions.isInhaling)	m_pKirby->SetState(Action::inhaling);
+	else if (m_Conditions.isOnGround)	m_pKirby->SetState(Action::idle);
+	else if (m_Conditions.isMidAir)		m_pKirby->SetState(Action::flipping);
 }
 
-void KirbyStateHandler::HandleFlipping(Kirby::MacroState macroState)
+void KirbyStateHandler::HandleFlipping(Macro macroState)
 {
-	const bool isInflated{ macroState == Kirby::MacroState::inflated };
-	const bool isUsingPower{ m_pKirby->HasPowerUp() ? m_pKirby->GetPowerUp()->IsActive() : false };
-	const bool isInhaling{ macroState == Kirby::MacroState::inhalation };
-	const bool isOnGround{ m_pKirby->IsOnGround() };
-	const bool isLoopDone{ m_pKirby->HasLooped() };
-
-	if (isInflated)
-	{
-		m_pKirby->SetState(Kirby::ActionState::inflating);
-	}
-	else if (isUsingPower)
-	{
-		m_pKirby->SetPowerState();
-	}
-	else if (isInhaling)
-	{
-		m_pKirby->SetState(Kirby::ActionState::inhaling);
-	}
-	else if (isOnGround)
-	{
-		m_pKirby->SetState(Kirby::ActionState::idle);
-	}
-	else if (isLoopDone)
-	{
-		m_pKirby->SetState(Kirby::ActionState::falling);
-	}
+	if		(m_Conditions.isInflated)	m_pKirby->SetState(Action::inflating);
+	else if (m_Conditions.isUsingPower)	m_pKirby->SetPowerState();
+	else if (m_Conditions.isInhaling)	m_pKirby->SetState(Action::inhaling);
+	else if (m_Conditions.isOnGround)	m_pKirby->SetState(Action::idle);
+	else if (m_Conditions.isLoopDone)	m_pKirby->SetState(Action::falling);
 }
 
-void KirbyStateHandler::HandleFalling(Kirby::MacroState macroState)
+void KirbyStateHandler::HandleFalling(Macro macroState)
 {
-	const bool isInflated{ macroState == Kirby::MacroState::inflated };
-	const bool isUsingPower{ m_pKirby->HasPowerUp() ? m_pKirby->GetPowerUp()->IsActive() : false };
-	const bool isInhaling{ macroState == Kirby::MacroState::inhalation };
-	const bool isOnGround{ m_pKirby->IsOnGround() };
-
-	if (isInflated)			m_pKirby->SetState(Kirby::ActionState::inflating);
-	else if (isUsingPower)	m_pKirby->SetPowerState();
-	else if (isInhaling)	m_pKirby->SetState(Kirby::ActionState::inhaling);
-	else if (isOnGround)	m_pKirby->SetState(Kirby::ActionState::idle);
+	if		(m_Conditions.isInflated)	m_pKirby->SetState(Action::inflating);
+	else if (m_Conditions.isUsingPower)	m_pKirby->SetPowerState();
+	else if (m_Conditions.isInhaling)	m_pKirby->SetState(Action::inhaling);
+	else if (m_Conditions.isOnGround)	m_pKirby->SetState(Action::idle);
 }
 
-void KirbyStateHandler::HandleDucking(Kirby::MacroState macroState)
+void KirbyStateHandler::HandleDucking(Macro macroState)
 {
-	const bool isSliding{ macroState == Kirby::MacroState::sliding };
-	const bool isDucking{ macroState == Kirby::MacroState::ducking };
-
-	if (isSliding)
-	{
-		m_pKirby->SetState(Kirby::ActionState::sliding);
-	}
-	else if (!isDucking)
-	{
-		m_pKirby->SetState(Kirby::ActionState::idle);
-	}
+	if		(m_Conditions.isSliding)	m_pKirby->SetState(Action::sliding);
+	else if (!m_Conditions.isDucking)	m_pKirby->SetState(Action::idle);
 }
 
 void KirbyStateHandler::HandleSliding()
 {
-	Vector2f velocity(m_pKirby->GetVelocity());
-	const bool isMoving{ abs(velocity.x) >= 1.f };
-
-	if (!isMoving)
+	if (!m_Conditions.isMoving)
 	{
-		m_pKirby->SetState(Kirby::ActionState::ducking);
-		m_pKirby->SetMacroState(Kirby::MacroState::ducking);
+		m_pKirby->SetState(Action::ducking);
+		m_pKirby->SetMacroState(Macro::ducking);
 	}
 }
 
 void KirbyStateHandler::HandleInflating()
 {
-	const bool isLoopDone{ m_pKirby->HasLooped() };
-
-	if (isLoopDone) 
-	{
-		m_pKirby->SetState(Kirby::ActionState::inflated);
-	}
+	if (m_Conditions.isLoopDone) m_pKirby->SetState(Action::inflated);
 }
 
-void KirbyStateHandler::HandleInflated(Kirby::MacroState macroState)
+void KirbyStateHandler::HandleInflated(Macro macroState)
 {
-	const Vector2f velocity(m_pKirby->GetVelocity());
-	const bool isInflated{ macroState == Kirby::MacroState::inflated };
-	const bool isGoingUp{ velocity.y > 1.f };
-
-	if (!isInflated)
-	{
-		m_pKirby->SetState(Kirby::ActionState::deflating);
-	}
-	else if (isGoingUp)
-	{
-		m_pKirby->SetState(Kirby::ActionState::flapping);
-	}
+	if		(!m_Conditions.isInflated)	m_pKirby->SetState(Action::deflating);
+	else if (m_Conditions.isGoingUp)	m_pKirby->SetState(Action::flapping);
 }
 
-void KirbyStateHandler::HandleFlapping(Kirby::MacroState macroState)
+void KirbyStateHandler::HandleFlapping(Macro macroState)
 {
-	const Vector2f velocity(m_pKirby->GetVelocity());
-	const bool isInflated{ macroState == Kirby::MacroState::inflated };
-	const bool isGoingDown{ velocity.y < -1.f };
-
-	if (!isInflated)
-	{
-		m_pKirby->SetState(Kirby::ActionState::deflating);
-	}
-	else if (isGoingDown)
-	{
-		m_pKirby->SetState(Kirby::ActionState::inflated);
-	}
+	if		(!m_Conditions.isInflated)	m_pKirby->SetState(Action::deflating);
+	else if (m_Conditions.isGoingDown)	m_pKirby->SetState(Action::inflated);
 }
 
 void KirbyStateHandler::HandleDeflating()
 {
-	const bool isLoopDone{ m_pKirby->HasLooped() };
-	if (isLoopDone)
-	{
-		m_pKirby->SetState(Kirby::ActionState::idle);
-	}
+	if (m_Conditions.isLoopDone)	m_pKirby->SetState(Action::idle);
 }
 
 void KirbyStateHandler::HandleStartInhaling()
 {
-	const bool isLoopDone{ m_pKirby->HasLooped() };
-	if (isLoopDone)
-	{
-		m_pKirby->SetState(Kirby::ActionState::inhaling);
-	}
+	if (m_Conditions.isLoopDone)	m_pKirby->SetState(Action::inhaling);
 }
 
-void KirbyStateHandler::HandleInhaling(Kirby::MacroState macroState)
+void KirbyStateHandler::HandleInhaling(Macro macroState)
 {
-	const bool isInhaling{ macroState == Kirby::MacroState::inhalation };
-	const bool isBloated{ macroState == Kirby::MacroState::bloated };
-
-	if (isBloated)
-	{
-		m_pKirby->SetState(Kirby::ActionState::bloat);
-	}
-	else if (!isInhaling)
-	{
-		m_pKirby->SetState(Kirby::ActionState::exhaling);
-	}
+	if		(m_Conditions.isBloated)	m_pKirby->SetState(Action::bloat);
+	else if (!m_Conditions.isInhaling)	m_pKirby->SetState(Action::exhaling);
 }
 
 void KirbyStateHandler::HandleBloat()
 {
-	const bool isLoopDone{ m_pKirby->HasLooped() };
-
-	if (isLoopDone)
-	{
-		m_pKirby->SetState(Kirby::ActionState::bloated_idle);
-	}
+	if (m_Conditions.isLoopDone)	m_pKirby->SetState(Action::bloated_idle);
 }
 
 void KirbyStateHandler::HandleExhaling()
 {
-	const bool isLoopDone{ m_pKirby->HasLooped() };
+	if (m_Conditions.isLoopDone)	m_pKirby->SetState(Action::idle);
+}
 
-	if (isLoopDone)
+void KirbyStateHandler::HandleBloatedIdle(Action actionState, Macro macroState)
+{
+	if (!m_Conditions.isBloated)
 	{
-		m_pKirby->SetState(Kirby::ActionState::idle);
+		m_pKirby->SetState(Action::swallowing);
+	}
+	else if (m_Conditions.isMoving || m_Conditions.isJumping || m_Conditions.isFalling)
+	{
+		m_pKirby->SetState(Action::bloated_walking);
 	}
 }
 
-void KirbyStateHandler::HandleBloatedIdle(Kirby::ActionState actionState, Kirby::MacroState macroState)
+void KirbyStateHandler::HandleBloatedWalking(Action actionState, Macro macroState)
 {
-	const Vector2f velocity(m_pKirby->GetVelocity());
-	const bool isMoving{ abs(velocity.x) >= 1.f };
-	const bool isIdle{ !isMoving };
-	const bool isGoingUp{ velocity.y > 1.f };
-	const bool isJumping{ isGoingUp && !(actionState == Kirby::ActionState::inflating || actionState == Kirby::ActionState::inflated) };
-	const bool isFalling{ !m_pKirby->IsOnGround() && actionState != Kirby::ActionState::jumping };
-	const bool isBloated{ macroState == Kirby::MacroState::bloated };
-
-	if (!isBloated)
+	if (!m_Conditions.isBloated)
 	{
-		m_pKirby->SetState(Kirby::ActionState::swallowing);
+		m_pKirby->SetState(Action::swallowing);
 	}
-	else if (isMoving || isJumping || isFalling)
+	else if (m_Conditions.isIdle && !m_Conditions.isJumping && !m_Conditions.isFalling)
 	{
-		m_pKirby->SetState(Kirby::ActionState::bloated_walking);
-	}
-}
-
-void KirbyStateHandler::HandleBloatedWalking(Kirby::ActionState actionState, Kirby::MacroState macroState)
-{
-	const Vector2f velocity(m_pKirby->GetVelocity());
-	const bool isMoving{ abs(velocity.x) >= 1.f };
-	const bool isIdle{ !isMoving };
-	const bool isGoingUp{ velocity.y > 1.f };
-	const bool isJumping{ isGoingUp && !(actionState == Kirby::ActionState::inflating || actionState == Kirby::ActionState::inflated) };
-	const bool isFalling{ !m_pKirby->IsOnGround() && actionState != Kirby::ActionState::jumping };
-	const bool isBloated{ macroState == Kirby::MacroState::bloated };
-
-	if (!isBloated)
-	{
-		m_pKirby->SetState(Kirby::ActionState::swallowing);
-	}
-	else if (isIdle && !isJumping && !isFalling)
-	{
-		m_pKirby->SetState(Kirby::ActionState::bloated_idle);
+		m_pKirby->SetState(Action::bloated_idle);
 	}
 }
 
 void KirbyStateHandler::HandleSwallowing()
 {
-	const bool isLoopDone{ m_pKirby->HasLooped() };
-
-	if (isLoopDone) m_pKirby->SetState(Kirby::ActionState::idle);
+	if (m_Conditions.isLoopDone) m_pKirby->SetState(Action::idle);
 }
 
 void KirbyStateHandler::HandleSpitting()
 {
-	const bool isLoopDone{ m_pKirby->HasLooped() };
-	if (isLoopDone) m_pKirby->SetState(Kirby::ActionState::idle);
+	if (m_Conditions.isLoopDone) m_pKirby->SetState(Action::idle);
 }
 
 void KirbyStateHandler::HandlePowerStart()
 {
-	const bool isUsingPower{ m_pKirby->HasPowerUp() ? m_pKirby->GetPowerUp()->IsActive() : false };
-	const bool isLoopDone{ m_pKirby->HasLooped() };
-	if (!isUsingPower && m_pKirby->GetPowerUp()->HasEnd()) m_pKirby->SetState(Kirby::ActionState::power_end);
-	else if (!isUsingPower) m_pKirby->SetState(Kirby::ActionState::idle);
-	else if (isLoopDone && m_pKirby->GetPowerUp()->HasContinuous()) m_pKirby->SetState(Kirby::ActionState::power_continuous);
+	if (!m_Conditions.isUsingPower && m_pKirby->GetPowerUp()->HasEnd())
+	{
+		m_pKirby->SetState(Action::power_end);
+	}
+	else if (!m_Conditions.isUsingPower)
+	{
+		m_pKirby->SetState(Action::idle);
+	}
+	else if (m_Conditions.isLoopDone && m_pKirby->GetPowerUp()->HasContinuous())
+	{
+		m_pKirby->SetState(Action::power_continuous);
+	}
 }
-
 void KirbyStateHandler::HandlePowerContinuous()
 {
-	const bool isUsingPower{ m_pKirby->HasPowerUp() ? m_pKirby->GetPowerUp()->IsActive() : false };
-	if (!isUsingPower && m_pKirby->GetPowerUp()->HasEnd()) m_pKirby->SetState(Kirby::ActionState::power_end);
-	else if (!isUsingPower) m_pKirby->SetState(Kirby::ActionState::idle);
+	if (!m_Conditions.isUsingPower && m_pKirby->GetPowerUp()->HasEnd())
+	{
+		m_pKirby->SetState(Action::power_end);
+	}
+	else if (!m_Conditions.isUsingPower)
+	{
+		m_pKirby->SetState(Action::idle);
+	}
 }
 
 void KirbyStateHandler::HandlePowerEnd()
 {
-	const bool isLoopDone{ m_pKirby->HasLooped() };
-	if (isLoopDone) m_pKirby->SetState(Kirby::ActionState::idle);
+	if (m_Conditions.isLoopDone) m_pKirby->SetState(Action::idle);
 }
 
-void KirbyStateHandler::HandleHurt(Kirby::MacroState macroState)
+void KirbyStateHandler::HandleHurt(Macro macroState)
 {
-	const bool isLoopDone{ m_pKirby->HasLooped() };
-	const bool isBloated{ macroState == Kirby::MacroState::bloated };
-	const bool isInflated{ macroState == Kirby::MacroState::inflated };
-
-	if (isLoopDone && isInflated)
+	if (m_Conditions.isLoopDone && m_Conditions.isInflated)
 	{
-		m_pKirby->SetState(Kirby::ActionState::inflated);
+		m_pKirby->SetState(Action::inflated);
 	}
-	else if (isLoopDone && isBloated)
+	else if (m_Conditions.isLoopDone && m_Conditions.isBloated)
 	{
-		m_pKirby->SetState(Kirby::ActionState::bloated_idle);
+		m_pKirby->SetState(Action::bloated_idle);
 	}
-	else if (isLoopDone) 
+	else if (m_Conditions.isLoopDone)
 	{
-		m_pKirby->SetState(Kirby::ActionState::idle);
+		m_pKirby->SetState(Action::idle);
 	}
 }
 

@@ -8,7 +8,7 @@
 Enemy::Enemy(const Point2f& location)
 	: Actor{}
 	, m_StartLocation{location}
-	, m_ActionState(ActionState::moving)
+	, m_IsActive(true)
 	, m_HasBeenOffScreen{false}
 	, m_CanJump{false}
 {
@@ -22,13 +22,13 @@ Enemy::~Enemy()
 
 bool Enemy::IsActive() const
 {
-	return m_ActionState == ActionState::dormant ? false : true;
+	return m_IsActive;
 }
 
 void Enemy::Reset()
 {
 	m_IsBeingInhaled = false;
-	m_ActionState = ActionState::dormant;
+	m_IsActive = false;
 	m_HasBeenOffScreen = false;
 	m_Shape.left = m_StartLocation.x;
 	m_Shape.bottom = m_StartLocation.y;
@@ -42,14 +42,7 @@ void Enemy::Reset()
 
 void Enemy::SetActivity(bool active)
 {
-	if (active)
-	{
-		m_ActionState = ActionState::moving;
-	}
-	else
-	{
-		m_ActionState = ActionState::dormant;
-	}
+	m_IsActive = active;
 }
 
 bool Enemy::HasBeenOffScreen() const
@@ -57,10 +50,14 @@ bool Enemy::HasBeenOffScreen() const
 	return m_HasBeenOffScreen;
 }
 
-void Enemy::SetOffScreen(bool offscreen, float direction)
+void Enemy::SetOffScreen(bool offscreen)
 {
-	m_XDirection = direction;
 	m_HasBeenOffScreen = true;
+}
+
+void Enemy::SetDirection(float direction)
+{
+	m_XDirection = direction / abs(direction);
 }
 
 void Enemy::InitializePowerUp()

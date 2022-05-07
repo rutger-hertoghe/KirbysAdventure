@@ -6,6 +6,7 @@
 #include "utils.h"
 #include "LevelManager.h"
 
+
 const float Actor::m_Gravity{ -500.f };
 
 Actor::Actor()

@@ -4,11 +4,10 @@
 #include "Kirby.h"
 #include "HUD.h"
 #include "Camera.h"
-#include "Projectile.h"
-#include "PowerStar.h"
 #include "ObjectManager.h"
 #include "ProjectileManager.h"
 #include "LevelManager.h"
+// CLEANED INCLUDES
 
 Game::Game( const Window& window ) 
 	: m_Window{ window }
@@ -96,10 +95,6 @@ void Game::ProcessKeyUpEvent( const SDL_KeyboardEvent& e )
 	{
 	case SDLK_p:
 		m_LegacyMode = !m_LegacyMode;
-		break;
-	
-	case SDLK_t:
-		// m_pObjectManager->ResetEnemies();
 		break;
 	}
 }
