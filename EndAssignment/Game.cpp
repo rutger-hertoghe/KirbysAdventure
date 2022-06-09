@@ -40,19 +40,18 @@ void Game::Initialize( )
 	// The reason I opted to use a singleton pattern for the object manager is because every game object uses the objectmanager to determine
 	// whether they are on screen, but they aren't actually managed by the object manager. An object manager pointer in every game object
 	// might thus make another developer think that every game object is managed by this manager, which is not the case (only enemies, items and the boss but
+	// 
 	// I actually find passing along these manager pointers a lot messier than using the singleton pattern
-	// Now I have these long trails of pointers being passed along that actually make it unclear where everything is needed
-	// These managers are sometimes only needed once within a class and it demands some weird code for my powerups to work such as a method
-	// in Actor that allows it to share its projectile manager reference to the powerup. Sometimes these manager objects are
-	// also only needed once within a certain class and require a long trail of passing along to make it even work. I find the
-	// strict need for encapsulation here more of a limitation than a benefit. The idea that you can also have more than one
-	// instance of a manager seems like a bad idea. 
+	// Now I have these long trails of pointers being passed along that actually make it unclear where everything is needed.
+	// Granted, now you can see within the header of the class that it has access to the managers
+	// These managers are sometimes only needed once within a class and it demands some weird code for my powerups to work, such as a method
+	// in Actor that allows it to share its projectile manager reference with the powerup. 
 	
 	// To fix bootstrap problem with kirby and levelmanager which both need each other, level manager is set after initialization
 	m_pKirby->SetLevelManager(m_pLevelManager);
 	m_pKirby->SetProjectileManager(m_pProjectileManager);
 
-	m_pLevelManager->LoadLevel("part1");
+	m_pLevelManager->LoadLevel("part3");
 	m_pKirby->SetLocation(m_pLevelManager->GetCurrentLevel()->GetStartLocation());
 }
 

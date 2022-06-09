@@ -99,8 +99,8 @@ void Kirby::InitializeSprites()
 
 	nrFrames = 3;
 	animationSpeed = 0.2f;
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_stone_start" });
-	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_stone_end" });
+	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_stone_start", TextureManager::Get("explosion")});
+	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_stone_end", TextureManager::Get("explosion")});
 	animationSpeed = 0.3f;
 	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_swallowing" });
 

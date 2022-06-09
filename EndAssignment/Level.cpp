@@ -45,6 +45,11 @@ void Level::InitializeTextures()
 	m_Boundaries = Rectf{ 0.f, 0.f, m_pFullBackground->GetWidth(), m_pFullBackground->GetHeight() };
 }
 
+Level::~Level()
+{
+	delete m_pLevelMusic;
+}
+
 void Level::DrawFull() const
 {
 	Rectf dstRect{ 0.f, 0.f, m_pFullBackground->GetWidth(), m_pFullBackground->GetHeight() };

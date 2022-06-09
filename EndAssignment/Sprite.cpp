@@ -9,6 +9,7 @@ Sprite::Sprite(int nrFrames, float loopTime, const std::string& textureName, int
 	, m_FrameDimensions{ Point2f{} }
 	, m_pTexture{ nullptr }
 	, m_Name{textureName}
+	, m_LinkedToTextureManager{false}
 {
 	if (invulnerabilitySprite)
 	{
@@ -21,6 +22,21 @@ Sprite::Sprite(int nrFrames, float loopTime, const std::string& textureName, int
 		m_pTexture = new Texture(GenerateSpritePath());
 	}
 
+	m_FrameTime = m_LoopTime / m_NrFrames;
+	m_FramesPerRow = m_NrFrames / m_Rows;
+
+	SetDimensions();
+}
+
+Sprite::Sprite(int nrFrames, float loopTime, const std::string & textureName, Texture* pTexture, int rows)
+	: m_NrFrames{ nrFrames }
+	, m_LoopTime{ loopTime }
+	, m_Rows{ rows }
+	, m_FrameDimensions{ Point2f{} }
+	, m_pTexture{ pTexture }
+	, m_Name{ textureName }
+	, m_LinkedToTextureManager{ true }
+{
 	m_FrameTime = m_LoopTime / m_NrFrames;
 	m_FramesPerRow = m_NrFrames / m_Rows;
 
@@ -56,6 +72,11 @@ Sprite& Sprite::operator=(Sprite&& other) noexcept
 
 Sprite::~Sprite()
 {
+	// TODO: remove related functionality of bool when all sprites have been adapted to work with the new texturemanager system
+	if (m_LinkedToTextureManager)
+	{
+		return;
+	}
 	delete m_pTexture;
 }
 

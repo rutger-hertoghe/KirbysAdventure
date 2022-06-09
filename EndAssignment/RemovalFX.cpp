@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "RemovalFX.h"
 #include "Sprite.h"
+#include "TextureManager.h"
 
 RemovalFX::RemovalFX(const Point2f& location, RemovalFX::FXType type)
 	: GameObject{}
@@ -47,7 +48,7 @@ void RemovalFX::InitializeSprites()
 	switch (m_Type)
 	{
 	case FXType::item:
-		m_pSprites.push_back(new Sprite{ 3, 0.15f, "removalfx_puff" });
+		m_pSprites.push_back(new Sprite{ 3, 0.15f, "explosion", TextureManager::Get("explosion")});
 		break;
 	case FXType::enemy:
 		m_pSprites.push_back(new Sprite{ 4, 0.3f, "removalfx_star" });

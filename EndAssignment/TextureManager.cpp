@@ -56,7 +56,7 @@ void TextureManager::LoadSpriteTextures()
 {
 	const std::string path{ "resources/sprites" };
 
-
+	AddTexture("explosion", path);
 }
 
 void TextureManager::AddTexture(const std::string& name, const std::string& path)

@@ -1,4 +1,5 @@
 #pragma once
+#include "TextureManager.h" // Included here so it doesn't have to be added to every class using Sprite
 
 class Texture;
 
@@ -6,6 +7,7 @@ class Sprite
 {
 public:
 	Sprite(int nrFrames, float loopTime, const std::string& textureName, int rows = 1, bool invulnerabilitySprite = false);
+	Sprite(int nrFrames, float loopTime, const std::string& textureName, Texture* pTexture, int rows = 1);
 	Sprite(const Sprite& other) = delete;
 	Sprite& operator=(const Sprite& other) = delete;
 	Sprite(Sprite&& other) noexcept;
@@ -27,6 +29,8 @@ private:
 	const float m_LoopTime;
 	const int m_Rows;
 
+	// TODO: remove related functionality of bool when all sprites have been adapted to work with the new texturemanager system
+	bool m_LinkedToTextureManager;
 	int m_FramesPerRow;
 	float m_FrameTime;
 

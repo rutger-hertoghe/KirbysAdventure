@@ -16,7 +16,7 @@ public:
 	Level& operator=(const Level& other) = delete;
 	Level(Level&& other) = delete;
 	Level& operator=(Level&& other) = delete;
-	~Level() = default; // Level has no ownership of dynamically allocated objects
+	~Level(); // Level has no ownership of dynamically allocated objects
 
 	void DrawFull() const;
 	void DrawForeGround() const;
