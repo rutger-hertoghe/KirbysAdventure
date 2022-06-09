@@ -20,7 +20,8 @@
 // TODO: Fix bug where spit star doesn't happen fast enough after button press/is sometimes ignored
 
 Kirby::Kirby()
-	: m_ActionState{ ActionState::idle }
+	: Actor{nullptr, nullptr}
+	, m_ActionState{ ActionState::idle }
 	, m_MaxHorSpeed{ 80.f }
 	, m_HorAcceleration{ 250.f }
 	, m_JumpSpeed{ 180.f }
@@ -226,15 +227,10 @@ void Kirby::SetIsOnGround()
 void Kirby::CheckHitByProjectile()
 {
 	float direction{};
-	if (ProjectileManager::GetProjectileMngr()->ProjectileHasHit(this, direction))
+	if (m_pProjectileManager->ProjectileHasHit(this, direction))
 	{
 		DecrementHealth(direction);
 	}
-}
-
-void Kirby::SetVerticalVelocityToZero()
-{
-	m_Velocity.y = 0.f;
 }
 
 void Kirby::ForceIsOnGround()
@@ -275,7 +271,7 @@ void Kirby::LockToLevel()
 	const float yOffsetScalar{ m_pCurrentSprite->GetFrameDimensions().y / m_Shape.height };
 	const float topBorder{ yOffsetScalar * m_Shape.height };
 
-	Rectf boundaries{ LevelManager::GetCurrentLevel()->GetBoundaries()};
+	Rectf boundaries{ m_pLevelManager->GetCurrentLevel()->GetBoundaries()};
 
 	if (kirbyBottom > boundaries.height - topBorder)
 	{
@@ -390,6 +386,16 @@ void Kirby::ProcessKeyDown(const SDL_KeyboardEvent& e)
 	}
 }
 
+void Kirby::SetLevelManager(LevelManager* pLevelManager)
+{
+	m_pLevelManager = pLevelManager;
+}
+
+void Kirby::SetProjectileManager(ProjectileManager* pProjectileManager)
+{
+	m_pProjectileManager = pProjectileManager;
+}
+
 #pragma region KeyEventHelpers
 void Kirby::DoLeftHeldActions(bool isImmobile, float elapsedSec)
 {
@@ -458,10 +464,10 @@ void Kirby::DoEDownActions()
 
 
 	// Deflate if inflated; possible both with & without powerup, so handled first
-	Door info{ LevelManager::GetCurrentLevel()->GetDoorInfo(m_Shape)};
+	Door info{ m_pLevelManager->GetCurrentLevel()->GetDoorInfo(m_Shape)};
 	if (info.GetExitLevelName() != "")
 	{
-		LevelManager::GetLevelMngr()->LoadLevel(info.GetExitLevelName());
+		m_pLevelManager->LoadLevel(info.GetExitLevelName());
 		SetLocation(info.GetExitLocation());
 	}
 	else if (m_MacroState == MacroState::inflated)
@@ -563,9 +569,19 @@ void Kirby::Move(float elapsedSec, bool canAccelerate)
 
 void Kirby::SlowDown(float elapsedSec)
 {
-	if (m_Velocity.x < 5.f && m_Velocity.x > -5.f) m_Velocity.x = 0;
-	else if (m_Velocity.x > 1.f) m_Velocity.x -= m_HorAcceleration * elapsedSec;
-	else if (m_Velocity.x < -1.f) m_Velocity.x += m_HorAcceleration * elapsedSec;
+	const float velocityTreshold{ 5.f };
+	if (m_Velocity.x < velocityTreshold && m_Velocity.x > -velocityTreshold)
+	{
+		m_Velocity.x = 0;
+	}
+	else if (m_Velocity.x > velocityTreshold)
+	{
+		m_Velocity.x -= m_HorAcceleration * elapsedSec;
+	}
+	else if (m_Velocity.x < -velocityTreshold)
+	{
+		m_Velocity.x += m_HorAcceleration * elapsedSec;
+	}
 }
 
 void Kirby::Jump(float elapsedSec)
@@ -598,7 +614,7 @@ void Kirby::SpitStar()
 	const float yOffset{ (m_pCurrentSprite->GetFrameDimensions().y - m_Shape.height) / 2 }; 
 	spawnRect.left += m_XDirection * m_Shape.width;	
 	spawnRect.bottom += yOffset;
-	ProjectileManager::GetProjectileMngr()->Add(new Star{this, spawnRect, m_XDirection});
+	m_pProjectileManager->Add(new Star{this, spawnRect, m_XDirection});
 
 	// Spitting out the star should remove the power
 	DeletePowerUp();
@@ -610,7 +626,7 @@ void Kirby::SpawnPuff()
 {
 	Rectf spawnLocation{ 0.f, m_Shape.bottom, m_Shape.width, m_Shape.height };
 	spawnLocation.left = m_Shape.left + (m_XDirection > 0.f ? m_Shape.width : -m_Shape.width);
-	ProjectileManager::GetProjectileMngr()->Add(new Puff{this, spawnLocation, m_XDirection});
+	m_pProjectileManager->Add(new Puff{this, spawnLocation, m_XDirection});
 	m_pSounds["exhale"]->Play(0);
 }
 
@@ -618,7 +634,7 @@ void Kirby::ExpelPower()
 {
 	if (HasPowerUp())
 	{
-		PowerStar* pPowerStar{ new PowerStar{GetLocation()} };
+		PowerStar* pPowerStar{ new PowerStar{GetLocation(), m_pLevelManager, m_pProjectileManager} };
 		pPowerStar->SetDirection(-GetDirection());
 		TransferPowerUp(pPowerStar);
 		ObjectManager::GetObjectMngr()->AddItem(pPowerStar);
@@ -919,7 +935,7 @@ void Kirby::KillKirby()
 {
 	--m_Lives;
 	m_Health = m_MaxHealth;
-	SetLocation(LevelManager::GetCurrentLevel()->GetStartLocation());
+	SetLocation(m_pLevelManager->GetCurrentLevel()->GetStartLocation());
 	m_Velocity.y = 0;
 	m_Velocity.x = 0;
 	DeletePowerUp();
@@ -946,9 +962,7 @@ void Kirby::CheckForShakeCommand(bool isAlreadyOnGround)
 
 void Kirby::BounceOffInDirection(float bounceDirection)
 {
-	Point2f velocity{ 150.f, 50.f };
-	m_Velocity.x = velocity.x * bounceDirection;
-	m_Velocity.y = velocity.y;
+	SetVelocity(Vector2f{ 150.f * bounceDirection, 50.f });
 }
 
 //bool Kirby::IsInhaling() const

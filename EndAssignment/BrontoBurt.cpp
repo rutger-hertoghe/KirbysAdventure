@@ -2,8 +2,8 @@
 #include "BrontoBurt.h"
 #include "Sprite.h"
 
-BrontoBurt::BrontoBurt(const Point2f& location)
-	: Enemy(location)
+BrontoBurt::BrontoBurt(const Point2f& location, LevelManager* pLevelManager, ProjectileManager* pProjectileManager)
+	: Enemy(location, pLevelManager, pProjectileManager)
 	, m_TargetY{location.y}
 	, m_Apex{location.y + 100.f}
 {

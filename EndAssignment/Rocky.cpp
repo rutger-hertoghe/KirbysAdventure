@@ -4,8 +4,8 @@
 #include "StonePower.h"
 #include "Camera.h"
 
-Rocky::Rocky(const Point2f& location)
-	: Enemy{location}
+Rocky::Rocky(const Point2f& location, LevelManager* pLevelManager, ProjectileManager* pProjectileManager)
+	: Enemy{location, pLevelManager, pProjectileManager}
 	, m_MaxStateTime{5.f}
 	, m_IsAbilityActive{false}
 {

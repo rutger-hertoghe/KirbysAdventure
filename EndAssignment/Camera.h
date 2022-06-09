@@ -45,7 +45,7 @@ private:
 	Rectf m_VisibleArea;
 
 	void CalculateVisibleArea();
-	void UpdateLocation(float x, float y, float elapsedSec);
+	void UpdateLocation(float x, float y);
 	void CalculateShake();
 	void UpdateShake(float elapsedSec);
 	void LockKirbyToVisibleArea(Kirby* pKirby);

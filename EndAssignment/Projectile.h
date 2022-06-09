@@ -3,6 +3,9 @@
 #include "Vector2f.h"
 #include "Actor.h"
 class Sprite;
+class LevelManager;
+
+// TODO: Add rule of 5 to all projectiles
 
 class Projectile : public GameObject
 {
@@ -15,7 +18,7 @@ public:
 		throwingStar
 	};
 
-	explicit Projectile(Actor* pOwner, ProjectileType type, const Rectf& projectileRect, const Vector2f& velocity);
+	explicit Projectile(Actor* pOwner, LevelManager* pLevelMngr, ProjectileType type, const Rectf& projectileRect, const Vector2f& velocity);
 
 	virtual void Update(float elapsedSec) = 0;
 	void SetSprite(Sprite* spritePtr);
@@ -34,6 +37,7 @@ protected:
 	Vector2f m_Velocity;
 	ProjectileType m_Type;
 	Actor* m_pOwner;
+	LevelManager* m_pLevelManager;
 	
 	void ApplyVelocities(float elapsedSec);
 	void DestroyOnCollision();

@@ -3,7 +3,7 @@
 class LaserBall final: public Enemy
 {
 public:
-	explicit LaserBall(const Point2f& location);
+	explicit LaserBall(const Point2f& location, LevelManager* pLevelManager, ProjectileManager* pProjectileManager);
 	LaserBall(const LaserBall& other) = delete;
 	LaserBall& operator=(const LaserBall& other) = delete;
 	LaserBall(LaserBall&& other) = delete;

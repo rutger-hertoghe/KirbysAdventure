@@ -3,8 +3,8 @@
 #include "Sprite.h"
 #include <cmath>
 
-LaserBall::LaserBall(const Point2f& location)
-	: Enemy{location}
+LaserBall::LaserBall(const Point2f& location, LevelManager* pLevelManager, ProjectileManager* pProjectileManager)
+	: Enemy{location, pLevelManager, pProjectileManager}
 	, m_IsReboundingY(false)
 	, m_IsInPlaceX(false)
 	, m_IsInPlaceY(false)

@@ -9,11 +9,12 @@ class Level;
 class Camera;
 class Item;
 class MrTickTock;
+class LevelManager;
 
 class ObjectManager final
 {
 public:
-	explicit ObjectManager(Kirby* pKirby);
+	explicit ObjectManager(Kirby* pKirby, LevelManager* pLevelManager, ProjectileManager* pProjectileManager);
 	ObjectManager(const ObjectManager& other) = delete;
 	ObjectManager& operator=(const ObjectManager& other) = delete;
 	ObjectManager(ObjectManager&& other) = delete;
@@ -45,6 +46,8 @@ private:
 
 	MrTickTock* m_pMrTickTock;
 	Kirby* m_pKirby;
+	LevelManager* m_pLevelManager;
+	ProjectileManager* m_pProjectileManager;
 
 	void DrawEnemies() const;
 	void DrawItems() const;

@@ -6,7 +6,7 @@
 #include "ObjectManager.h"
 
 Fireball::Fireball(Actor* pOwner, const Rectf& fireballRect, const Vector2f& directionVector)
-	: Projectile{pOwner, ProjectileType::fireball, fireballRect, Vector2f{directionVector.x * 200, directionVector.y} }
+	: Projectile{pOwner, pOwner->GetLevelManager(), ProjectileType::fireball, fireballRect, Vector2f{directionVector.x * 200, directionVector.y} }
 	, m_MaxDistance{ 32.0f }
 	, m_FlownDistance{0.f}
 {

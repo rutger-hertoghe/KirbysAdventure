@@ -77,7 +77,7 @@ void Camera::Transform(float distanceFactor)
 	}
 }
 
-void Camera::UpdateLocation(float x, float y, float elapsedSec)
+void Camera::UpdateLocation(float x, float y)
 {
 	const float xMovementTreshold(48.f);
 
@@ -121,7 +121,7 @@ void Camera::Update(float elapsedSec, Kirby* pKirby)
 	}
 	else
 	{
-		UpdateLocation(pKirby->GetLocation().x, pKirby->GetLocation().y, elapsedSec);
+		UpdateLocation(pKirby->GetLocation().x, pKirby->GetLocation().y);
 	}
 	CalculateVisibleArea();
 	UpdateShake(elapsedSec);

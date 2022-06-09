@@ -1,10 +1,13 @@
 #pragma once
 #include "Actor.h"
 #include "Kirby.h"
+
+class LevelManager;
+
 class Enemy : public Actor
 {
 public:
-	explicit Enemy(const Point2f& location);
+	explicit Enemy(const Point2f& location, LevelManager* pLevelManager, ProjectileManager* pProjectileManager);
 	Enemy(const Enemy& other) = delete;
 	Enemy& operator=(const Enemy& other) = delete;
 	Enemy(Enemy&& other) = delete;

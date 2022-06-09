@@ -1,9 +1,13 @@
 #pragma once
 #include "Enemy.h"
+
+class LevelManager;
+class ProjectileManager; 
+
 class Bounder final : public Enemy
 {
 public:
-	explicit Bounder(const Point2f& location);
+	explicit Bounder(const Point2f& location, LevelManager* pLevelManager, ProjectileManager* pProjectileManager);
 	Bounder(const Bounder& other) = delete;
 	Bounder& operator=(Bounder& other) = delete;
 	Bounder(Bounder&& other) = delete;

@@ -6,8 +6,8 @@
 #include "ThrowingStar.h"
 #include "LevelManager.h"
 
-Bounder::Bounder(const Point2f& location)
-	: Enemy{location}
+Bounder::Bounder(const Point2f& location, LevelManager* pLevelManager, ProjectileManager* pProjectileManager)
+	: Enemy{location, pLevelManager, pProjectileManager}
 	, m_IsOnWall{false}
 	, m_IsFirstUpdateCall{true}
 {
@@ -117,7 +117,7 @@ void Bounder::CheckBothWalls()
 
 bool Bounder::IsOnWall()
 {
-	return LevelManager::GetCurrentLevel()->IsAgainstWall(m_Shape, m_XDirection);
+	return m_pLevelManager->GetCurrentLevel()->IsAgainstWall(m_Shape, m_XDirection);
 }
 
 void Bounder::HandleClimbing()
@@ -177,7 +177,7 @@ void Bounder::ThrowStar()
 	spawnRect.bottom = m_Shape.bottom + m_Shape.height / 2;
 	spawnRect.width = dimSize;
 	spawnRect.height = dimSize;
-	ProjectileManager::GetProjectileMngr()->Add(new ThrowingStar{this, spawnRect, m_XDirection});
+	m_pProjectileManager->Add(new ThrowingStar{this, spawnRect, m_XDirection});
 }
 
 void Bounder::JumpTowardsKirby()

@@ -3,12 +3,13 @@
 #include "Level.h"
 
 class ProjectileManager;
+class LevelManager;
 class PowerUp;
 
 class Actor : public GameObject
 {
 public:
-	explicit Actor();
+	explicit Actor(LevelManager* pLevelManager, ProjectileManager* pProjectileManager);
 	Actor(const Actor& other) = delete;
 	Actor& operator=(const Actor& other) = delete;
 	Actor(Actor&& other) = delete;
@@ -23,11 +24,18 @@ public:
 	bool HasPowerUp() const;
 	void DeletePowerUp();
 
+	Point2f GetLocation() const;
 	void SetLocation(const Point2f& location);
 	void SetLocation(float x, float y);
+
+	void AddVelocity(Vector2f velocity);
+	void AddVelocity(Point2f velocity);
 	void AddVelocity(float x, float y);
+	void SetVelocity(Vector2f velocity);
+	void SetVelocity(Point2f velocity);
+	void SetVelocity(float x, float y);
 	Vector2f GetVelocity() const;
-	Point2f GetLocation() const;
+
 	PowerUp* GetPowerUp() const;
 
 	void SetInhalationVelocities(const Rectf& kirbyRect);
@@ -35,6 +43,9 @@ public:
 	bool IsBeingInhaled() const;
 	bool IsOnGround() const;
 	void ToggleBeingInhaled(const Rectf& inhalationZone);
+
+	ProjectileManager* GetProjectileManager() const;
+	LevelManager* GetLevelManager() const; // Weird utility to prevent having to pass around levelmanagers to firepower class
 
 protected:
 	static const float m_Gravity;
@@ -50,6 +61,8 @@ protected:
 	bool m_IsBeingInhaled;
 
 	PowerUp* m_pPowerUp;
+	LevelManager* m_pLevelManager;
+	ProjectileManager* m_pProjectileManager;
 
 	void SetBaseVelocity(float xVelocity, float yVelocity);
 	void SetBaseVelocity(const Vector2f& velocity);

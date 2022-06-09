@@ -30,6 +30,7 @@ protected:
 	// TODO: sprite info terug in sprites steken en projectile management fixen OF ervoor zorgen dat sprite ALTIJD gereset wordt
 	Sprite* m_pCurrentSprite;
 
+
 	std::vector<Sprite*> m_pSprites;
 
 	void UpdateSprite(float elapsedSec);

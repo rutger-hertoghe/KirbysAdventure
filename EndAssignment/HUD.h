@@ -10,6 +10,8 @@ public:
 	HUD();
 	HUD(const HUD& other) = delete;
 	HUD& operator=(const HUD& rhs) = delete;
+	HUD(HUD&& other) = delete;
+	HUD& operator=(HUD&& other) = delete;
 	~HUD();
 
 	void Draw(Kirby* pKirby) const;

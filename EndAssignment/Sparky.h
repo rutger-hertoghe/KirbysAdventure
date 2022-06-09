@@ -4,7 +4,7 @@
 class Sparky final : public Enemy
 {
 public:
-	explicit Sparky(const Point2f& location);
+	explicit Sparky(const Point2f& location, LevelManager* pLevelManager, ProjectileManager* pProjectileManager);
 	Sparky(const Sparky& other) = delete;
 	Sparky& operator=(const Sparky& other) = delete;
 	Sparky(Sparky&& other) = delete;

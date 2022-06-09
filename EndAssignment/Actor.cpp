@@ -9,8 +9,10 @@
 
 const float Actor::m_Gravity{ -500.f };
 
-Actor::Actor()
+Actor::Actor(LevelManager* pLevelManager, ProjectileManager* pProjectileManager)
 	: GameObject{}
+	, m_pProjectileManager{pProjectileManager}
+	, m_pLevelManager{pLevelManager}
 	, m_pPowerUp{ nullptr }
 	, m_BaseVelocity{0.f, 0.f}
 	, m_IsOnGround{false}
@@ -74,10 +76,38 @@ void Actor::SetLocation(float x, float y)
 	m_Shape.bottom = y;
 }
 
+void Actor::AddVelocity(Vector2f velocity)
+{
+	m_Velocity += velocity;
+}
+
+void Actor::AddVelocity(Point2f velocity)
+{
+	m_Velocity.x += velocity.x;
+	m_Velocity.y += velocity.y;
+}
+
 void Actor::AddVelocity(float x, float y)
 {
 	m_Velocity.x += x;
 	m_Velocity.y += y;
+}
+
+void Actor::SetVelocity(Vector2f velocity)
+{
+	m_Velocity = velocity;
+}
+
+void Actor::SetVelocity(Point2f velocity)
+{
+	m_Velocity.x = velocity.x;
+	m_Velocity.y = velocity.y;
+}
+
+void Actor::SetVelocity(float x, float y)
+{
+	m_Velocity.x = x;
+	m_Velocity.y = y;
 }
 
 Vector2f Actor::GetVelocity() const
@@ -97,7 +127,7 @@ PowerUp* Actor::GetPowerUp() const
 
 void Actor::SetIsOnGround()
 {
-	if (LevelManager::GetCurrentLevel()->IsOnGround(m_Shape))
+	if (m_pLevelManager->GetCurrentLevel()->IsOnGround(m_Shape))
 	{
 		m_IsOnGround = true;
 	}
@@ -134,7 +164,7 @@ void Actor::ApplyGravity(float elapsedSec)
 
 void Actor::HandleLevelCollisions()
 {
-	LevelManager::GetCurrentLevel()->HandleCollision(m_Shape, m_Velocity);
+	m_pLevelManager->GetCurrentLevel()->HandleCollision(m_Shape, m_Velocity);
 }
 
 void Actor::ResetArbitraryTimer()
@@ -180,6 +210,16 @@ void Actor::ToggleBeingInhaled(const Rectf& inhalationZone)
 	}
 }
 
+ProjectileManager* Actor::GetProjectileManager() const
+{
+	return m_pProjectileManager;
+}
+
+LevelManager* Actor::GetLevelManager() const
+{
+	return m_pLevelManager;
+}
+
 void Actor::Flicker(float timer, std::string& spriteName)
 {
 	int splitIndex{ int(spriteName.find_last_of('_')) };
@@ -212,7 +252,7 @@ void Actor::CreateAltSprites()
 
 void Actor::ChangeDirectionOnBump()
 {
-	if (LevelManager::GetCurrentLevel()->IsAgainstWall(m_Shape, m_XDirection))
+	if (m_pLevelManager->GetCurrentLevel()->IsAgainstWall(m_Shape, m_XDirection))
 	{
 		ChangeDirection();
 	}

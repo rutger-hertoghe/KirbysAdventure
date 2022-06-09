@@ -3,7 +3,7 @@
 #include "Sprite.h"
 
 Puff::Puff(Actor* pOwner, Rectf puffRect, float xDirection)
-	: Projectile{ pOwner,  ProjectileType::puff, puffRect, Vector2f{0.f, 0.f} }
+	: Projectile{ pOwner, pOwner->GetLevelManager(), ProjectileType::puff, puffRect, Vector2f{0.f, 0.f} }
 	, m_MaxDistance{ 40.f }
 	, m_FlownDistance{ 0.0f }
 {

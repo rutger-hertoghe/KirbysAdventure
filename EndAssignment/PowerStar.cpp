@@ -2,18 +2,14 @@
 #include "PowerStar.h"
 #include "Sprite.h"
 
-PowerStar::PowerStar(const Point2f& location)
-	: Item{false, false, false, false, true, false}
+PowerStar::PowerStar(const Point2f& location, LevelManager* pLevelManager, ProjectileManager* pProjectileManager)
+	: Item{pLevelManager, pProjectileManager, false, false, false, false, true, false}
 {
 	SetLocation(location);
 	InitializeSprites();
 	SetInitialSprite();
 	SetDimsFromSprite();
 	SetBaseVelocity( 80.f, 200.f);
-}
-
-PowerStar::~PowerStar()
-{
 }
 
 void PowerStar::Update(float elapsedSec)

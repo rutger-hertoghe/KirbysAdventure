@@ -109,7 +109,7 @@ Sprite* GameObject::GetSpritePtr(const std::string& spriteName) const
 bool GameObject::IsOnScreen() const
 {
 	const float viewExtension{ 0.f };
-	Rectf visibleArea{ ObjectManager::GetObjectMngr()->GetVisibleArea() };
+	Rectf visibleArea{ ObjectManager::GetObjectMngr()->GetVisibleArea()};
 	const bool isInsideXScreenBounds
 	(
 		visibleArea.left < m_Shape.left + m_Shape.width + viewExtension

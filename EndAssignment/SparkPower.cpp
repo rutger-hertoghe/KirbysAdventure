@@ -31,7 +31,7 @@ void SparkPower::ContinuousKeyEvent()
 	const Vector2f spawnVelocities{ velocity * cosf(spawnAngle), velocity * sinf(spawnAngle) };
 	if (m_CanSpawn)
 	{
-		ProjectileManager::GetProjectileMngr()->Add(new Spark{m_pOwner, spawnRect, spawnVelocities});
+		m_pProjectileManager->Add(new Spark{m_pOwner, spawnRect, spawnVelocities});
 		m_CanSpawn = false;
 	}
 }

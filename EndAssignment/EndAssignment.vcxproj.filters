@@ -34,6 +34,9 @@
     <Filter Include="Game Files\Managers">
       <UniqueIdentifier>{2a63d0e4-2a87-4cc5-86a1-3ac0b03b4b76}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game Files\UI">
+      <UniqueIdentifier>{57b1fc21-195f-493b-8a79-38e6fcfb05c6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp">
@@ -76,9 +79,6 @@
       <Filter>Game Files</Filter>
     </ClCompile>
     <ClCompile Include="Level.cpp">
-      <Filter>Game Files</Filter>
-    </ClCompile>
-    <ClCompile Include="HUD.cpp">
       <Filter>Game Files</Filter>
     </ClCompile>
     <ClCompile Include="Camera.cpp">
@@ -189,6 +189,12 @@
     <ClCompile Include="MrTickTock.cpp">
       <Filter>Game Files\GameObjects\Actors</Filter>
     </ClCompile>
+    <ClCompile Include="HUD.cpp">
+      <Filter>Game Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="PauseScreen.cpp">
+      <Filter>Game Files\UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -225,9 +231,6 @@
       <Filter>Game Files</Filter>
     </ClInclude>
     <ClInclude Include="Sprite.h">
-      <Filter>Game Files</Filter>
-    </ClInclude>
-    <ClInclude Include="HUD.h">
       <Filter>Game Files</Filter>
     </ClInclude>
     <ClInclude Include="Level.h">
@@ -340,6 +343,12 @@
     </ClInclude>
     <ClInclude Include="MrTickTock.h">
       <Filter>Game Files\GameObjects\Actors</Filter>
+    </ClInclude>
+    <ClInclude Include="HUD.h">
+      <Filter>Game Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="PauseScreen.h">
+      <Filter>Game Files\UI</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

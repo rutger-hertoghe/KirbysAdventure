@@ -1,10 +1,12 @@
 #pragma once
 #include "Enemy.h"
 
+class LevelManager;
+
 class HotHead final : public Enemy
 {
 public:
-	explicit HotHead(const Point2f& location);
+	explicit HotHead(const Point2f& location, LevelManager* pLevelManager, ProjectileManager* pProjectileManager);
 	HotHead(const HotHead& other) = delete;
 	HotHead& operator=(const HotHead& other) = delete;
 	HotHead(HotHead&& other) = delete;

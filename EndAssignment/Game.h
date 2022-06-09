@@ -5,6 +5,13 @@ class Camera;
 class ProjectileManager;
 class ObjectManager;
 class LevelManager;
+class PauseScreen;
+
+enum class GameState
+{
+	play,
+	pause
+};
 
 class Game final
 {
@@ -29,13 +36,16 @@ public:
 private:
 	// DATA MEMBERS
 	int m_CurrentLevel;
-	bool m_LegacyMode;
+	bool m_ParallaxMode;
 
 	const Window m_Window;
+
+	GameState m_GameState;
 
 	// MrTickTock* m_pMrTickTock;
 	Kirby* m_pKirby;
 	HUD* m_pHUD;
+	PauseScreen* m_pPauseScreen;
 	Camera* m_pCamera;
 	ObjectManager* m_pObjectManager;
 	ProjectileManager* m_pProjectileManager;
@@ -48,4 +58,8 @@ private:
 
 	void DrawLevel() const;
 	void PrintInfo() const;
+	void TogglePlay();
+	void UpdatePlay(float elapsedSec);
+	void DrawPlay() const;
+	void DrawPause() const;
 };

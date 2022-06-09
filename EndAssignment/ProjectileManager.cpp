@@ -4,20 +4,9 @@
 #include "utils.h"
 #include "Actor.h"
 #include "Kirby.h"
-// CLEANED INCLUDES
-// TODO: Remove above comment if everything's clean
-
-ProjectileManager* ProjectileManager::m_pProjectileManager{ nullptr };
 
 ProjectileManager::ProjectileManager()
 {
-	if (m_pProjectileManager)
-	{
-		delete m_pProjectileManager;
-	}
-
-	m_pProjectileManager = this;
-
 	InitializeSprites();
 }
 
@@ -34,11 +23,6 @@ ProjectileManager::~ProjectileManager()
 		delete pSprite;
 		pSprite = nullptr;
 	}
-}
-
-ProjectileManager* ProjectileManager::GetProjectileMngr()
-{
-	return m_pProjectileManager;
 }
 
 void ProjectileManager::Draw() const
@@ -72,7 +56,6 @@ void ProjectileManager::Add(Projectile* projectile)
 
 bool ProjectileManager::ProjectileHasHit(Actor* pActor, float& direction)
 {
-	// TODO: Check whether actors get detected as separate types
 	for (Projectile* pProjectile : m_pProjectiles)
 	{
 		Actor* pOwner{ pProjectile->GetOwner() };

@@ -5,7 +5,7 @@
 class MrTickTock final : public Actor
 {
 public:
-	explicit MrTickTock(const Point2f& location, Kirby* pKirby);
+	explicit MrTickTock(const Point2f& location, Kirby* pKirby, LevelManager* pLevelManager, ProjectileManager* pProjectileManager);
 	MrTickTock(const MrTickTock& other) = delete;
 	MrTickTock& operator=(const MrTickTock& other) = delete;
 	MrTickTock(MrTickTock&& other) = delete;
@@ -13,18 +13,20 @@ public:
 	~MrTickTock() override;
 
 	virtual void Update(float elapsedSec) override;
+	virtual void Draw() const override;
 	void DecrementHealth();
 	bool IsDead() const;
 
 private:
 	enum class ActionState
 	{
-		movingToKirby,
+		moveToDestination,
 		hopping,
 		ringing,
 		ringingWithNotes,
 		dead,
-		idle
+		idle,
+		shuffleStep
 	};
 
 
@@ -33,9 +35,11 @@ private:
 	bool m_GotDamaged;
 
 	float m_InvulnerabilityTimer;
+	float m_XDestination;
 	
 	int m_Sprite;
 	Point2f m_CameraLockLocation;
+	Rectf m_RingingZone;
 
 	ActionState m_ActionState;
 
@@ -44,7 +48,13 @@ private:
 	void InitializeSprites();
 	void Kill();
 	void UpdateInvulnerability(float elapsedSec);
-
-	void SelectRandomState();
+	void DoMoveToKirby();
+	void DoHops();
+	void Hop();
+	void SelectNewAction();
+	void DoIdle(float elapsedSec);
+	void SetState(ActionState state);
+	void DoRinging();
+	void SlowDown(float elapsedSec);
 };
 

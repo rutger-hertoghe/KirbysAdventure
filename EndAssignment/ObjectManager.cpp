@@ -26,13 +26,13 @@
 
 // Boss
 #include "MrTickTock.h"
-// CLEANED INCLUDES
-// TODO: Ask teachers why I can leave out Item.h & Enemy.h includes
 
 ObjectManager* ObjectManager::m_pObjectManager{ nullptr };
 
-ObjectManager::ObjectManager(Kirby* pKirby)
+ObjectManager::ObjectManager(Kirby* pKirby, LevelManager* pLevelManager, ProjectileManager* pProjectileManager)
 	: m_pKirby{ pKirby }
+	, m_pLevelManager{pLevelManager}
+	, m_pProjectileManager{pProjectileManager}
 	, m_pMrTickTock{nullptr}
 {
 	if (m_pObjectManager)
@@ -183,7 +183,7 @@ void ObjectManager::CheckEnemyRemovalConditions(Enemy*& pEnemy)
 
 	// ACTUAL CODE
 
-	if (ProjectileManager::GetProjectileMngr()->ProjectileHasHit(pEnemy) || fellOutOfWorld || !pEnemy->IsOnScreen())
+	if (m_pProjectileManager->ProjectileHasHit(pEnemy) || fellOutOfWorld || !pEnemy->IsOnScreen())
 	{
 		AddRemovalFX(pEnemy->GetLocation(), RemovalFX::FXType::enemy);
 		pEnemy->Reset();
@@ -233,7 +233,7 @@ void ObjectManager::UpdateItem(Item*& pItem, float elapsedSec)
 	{
 		DoItemInhalationActions(pItem);
 	}
-	else if (pItem->IsDestructible() && ProjectileManager::GetProjectileMngr()->ProjectileHasHit(pItem))
+	else if (pItem->IsDestructible() && m_pProjectileManager->ProjectileHasHit(pItem))
 	{
 		pItem->Remove();
 		AddRemovalFX(pItem->GetLocation(), RemovalFX::FXType::item);
@@ -245,7 +245,10 @@ void ObjectManager::UpdateItem(Item*& pItem, float elapsedSec)
 	else if (hasCollidedWithKirby && pItem->HasCollisionEvent())
 	{
 		pItem->DoCollisionEvent();
-		pItem->Remove();
+		if (pItem->IsRemovedOnCollision())
+		{
+			pItem->Remove();
+		}
 	}
 	else if( fellOutOfWorld || (!pItem->IsOnScreen() && pItem->IsPersistent() == false))
 	{
@@ -316,7 +319,7 @@ void ObjectManager::UpdateTickTock(float elapsedSec, Camera* pCamera)
 		{
 			m_pMrTickTock->Update(elapsedSec);
 		}
-		if (ProjectileManager::GetProjectileMngr()->ProjectileHasHit(m_pMrTickTock))
+		if (m_pProjectileManager->ProjectileHasHit(m_pMrTickTock))
 		{
 			m_pMrTickTock->DecrementHealth();
 		}
@@ -367,6 +370,7 @@ void ObjectManager::DoItemInhalationActions(Item*& pItem)
 
 void ObjectManager::DoItemCollision(Item*& pItem, bool isVerticalCollision, const utils::HitInfo& hitInfo)
 {
+	// TODO: Move this into star block
 	if (isVerticalCollision)
 	{
 		if (hitInfo.lambda < 0.5f)
@@ -374,13 +378,13 @@ void ObjectManager::DoItemCollision(Item*& pItem, bool isVerticalCollision, cons
 			// TODO: fix stuttering bug when on star block
 			m_pKirby->SetLocation(Point2f{ m_pKirby->GetShape().left, pItem->GetShape().bottom + pItem->GetShape().height});
 			m_pKirby->ForceIsOnGround();
-			m_pKirby->SetVerticalVelocityToZero();
+			m_pKirby->SetVelocity(m_pKirby->GetVelocity().x, 0.f);
 		}
 		else
 		{
 			float fallPixel{ 1.f }; // Pixel offset so that kirby doesn't stick to roof
 			m_pKirby->SetLocation(Point2f{ m_pKirby->GetShape().left, pItem->GetShape().bottom - m_pKirby->GetShape().height - fallPixel });
-			m_pKirby->SetVerticalVelocityToZero();
+			m_pKirby->SetVelocity(m_pKirby->GetVelocity().x, 0.f);
 		}
 	}
 	else
@@ -445,6 +449,8 @@ void ObjectManager::ClearEnemyVector()
 
 void ObjectManager::ClearObjectVector()
 {
+	if (m_pItems.size() > 0) return;
+
 	for (Item* pItem : m_pItems)
 	{
 		delete pItem;
@@ -540,47 +546,47 @@ void ObjectManager::CreateObject(const std::string& objectName, const Point2f& l
 {
 	if (objectName == "waddledee")
 	{
-		m_pEnemies.push_back(new WaddleDee{ location });
+		m_pEnemies.push_back(new WaddleDee{ location, m_pLevelManager, m_pProjectileManager });
 	}
 	else if (objectName == "brontoburt")
 	{
-		m_pEnemies.push_back(new BrontoBurt{ location });
+		m_pEnemies.push_back(new BrontoBurt{ location, m_pLevelManager, m_pProjectileManager });
 	}
 	else if (objectName == "hothead")
 	{
-		m_pEnemies.push_back(new HotHead{ location });
+		m_pEnemies.push_back(new HotHead{ location, m_pLevelManager, m_pProjectileManager });
 	}
 	else if (objectName == "sparky")
 	{
-		m_pEnemies.push_back(new Sparky{ location });
+		m_pEnemies.push_back(new Sparky{ location, m_pLevelManager, m_pProjectileManager });
 	}
 	else if (objectName == "bounder")
 	{
-		m_pEnemies.push_back(new Bounder{ location });
+		m_pEnemies.push_back(new Bounder{ location, m_pLevelManager, m_pProjectileManager });
 	}
 	else if (objectName == "laserball")
 	{
-		m_pEnemies.push_back(new LaserBall{ location });
+		m_pEnemies.push_back(new LaserBall{ location, m_pLevelManager, m_pProjectileManager });
 	}
 	else if (objectName == "rocky")
 	{
-		m_pEnemies.push_back(new Rocky{ location });
+		m_pEnemies.push_back(new Rocky{ location, m_pLevelManager, m_pProjectileManager });
 	}
 	else if (objectName == "parasol")
 	{
-		m_pEnemies.push_back(new Parasol{ location });
+		m_pEnemies.push_back(new Parasol{ location, m_pLevelManager, m_pProjectileManager });
 	}
 	else if (objectName == "starblock")
 	{
-		m_pItems.push_back(new StarBlock{ location });
+		m_pItems.push_back(new StarBlock{ location, m_pKirby, m_pLevelManager, m_pProjectileManager});
 	}
 	else if (objectName == "oneup")
 	{
-		m_pItems.push_back(new OneUp{ location , m_pKirby});
+		m_pItems.push_back(new OneUp{ location , m_pKirby, m_pLevelManager, m_pProjectileManager});
 	}
 	else if (objectName == "healthbug")
 	{
-		m_pItems.push_back(new HealthBug{ location, m_pKirby });
+		m_pItems.push_back(new HealthBug{ location, m_pKirby, m_pLevelManager, m_pProjectileManager });
 	}
 	else if (objectName == "mrticktock")
 	{
@@ -588,6 +594,6 @@ void ObjectManager::CreateObject(const std::string& objectName, const Point2f& l
 		{
 			delete m_pMrTickTock;
 		}
-		m_pMrTickTock = new MrTickTock{ location, m_pKirby };
+		m_pMrTickTock = new MrTickTock{ location, m_pKirby, m_pLevelManager, m_pProjectileManager};
 	}
 }

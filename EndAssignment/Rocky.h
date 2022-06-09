@@ -1,9 +1,12 @@
 #pragma once
 #include "Enemy.h"
+
+class LevelManager;
+
 class Rocky final : public Enemy
 {
 public:
-	explicit Rocky(const Point2f& location);
+	explicit Rocky(const Point2f& location, LevelManager* pLevelManager, ProjectileManager* pProjectileManager);
 	Rocky(const Rocky& other) = delete;
 	Rocky& operator=(Rocky& other) = delete;
 	Rocky(Rocky&& other) = delete;

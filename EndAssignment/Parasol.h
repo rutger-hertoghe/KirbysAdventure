@@ -1,9 +1,12 @@
 #pragma once
 #include "Enemy.h"
+
+class LevelManager;
+
 class Parasol final : public Enemy
 {
 public:
-	explicit Parasol(const Point2f& location);
+	explicit Parasol(const Point2f& location, LevelManager* pLevelManager, ProjectileManager* pProjectileManager);
 	Parasol(const Parasol& other) = delete;
 	Parasol& operator=(const Parasol& other) = delete;
 	Parasol(Parasol&& other) = delete;

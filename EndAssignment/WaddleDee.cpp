@@ -2,9 +2,10 @@
 #include "WaddleDee.h"
 #include "Sprite.h"
 #include "utils.h"
+#include "LevelManager.h"
 
-WaddleDee::WaddleDee(const Point2f& location)
-	: Enemy{location}
+WaddleDee::WaddleDee(const Point2f& location, LevelManager* pLevelManager, ProjectileManager* pProjectileManager)
+	: Enemy{location, pLevelManager, pProjectileManager }
 {
 	SetBaseVelocity(50.f, 0.f);
 

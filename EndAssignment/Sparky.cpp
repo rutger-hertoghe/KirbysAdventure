@@ -3,8 +3,8 @@
 #include "Sprite.h"
 #include "SparkPower.h"
 
-Sparky::Sparky(const Point2f& location)
-	: Enemy{location}
+Sparky::Sparky(const Point2f& location, LevelManager* pLevelManager, ProjectileManager* pProjectileManager)
+	: Enemy{location, pLevelManager, pProjectileManager }
 	, m_IsPowerUsable{ false }
 	, m_IsInert{ false }
 {

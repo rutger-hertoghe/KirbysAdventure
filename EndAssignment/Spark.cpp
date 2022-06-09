@@ -2,7 +2,7 @@
 #include "Spark.h"
 
 Spark::Spark(Actor* pOwner, const Rectf& sparkRect, const Vector2f& directionVector)
-	: Projectile{pOwner, ProjectileType::spark, sparkRect, directionVector}
+	: Projectile{pOwner, pOwner->GetLevelManager(), ProjectileType::spark, sparkRect, directionVector}
 {
 }
 

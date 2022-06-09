@@ -8,8 +8,9 @@ PowerUp::PowerUp(PowerUpType type, Actor* pActor, bool hasStart, bool hasContinu
 	, m_HasContinuous{ hasContinuous }
 	, m_HasEnd{ hasEnd }
 	, m_HasCompleteSpriteSet{hasCompleteSpriteSet}
-	, m_IsActive{ false }
 	, m_pOwner{ pActor}
+	, m_pProjectileManager{pActor->GetProjectileManager()}
+	, m_IsActive{ false }
 {
 }
 

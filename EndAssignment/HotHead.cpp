@@ -3,8 +3,8 @@
 #include "Sprite.h"
 #include "FirePower.h"
 
-HotHead::HotHead(const Point2f& location)
-	: Enemy{ location }
+HotHead::HotHead(const Point2f& location, LevelManager* pLevelManager, ProjectileManager* pProjectileManager)
+	: Enemy{ location, pLevelManager, pProjectileManager }
 	, m_IsPowerUsable{false}
 	, m_IsUsingPower{false}
 	, m_IsInert{false}

@@ -35,10 +35,9 @@ void FirePower::ContinuousKeyEvent()
 
 		Vector2f directionVector{ ownerDirection, float(m_YDirection * 3) };
 
-		ProjectileManager* pProjectileMngr = ProjectileManager::GetProjectileMngr();
-		if (pProjectileMngr)
+		if (m_pProjectileManager)
 		{
-			pProjectileMngr->Add(new Fireball{ m_pOwner, spawnLocation, directionVector });
+			m_pProjectileManager->Add(new Fireball{ m_pOwner, spawnLocation, directionVector });
 		}
 		else std::cout << "PROJECTILE MANAGER NOT FOUND\n";
 		m_CanSpawn = false;

@@ -68,6 +68,9 @@ public:
 	void ProcessKeyUp(const SDL_KeyboardEvent& e);
 	void ProcessKeyDown(const SDL_KeyboardEvent& e);
 
+	void SetLevelManager(LevelManager* pLevelManager);
+	void SetProjectileManager(ProjectileManager* pProjectileManager);
+
 	//void EnforceState();
 
 	int GetHealth() const;
@@ -98,7 +101,6 @@ public:
 	bool CheckCollisionWith(Actor* pActor);
 	bool CheckCollisionWith(Actor* pActor, utils::HitInfo& hitInfoReference, bool& isVerticalCollision);
 
-	void SetVerticalVelocityToZero();
 	void ForceIsOnGround();
 private:
 	// Primitives

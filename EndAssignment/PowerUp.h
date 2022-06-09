@@ -49,6 +49,7 @@ protected:
 	const bool m_HasEnd;
 	const bool m_HasCompleteSpriteSet;
 	Actor* m_pOwner;
+	ProjectileManager* m_pProjectileManager;
 
 	bool m_IsActive;
 	PowerUpType m_Type;

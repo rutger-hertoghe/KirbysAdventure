@@ -5,8 +5,8 @@
 #include "PowerUp.h"
 #include "Kirby.h"
 
-Enemy::Enemy(const Point2f& location)
-	: Actor{}
+Enemy::Enemy(const Point2f& location, LevelManager* pLevelManager, ProjectileManager* pProjectileManager)
+	: Actor{ pLevelManager, pProjectileManager }
 	, m_StartLocation{location}
 	, m_IsActive(true)
 	, m_HasBeenOffScreen{false}

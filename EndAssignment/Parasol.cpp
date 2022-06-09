@@ -2,8 +2,8 @@
 #include "Parasol.h"
 #include "Sprite.h"
 
-Parasol::Parasol(const Point2f& location)
-	: Enemy{location}
+Parasol::Parasol(const Point2f& location, LevelManager* pLevelManager, ProjectileManager* pProjectileManager)
+	: Enemy{location, pLevelManager, pProjectileManager }
 {
 	SetBaseVelocity(50.f, 0.f);
 

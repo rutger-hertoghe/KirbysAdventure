@@ -2,11 +2,13 @@
 #include "Actor.h"
 
 class Level;
+class LevelManager;
+class ProjectileManager;
 
 class Item : public Actor
 {
 public:
-	explicit Item(bool effectOnCollision, bool removedOnCollision, bool isSolid, bool isDestructible, bool causesBloat, bool persistsOffscreen);
+	explicit Item(LevelManager* pLevelManager, ProjectileManager* pProjectileManager, bool effectOnCollision, bool removedOnCollision, bool isSolid, bool isDestructible, bool causesBloat, bool persistsOffscreen);
 	Item(const Item& other) = delete;
 	Item& operator=(const Item& other) = delete;
 	Item(Item&& other) = delete;

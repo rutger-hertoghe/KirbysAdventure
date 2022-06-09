@@ -2,8 +2,8 @@
 #include "Item.h"
 #include "Sprite.h"
 
-Item::Item(bool effectOnCollision, bool removedOnCollision, bool isSolid, bool isDestructible, bool causesBloat, bool persistsOffscreen)
-	: Actor{}
+Item::Item(LevelManager* pLevelManager, ProjectileManager* pProjectileManager, bool effectOnCollision, bool removedOnCollision, bool isSolid, bool isDestructible, bool causesBloat, bool persistsOffscreen)
+	: Actor{ pLevelManager, pProjectileManager }
 	, m_IsBloatItem{ causesBloat }
 	, m_HasCollisionEvent{ effectOnCollision }
 	, m_IsPersistentOffScreen{persistsOffscreen}

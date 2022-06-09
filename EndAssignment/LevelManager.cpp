@@ -5,21 +5,14 @@
 #include "Camera.h"
 #include "Kirby.h"
 
-LevelManager* LevelManager::m_pLevelManager{ nullptr };
+// LevelManager* LevelManager::m_pLevelManager{ nullptr };
 
 LevelManager::LevelManager(Kirby* pKirby, Camera* pCamera)
 	: m_pKirby(pKirby)
 	, m_pCamera{ pCamera }
 {
-	if (m_pLevelManager)
-	{
-		delete m_pLevelManager;
-	}
-	m_pLevelManager = this;
 
 	Initialize();
-	LoadLevel("part3");
-	m_pKirby->SetLocation(m_pCurrentLevel->GetStartLocation());
 }
 
 LevelManager::~LevelManager()
@@ -28,11 +21,6 @@ LevelManager::~LevelManager()
 	{
 		delete pLevel;
 	}
-}
-
-LevelManager* LevelManager::GetLevelMngr()
-{
-	return m_pLevelManager;
 }
 
 void LevelManager::Initialize()
@@ -55,7 +43,7 @@ void LevelManager::LoadLevel(std::string levelName)
 		return;
 	}
 
-	pObjectMngr->Clear();
+	if (pObjectMngr) pObjectMngr->Clear();
 
 	for (Level*& pLevel : m_pLevels)
 	{
@@ -66,12 +54,12 @@ void LevelManager::LoadLevel(std::string levelName)
 	}
 
 	m_pCamera->UpdateBoundaries(m_pCurrentLevel->GetBoundaries());
-	pObjectMngr->LoadObjectsByLevelName(levelName);
+	if (pObjectMngr) pObjectMngr->LoadObjectsByLevelName(levelName);
 }
 
 Level* LevelManager::GetCurrentLevel()
 {
-	return m_pLevelManager->m_pCurrentLevel;
+	return m_pCurrentLevel;
 }
 
 void LevelManager::DrawLevelLegacy() const
@@ -84,23 +72,27 @@ void LevelManager::DrawLevelLegacy() const
 
 void LevelManager::DrawLevelParallax() const
 {
+	const float farBackgroundScalar{ 8.f };
+	const float backgroundScalar{ 4.f };
+	const float midgroundScalar{ 2.f };
+
 	glPushMatrix();
-	m_pCamera->Transform(8.f);
+	m_pCamera->Transform(farBackgroundScalar);
 	m_pCurrentLevel->DrawFarBackGround();
 	glPopMatrix();
 
 	glPushMatrix();
-	m_pCamera->Transform(4.f);
+	m_pCamera->Transform(backgroundScalar);
 	m_pCurrentLevel->DrawBackGround();
 	glPopMatrix();
 
 	glPushMatrix();
-	m_pCamera->Transform(2.f);
+	m_pCamera->Transform(midgroundScalar);
 	m_pCurrentLevel->DrawMidGround();
 	glPopMatrix();
 
 	glPushMatrix();
 	m_pCamera->Transform();
-	m_pCurrentLevel->DrawForeGround();
+	m_pCurrentLevel->DrawForeGround(); // If no scalar is supplied, value defaults to 1.f
 	glPopMatrix();
 }

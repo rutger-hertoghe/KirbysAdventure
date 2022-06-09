@@ -1,9 +1,11 @@
 #include "pch.h"
 #include "StarBlock.h"
 #include "Sprite.h"
+#include "Kirby.h"
 
-StarBlock::StarBlock(const Point2f& location)
-	: Item{true, false, true, true, true, true}
+StarBlock::StarBlock(const Point2f& location, Kirby* pKirby, LevelManager* pLevelManager, ProjectileManager* pProjectileManager)
+	: Item{pLevelManager, pProjectileManager, true, false, true, true, true, true}
+	, m_pKirby{pKirby}
 {
 	InitializeSprites();
 	SetInitialSprite();

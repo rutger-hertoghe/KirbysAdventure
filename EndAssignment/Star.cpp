@@ -2,7 +2,7 @@
 #include "Star.h"
 
 Star::Star(Actor* pOwner, Rectf starRect, float xDirection)
-	: Projectile{pOwner, ProjectileType::star, starRect, Vector2f{xDirection * 220.f, 0.f} }
+	: Projectile{pOwner, pOwner->GetLevelManager(), ProjectileType::star, starRect, Vector2f{xDirection * 220.f, 0.f} }
 {
 }
 

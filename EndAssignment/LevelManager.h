@@ -9,17 +9,21 @@ class LevelManager final
 {
 public:
 	LevelManager(Kirby* pKirby, Camera* pCamera);
+	LevelManager& operator=(const LevelManager& other) = delete;
+	LevelManager(const LevelManager& other) = delete;
+	LevelManager& operator=(LevelManager&& other) = delete;
+	LevelManager(LevelManager&& other) = delete;
 	~LevelManager();
 
-	static LevelManager* GetLevelMngr();
-	static Level* GetCurrentLevel();
+	// static LevelManager* GetLevelMngr();
+	Level* GetCurrentLevel();
 
 	void LoadLevel(std::string levelName);
 	void DrawLevelLegacy() const;
 	void DrawLevelParallax() const;
 
 private:
-	static LevelManager* m_pLevelManager;
+	// static LevelManager* m_pLevelManager;
 	Level* m_pCurrentLevel;
 	Camera* m_pCamera;
 	Kirby* m_pKirby;

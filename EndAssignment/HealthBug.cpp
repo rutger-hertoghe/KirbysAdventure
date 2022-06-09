@@ -3,8 +3,8 @@
 #include "Sprite.h"
 #include "Kirby.h"
 
-HealthBug::HealthBug(const Point2f& location, Kirby* pKirby)
-	: Item{ true, true, false, false, false, true }
+HealthBug::HealthBug(const Point2f& location, Kirby* pKirby, LevelManager* pLevelManager, ProjectileManager* pProjectileManager)
+	: Item{ pLevelManager, pProjectileManager,  true, true, false, false, false, true }
 	, m_pKirby{ pKirby }
 {
 	InitializeSprites();

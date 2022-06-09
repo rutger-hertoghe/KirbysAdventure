@@ -1,10 +1,12 @@
 #pragma once
 #include "Enemy.h"
 
+class LevelManager;
+
 class BrontoBurt final : public Enemy
 {
 public:
-	explicit BrontoBurt(const Point2f& location);
+	explicit BrontoBurt(const Point2f& location, LevelManager* pLevelManager, ProjectileManager* pProjectileManager);
 	BrontoBurt(const BrontoBurt& other) = delete;
 	BrontoBurt& operator=(const BrontoBurt& other) = delete;
 	BrontoBurt(BrontoBurt&& other) = delete;

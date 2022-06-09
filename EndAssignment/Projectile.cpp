@@ -6,12 +6,13 @@
 #include "LevelManager.h"
 #include "Kirby.h"
 
-Projectile::Projectile(Actor* pOwner, ProjectileType type, const Rectf& projectileRect, const Vector2f& velocity)
+Projectile::Projectile(Actor* pOwner, LevelManager* pLevelMngr, ProjectileType type, const Rectf& projectileRect, const Vector2f& velocity)
 	: m_Type{type}
 	, m_IsReadyToDestroy{false}
 	, m_Velocity{velocity}
 	, m_IsPersistent{false}
 	, m_pOwner{ pOwner }
+	, m_pLevelManager{pLevelMngr}
 {
 	m_Shape = projectileRect;
 }
@@ -49,7 +50,7 @@ void Projectile::ApplyVelocities(float elapsedSec)
 
 void Projectile::DestroyOnCollision()
 {
-	if (typeid(m_pOwner) == typeid(Kirby) && LevelManager::GetCurrentLevel()->IsAgainstWall(m_Shape, m_XDirection))
+	if (typeid(*m_pOwner) == typeid(Kirby) && m_pLevelManager->GetCurrentLevel()->IsAgainstWall(m_Shape, m_XDirection))
 	{
 		m_IsReadyToDestroy = true;
 		ObjectManager::GetObjectMngr()->AddRemovalFX(Point2f{ m_Shape.left, m_Shape.bottom }, RemovalFX::FXType::item);

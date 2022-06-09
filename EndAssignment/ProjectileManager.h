@@ -12,9 +12,11 @@ public:
 	ProjectileManager();
 	ProjectileManager(const ProjectileManager& other) = delete;
 	ProjectileManager& operator=(const ProjectileManager& other) = delete;
+	ProjectileManager(ProjectileManager&& other) = delete;
+	ProjectileManager& operator=(ProjectileManager&& other) = delete;
 	~ProjectileManager();
 
-	static ProjectileManager* GetProjectileMngr();
+	// static ProjectileManager* GetProjectileMngr();
 
 	void Draw() const;
 	void Update(float elapsedSec);
@@ -25,7 +27,7 @@ public:
 	bool ProjectileHasHit(Actor* pActor);
 
 private:
-	static ProjectileManager* m_pProjectileManager;
+	// static ProjectileManager* m_pProjectileManager;
 
 	std::vector<Projectile*> m_pProjectiles;
 	std::vector<Sprite*> m_pSprites;
