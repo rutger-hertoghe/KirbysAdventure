@@ -8,6 +8,7 @@
 #include "ProjectileManager.h"
 #include "LevelManager.h"
 #include "PauseScreen.h"
+#include "TextureManager.h"
 // CLEANED INCLUDES
 
 Game::Game( const Window& window ) 
@@ -28,6 +29,7 @@ void Game::Initialize( )
 {
 	// TODO: Implement boss enemy
 	//
+	m_pTextureManager = new TextureManager{};
 	m_pKirby = new Kirby{};
 	m_pHUD = new HUD{};
 	m_pPauseScreen = new PauseScreen{m_Window, m_pKirby};
@@ -50,7 +52,7 @@ void Game::Initialize( )
 	m_pKirby->SetLevelManager(m_pLevelManager);
 	m_pKirby->SetProjectileManager(m_pProjectileManager);
 
-	m_pLevelManager->LoadLevel("part3");
+	m_pLevelManager->LoadLevel("part1");
 	m_pKirby->SetLocation(m_pLevelManager->GetCurrentLevel()->GetStartLocation());
 }
 
@@ -63,6 +65,7 @@ void Game::Cleanup( )
 	delete m_pObjectManager;
 	delete m_pProjectileManager;
 	delete m_pPauseScreen;
+	delete m_pTextureManager;
 }
 
 void Game::Update( float elapsedSec )

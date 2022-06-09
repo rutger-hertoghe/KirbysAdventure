@@ -14,7 +14,9 @@ public:
 	Level(std::string levelName, std::string musicPath);
 	Level(const Level& other) = delete;
 	Level& operator=(const Level& other) = delete;
-	~Level();
+	Level(Level&& other) = delete;
+	Level& operator=(Level&& other) = delete;
+	~Level() = default; // Level has no ownership of dynamically allocated objects
 
 	void DrawFull() const;
 	void DrawForeGround() const;

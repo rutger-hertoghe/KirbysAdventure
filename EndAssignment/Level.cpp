@@ -6,6 +6,7 @@
 #include "SoundStream.h"
 #include "SVGParser.h"
 #include <fstream>
+#include "TextureManager.h"
 
 Level::Level(std::string levelName, std::string musicPath)
 	: m_Name{levelName}
@@ -14,27 +15,6 @@ Level::Level(std::string levelName, std::string musicPath)
 	, m_StartLocation{24.f, 72.f}
 {
 	Initialize();
-}
-
-Level::~Level()
-{
-	delete m_pFullBackground;
-	m_pFullBackground = nullptr;
-
-	delete m_pForeground;
-	m_pForeground = nullptr;
-
-	delete m_pMidground;
-	m_pMidground = nullptr;
-	
-	delete m_pBackground;
-	m_pBackground = nullptr;
-	
-	delete m_pFarBackground;
-	m_pFarBackground = nullptr;
-
-	delete m_pLevelMusic;
-	m_pLevelMusic = nullptr;
 }
 
 void Level::Initialize()
@@ -56,28 +36,11 @@ void Level::InitializeVertices()
 
 void Level::InitializeTextures()
 {
-	std::string texturePath{ "resources/backgrounds/" };
-	texturePath.append(m_Name);
-
-	std::string fullBackgroundPath{ texturePath };
-	fullBackgroundPath.append("_full.png");
-	m_pFullBackground = new Texture{ fullBackgroundPath };
-
-	std::string foregroundPath{ texturePath};
-	foregroundPath.append("_foreground.png");
-	m_pForeground = new Texture{ foregroundPath };
-	
-	std::string midGroundPath{ texturePath};
-	midGroundPath.append("_midground.png");
-	m_pMidground = new Texture{ midGroundPath };
-
-	std::string backGroundPath{ texturePath };
-	backGroundPath.append("_background.png");
-	m_pBackground = new Texture{ backGroundPath };
-	
-	std::string farBackGroundPath{ texturePath };
-	farBackGroundPath.append("_farbackground.png");
-	m_pFarBackground = new Texture{ farBackGroundPath };
+	m_pFullBackground = TextureManager::Get(m_Name + "_full");
+	m_pForeground = TextureManager::Get(m_Name + "_foreground");
+	m_pMidground = TextureManager::Get(m_Name + "_midground");
+	m_pBackground = TextureManager::Get(m_Name + "_background");
+	m_pFarBackground = TextureManager::Get(m_Name + "_farbackground");
 
 	m_Boundaries = Rectf{ 0.f, 0.f, m_pFullBackground->GetWidth(), m_pFullBackground->GetHeight() };
 }

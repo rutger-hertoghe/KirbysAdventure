@@ -195,6 +195,9 @@
     <ClCompile Include="PauseScreen.cpp">
       <Filter>Game Files\UI</Filter>
     </ClCompile>
+    <ClCompile Include="TextureManager.cpp">
+      <Filter>Game Files\Managers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -349,6 +352,9 @@
     </ClInclude>
     <ClInclude Include="PauseScreen.h">
       <Filter>Game Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureManager.h">
+      <Filter>Game Files\Managers</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

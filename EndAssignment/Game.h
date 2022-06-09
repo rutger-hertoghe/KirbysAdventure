@@ -6,6 +6,7 @@ class ProjectileManager;
 class ObjectManager;
 class LevelManager;
 class PauseScreen;
+class TextureManager;
 
 enum class GameState
 {
@@ -50,6 +51,7 @@ private:
 	ObjectManager* m_pObjectManager;
 	ProjectileManager* m_pProjectileManager;
 	LevelManager* m_pLevelManager;
+	TextureManager* m_pTextureManager;
 
 	// FUNCTIONS
 	void Initialize( );
