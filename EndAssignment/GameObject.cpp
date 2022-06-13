@@ -66,9 +66,31 @@ Rectf GameObject::GetShape() const
 	return m_Shape;
 }
 
+Point2f GameObject::GetCenter() const
+{
+	return Point2f{ m_Shape.left + m_Shape.width / 2, m_Shape.bottom + m_Shape.height / 2};
+}
+
 float GameObject::GetDirection() const
 {
 	return m_XDirection;
+}
+
+Point2f GameObject::GetLocation() const
+{
+	return Point2f(m_Shape.left, m_Shape.bottom);
+}
+
+void GameObject::SetLocation(const Point2f& location)
+{
+	m_Shape.left = location.x;
+	m_Shape.bottom = location.y;
+}
+
+void GameObject::SetLocation(float x, float y)
+{
+	m_Shape.left = x;
+	m_Shape.bottom = y;
 }
 
 void GameObject::SetInitialSprite(const std::string& spriteName)
@@ -122,4 +144,9 @@ bool GameObject::IsOnScreen() const
 	);
 
 	return (isInsideXScreenBounds && isInsideYScreenBounds);
+}
+
+float GameObject::GetRelativeDirection(GameObject* other) const
+{
+	return (m_Shape.left - other->m_Shape.left) > 0.f ? 1.f : -1.f;
 }

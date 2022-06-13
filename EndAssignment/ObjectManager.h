@@ -57,12 +57,20 @@ private:
 	void UpdateItems(float elapsedSec);
 	void UpdateRemovalFXs(float elapsedSec);
 	void UpdateTickTock(float elapsedSec, Camera* pCamera);
-	
+
 	void UpdateEnemy(Enemy*& pEnemy, float elapsedSec);
+	void DoEnemyActiveUpdate(Enemy* pEnemy, float elapsedSec);
 	void CheckEnemyRemovalConditions(Enemy*& pEnemy);
+	void DoEnemyAbsorption(Enemy* pEnemy);
+	void DoEnemyKirbyCollision(Enemy* pEnemy);
+	void KillEnemy(Enemy* pEnemy, bool addRemovalFX, int scoreReward = 0);
+
 	void UpdateItem(Item*& pItem, float elapsedSec);
+	void DoItemActions(Item* pItem);
+	void DoItemCollisionEvent(Item* pItem);
+	void DoItemRemovalByProjectile(Item* pItem);
 	void DoItemInhalationActions(Item*& pItem);
-	void DoItemCollision(Item*& pItem, bool isVerticalCollision, const utils::HitInfo& hitInfo);
+	void DoSolidCollision(Item*& pItem, bool isVerticalCollision, const utils::HitInfo& hitInfo);
 
 	void ClearEnemyVector();
 	void ClearObjectVector();
@@ -76,5 +84,8 @@ private:
 	void CreateObject(const std::string& objectName, const Point2f& location);
 
 	void SetEnemyProjectileManagerPointers();
+
+	void DoCameraFunctionality(Camera* pCamera);
+	void DoInteractionsWithKirby();
 };
 

@@ -4,9 +4,8 @@
 #include "PowerUp.h"
 #include "Camera.h"
 #include <fstream>
-//#include <string>
 
-// #include "Enemy.h"
+
 // Enemy Types
 #include "HotHead.h"
 #include "WaddleDee.h"
@@ -17,7 +16,6 @@
 #include "Sparky.h"
 #include "Parasol.h"
 
-// #include "Item.h"
 // Item Types
 #include "PowerStar.h"
 #include "OneUp.h"
@@ -85,9 +83,11 @@ void ObjectManager::DrawItems() const
 {
 	for (Item* pItem : m_pItems)
 	{
-		if (pItem->IsRemoved() == false && pItem->NeedsToBeDrawn())
-		{
-			pItem->Draw();
+		if (pItem) {
+			if (pItem->IsRemoved() == false && pItem->NeedsToBeDrawn())
+			{
+				pItem->Draw();
+			}
 		}
 	}
 }
@@ -104,10 +104,10 @@ void ObjectManager::Update(float elapsedSec, Camera* pCamera)
 {
 	m_VisibleArea = pCamera->GetVisibleArea();
 
+	UpdateTickTock(elapsedSec, pCamera);
 	UpdateEnemies(elapsedSec);
 	UpdateItems(elapsedSec);
 	UpdateRemovalFXs(elapsedSec);
-	UpdateTickTock(elapsedSec, pCamera);
 	
 }
 
@@ -135,9 +135,55 @@ void ObjectManager::UpdateItems(float elapsedSec)
 
 void ObjectManager::SetEnemyProjectileManagerPointers()
 {
-	for (Enemy* pEnemy : m_pEnemies)
+	for (Enemy*& pEnemy : m_pEnemies)
 	{
 		pEnemy->InitializePowerUp();
+	}
+}
+
+void ObjectManager::DoCameraFunctionality(Camera* pCamera)
+{
+	if (m_pMrTickTock->IsDead() || m_pKirby->GetHealth() == 0)
+	{
+		if (pCamera->IsLocked())
+		{
+			pCamera->Unlock();
+		}
+		return;
+	}
+
+	Point2f bossAreaCenter{ 310.f, 56.f };
+	if (!pCamera->IsLocked() && utils::IsPointInRect(bossAreaCenter, m_VisibleArea))
+	{
+		pCamera->SetLocked(bossAreaCenter);
+	}
+}
+
+void ObjectManager::DoInteractionsWithKirby()
+{
+	if (m_pProjectileManager->ProjectileHasHit(m_pMrTickTock))
+	{
+		m_pMrTickTock->DecrementHealth();
+	}
+	else if (m_pKirby->CheckCollisionWith(m_pMrTickTock))
+	{
+		float bounceDirection{ m_pMrTickTock->GetShape().left < m_pMrTickTock->GetShape().left ? 1.f : -1.f };
+		if (m_pKirby->HasPowerUp())
+		{
+			const float velocityTreshold{ -5.f };
+			if ((m_pKirby->GetVelocity().y < velocityTreshold) && (m_pKirby->GetPowerUp()->GetType() == PowerUp::PowerUpType::stone))
+			{
+				m_pMrTickTock->DecrementHealth();
+			}
+			else
+			{
+				m_pKirby->DecrementHealth(bounceDirection);
+			}
+		}
+		else
+		{
+			m_pKirby->DecrementHealth(bounceDirection);
+		}
 	}
 }
 
@@ -146,21 +192,7 @@ void ObjectManager::UpdateEnemy(Enemy*& pEnemy, float elapsedSec)
 	Rectf enemyShape{ pEnemy->GetShape() };
 	if (pEnemy->IsActive())
 	{
-		pEnemy->DoChecksOnKirby(m_pKirby);
-
-		if (pEnemy->IsInhalable())
-		{
-			pEnemy->ToggleBeingInhaled(m_pKirby->GetInhalationZone());
-		}
-
-		if (pEnemy->IsBeingInhaled())
-		{
-			pEnemy->SetInhalationVelocities(m_pKirby->GetShape());
-		}
-
-		pEnemy->Update(elapsedSec);
-
-		CheckEnemyRemovalConditions(pEnemy);
+		DoEnemyActiveUpdate(pEnemy, elapsedSec);
 	}
 	else if (pEnemy->HasBeenOffScreen() && pEnemy->IsOnScreen())
 	{
@@ -174,6 +206,25 @@ void ObjectManager::UpdateEnemy(Enemy*& pEnemy, float elapsedSec)
 	}
 }
 
+void ObjectManager::DoEnemyActiveUpdate(Enemy* pEnemy, float elapsedSec)
+{
+	pEnemy->DoChecksOnKirby(m_pKirby);
+
+	if (pEnemy->IsInhalable())
+	{
+		pEnemy->ToggleBeingInhaled(m_pKirby->GetInhalationZone());
+	}
+
+	if (pEnemy->IsBeingInhaled())
+	{
+		pEnemy->SetInhalationVelocities(m_pKirby->GetShape());
+	}
+
+	pEnemy->Update(elapsedSec);
+
+	CheckEnemyRemovalConditions(pEnemy);
+}
+
 void ObjectManager::CheckEnemyRemovalConditions(Enemy*& pEnemy)
 {
 	// CONDITIONS AND VARIABLES
@@ -182,91 +233,139 @@ void ObjectManager::CheckEnemyRemovalConditions(Enemy*& pEnemy)
 	const bool hasPassedKirby{ m_pKirby->GetDirection() > 0.f ? m_pKirby->GetShape().left > pEnemy->GetShape().left : m_pKirby->GetShape().left < pEnemy->GetShape().left };
 
 	// ACTUAL CODE
-
-	if (m_pProjectileManager->ProjectileHasHit(pEnemy) || fellOutOfWorld || !pEnemy->IsOnScreen())
+	const bool projectileHasHit{ m_pProjectileManager->ProjectileHasHit(pEnemy) };
+	if (projectileHasHit || fellOutOfWorld || !pEnemy->IsOnScreen())
 	{
-		AddRemovalFX(pEnemy->GetLocation(), RemovalFX::FXType::enemy);
-		pEnemy->Reset();
+		int scoreReward{ 0 };
+		if (projectileHasHit)
+		{
+			SoundFXManager::Play("damage2");
+			scoreReward = 400;
+		}
+		KillEnemy(pEnemy, true, scoreReward);
 	}
 	else if (pEnemy->IsBeingInhaled())
 	{
 		if (hasPassedKirby)
 		{
-			m_pKirby->SetBloated();
-			if (pEnemy->HasPowerUp())
-			{
-				pEnemy->TransferPowerUp(m_pKirby);
-			}
-			pEnemy->Reset();
+			DoEnemyAbsorption(pEnemy);
 		}
 	}
 	else if (hasCollidedWithKirby)
 	{
-		float bounceDirection{ pEnemy->GetShape().left < m_pKirby->GetShape().left ? 1.f : -1.f };
-		m_pKirby->DecrementHealth(bounceDirection);
-		AddRemovalFX(pEnemy->GetLocation(), RemovalFX::FXType::enemy);
-		pEnemy->Reset();
+		DoEnemyKirbyCollision(pEnemy);
+		if (m_pKirby->IsInvulnerable())
+		{
+			SoundFXManager::Play("damage2");
+		}
 	}
+}
+
+void ObjectManager::DoEnemyAbsorption(Enemy* pEnemy)
+{
+	m_pKirby->SetBloated();
+	if (pEnemy->HasPowerUp())
+	{
+		pEnemy->TransferPowerUp(m_pKirby);
+	}
+	const int scoreReward{ 250 };
+
+	KillEnemy(pEnemy, false, scoreReward);
+}
+
+void ObjectManager::DoEnemyKirbyCollision(Enemy* pEnemy)
+{
+	const int scoreReward{ 500 };
+	float bounceDirection{ m_pKirby->GetRelativeDirection(pEnemy) };
+	m_pKirby->DecrementHealth(bounceDirection);
+	KillEnemy(pEnemy, true, scoreReward);
+}
+
+void ObjectManager::KillEnemy(Enemy* pEnemy, bool addRemovalFX, int scoreReward)
+{
+	if (addRemovalFX)
+	{
+		AddRemovalFX(pEnemy->GetLocation(), RemovalFX::FXType::enemy);
+	}
+	pEnemy->Reset();
+	m_pKirby->AddScore(scoreReward);
 }
 
 void ObjectManager::UpdateItem(Item*& pItem, float elapsedSec)
 {
 	// If the item is gone, the game should no longer update the item
-	if (pItem->IsRemoved())
+	if(pItem->IsRemoved())
 	{
 		return;
 	}
+	pItem->Update(elapsedSec);
 
-	Rectf itemShape{ pItem->GetShape() };
+	if (pItem)
+	{
+		if (pItem->IsInhalable())
+		{
+			pItem->ToggleBeingInhaled(m_pKirby->GetInhalationZone());
+		}
+
+		DoItemActions(pItem);
+	}
+}
+
+void ObjectManager::DoItemActions(Item* pItem)
+{
 	utils::HitInfo hitInfo;
 	bool isVerticalCollision;
 
-	const bool hasCollidedWithKirby{ m_pKirby->CheckCollisionWith(pItem, hitInfo, isVerticalCollision)};
+	const bool hasCollidedWithKirby{ m_pKirby->CheckCollisionWith(pItem, hitInfo, isVerticalCollision) };
 	const bool fellOutOfWorld{ pItem->GetShape().bottom < -50.f };
-
-	if (pItem->IsInhalable())
-	{
-		pItem->ToggleBeingInhaled(m_pKirby->GetInhalationZone());
-	}
 
 	if (pItem->IsBeingInhaled())
 	{
 		DoItemInhalationActions(pItem);
 	}
-	else if (pItem->IsDestructible() && m_pProjectileManager->ProjectileHasHit(pItem))
+	else if (pItem->IsDestructible())
 	{
-		pItem->Remove();
-		AddRemovalFX(pItem->GetLocation(), RemovalFX::FXType::item);
+		if (m_pProjectileManager->ProjectileHasHit(pItem))
+		{
+			DoItemRemovalByProjectile(pItem);
+		}
 	}
 	else if (hasCollidedWithKirby && pItem->IsSolid())
 	{
-		DoItemCollision(pItem, isVerticalCollision, hitInfo);
+		DoSolidCollision(pItem, isVerticalCollision, hitInfo);
 	}
 	else if (hasCollidedWithKirby && pItem->HasCollisionEvent())
 	{
-		pItem->DoCollisionEvent();
-		if (pItem->IsRemovedOnCollision())
-		{
-			pItem->Remove();
-		}
+		DoItemCollisionEvent(pItem);
 	}
-	else if( fellOutOfWorld || (!pItem->IsOnScreen() && pItem->IsPersistent() == false))
+	else if (fellOutOfWorld || (!pItem->IsOnScreen() && pItem->IsPersistent() == false))
 	{
 		pItem->Remove();
 	}
-	
-	if (pItem->IsRemoved() == false)
+}
+
+void ObjectManager::DoItemCollisionEvent(Item* pItem)
+{
+	pItem->DoCollisionEvent();
+	if (pItem->IsRemovedOnCollision())
 	{
-		pItem->Update(elapsedSec);
+		pItem->Remove();
 	}
+}
+
+void ObjectManager::DoItemRemovalByProjectile(Item* pItem)
+{
+	pItem->Remove();
+	AddRemovalFX(pItem->GetLocation(), RemovalFX::FXType::item);
+	m_pKirby->AddScore(10);
 }
 
 void ObjectManager::UpdateRemovalFXs(float elapsedSec)
 {
 	int idx{};
-	if (m_pRemovalFX.size() > 0)
+	if (int(m_pRemovalFX.size()) > 0)
 	{
-		while (idx < m_pRemovalFX.size())
+		while (idx < int(m_pRemovalFX.size()))
 		{
 			if (m_pRemovalFX[idx])
 			{
@@ -289,60 +388,19 @@ void ObjectManager::UpdateTickTock(float elapsedSec, Camera* pCamera)
 {
 	if (m_pMrTickTock)
 	{
-		if (m_pMrTickTock->IsDead())
-		{
-			if (pCamera->IsLocked())
-			{
-				pCamera->Unlock();
-			}
-			return;
-		}
-
-		Point2f bossAreaCenter{ 310.f, 56.f };
-		if (utils::IsPointInRect(bossAreaCenter, m_VisibleArea))
-		{
-			pCamera->SetLocked(bossAreaCenter);
-		}
-		
-		// TODO: Implement inhalation code
-		/*if (m_pMrTickTock->IsInhalable())
-		{
-			m_pMrTickTock->ToggleBeingInhaled(m_pKirby->GetInhalationZone());
-		}
-
-		if (m_pMrTickTock->IsBeingInhaled())
-		{
-			m_pMrTickTock->SetInhalationVelocities(m_pKirby->GetShape());
-		}*/
-
 		if (m_pMrTickTock->IsOnScreen())
 		{
 			m_pMrTickTock->Update(elapsedSec);
 		}
-		if (m_pProjectileManager->ProjectileHasHit(m_pMrTickTock))
+
+		DoCameraFunctionality(pCamera);
+
+		if (m_pMrTickTock->IsDead())
 		{
-			m_pMrTickTock->DecrementHealth();
+			return;
 		}
-		else if (m_pKirby->CheckCollisionWith(m_pMrTickTock))
-		{
-			float bounceDirection{ m_pMrTickTock->GetShape().left < m_pMrTickTock->GetShape().left ? 1.f : -1.f };
-			if (m_pKirby->HasPowerUp())
-			{
-				const float velocityTreshold{ -5.f };
-				if ((m_pKirby->GetVelocity().y < velocityTreshold) && (m_pKirby->GetPowerUp()->GetType() == PowerUp::PowerUpType::stone))
-				{
-					m_pMrTickTock->DecrementHealth();
-				}
-				else
-				{
-					m_pKirby->DecrementHealth(bounceDirection);
-				}
-			}
-			else
-			{
-				m_pKirby->DecrementHealth(bounceDirection);
-			}
-		}
+
+		DoInteractionsWithKirby();
 	}
 }
 
@@ -354,6 +412,7 @@ void ObjectManager::DoItemInhalationActions(Item*& pItem)
 		if (pItem->IsBloatItem())
 		{
 			m_pKirby->SetBloated();
+			m_pKirby->AddScore(10);
 		}
 		if (pItem->HasPowerUp())
 		{
@@ -368,14 +427,13 @@ void ObjectManager::DoItemInhalationActions(Item*& pItem)
 	pItem->SetInhalationVelocities(m_pKirby->GetShape());
 }
 
-void ObjectManager::DoItemCollision(Item*& pItem, bool isVerticalCollision, const utils::HitInfo& hitInfo)
+void ObjectManager::DoSolidCollision(Item*& pItem, bool isVerticalCollision, const utils::HitInfo& hitInfo)
 {
-	// TODO: Move this into star block
 	if (isVerticalCollision)
 	{
 		if (hitInfo.lambda < 0.5f)
 		{
-			// TODO: fix stuttering bug when on star block
+			// Haven't been able to fix stutter bug
 			m_pKirby->SetLocation(Point2f{ m_pKirby->GetShape().left, pItem->GetShape().bottom + pItem->GetShape().height});
 			m_pKirby->ForceIsOnGround();
 			m_pKirby->SetVelocity(m_pKirby->GetVelocity().x, 0.f);
@@ -492,15 +550,6 @@ Rectf ObjectManager::GetVisibleArea() const
 {
 	return m_VisibleArea;
 }
-
-//void ObjectManager::ResetEnemies()
-//{
-//	for (Enemy* pEnemy : m_pEnemies)
-//	{
-//		pEnemy->Reset();
-//		pEnemy->SetActivity(true);
-//	}
-//}
 
 void ObjectManager::LoadObjectsFromFile(const std::string& filePath)
 {

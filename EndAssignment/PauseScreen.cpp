@@ -13,11 +13,16 @@ PauseScreen::PauseScreen(const Window& window, Kirby* pKirby)
 	, m_WindowRect(0.f, 0.f, window.width, window.height)
 	, m_PanelRect(24.f, 88.f, 0.f, 0.f)
 	, m_MusicSliderDotRect(0.f, 64.f, 0.f, 0.f)
+	, m_FXSliderDotRect(0.f, 44.f, 0.f, 0.f)
 	, m_MaxSliderDots{8}
 	, m_MaxVolume{128}
 	, m_IsMusicMuted{false}
+	, m_IsFXMuted{false}
 {
+	const int startVolume{64};
+	SoundStream::SetVolume(startVolume);
 	m_MusicDots = SoundStream::GetVolume() / (m_MaxVolume / m_MaxSliderDots);
+	m_FXDots = m_MaxVolume;
 
 	InitializeTextures();
 	CalculateScalingVars();
@@ -28,6 +33,7 @@ PauseScreen::~PauseScreen()
 	delete m_pMainTexture;
 	delete m_pSliderTexture;
 	delete m_pNoteTexture;
+	delete m_pFXTexture;
 
 	for (std::pair<std::string, Texture*> texturePair : m_pPowerPanels)
 	{
@@ -40,8 +46,10 @@ void PauseScreen::Draw()
 	// Select panel to draw
 	m_pMainTexture->Draw(m_WindowRect);
 	DrawPanel();
-	DrawMusicSlider();
-	DrawMusicToggle();
+	DrawSlider(m_MusicSliderDotRect, m_MusicDots);
+	DrawSlider(m_FXSliderDotRect, m_FXDots);
+	DrawToggle(m_MusicToggleRect, m_pNoteTexture, m_IsMusicMuted);
+	DrawToggle(m_FXToggleRect, m_pFXTexture, m_IsFXMuted);
 }
 
 void PauseScreen::CheckMouseInput(const SDL_MouseButtonEvent& e)
@@ -63,14 +71,15 @@ void PauseScreen::CalculatePanelRect()
 	m_PanelRect.height = m_pPowerPanels.begin()->second->GetHeight() * m_YScalar;
 }
 
-void PauseScreen::CalculateMusicSliderRect()
-{
-	m_MusicSliderDotRect.bottom *= m_YScalar;
-	
-	m_MusicSliderDotRect.width = m_pSliderTexture->GetWidth() / 2 * m_XScalar;
-	m_MusicSliderDotRect.height = m_pSliderTexture->GetHeight() * m_YScalar;
 
-	m_MusicSliderDotRect.left = (m_WindowRect.width  - m_MusicSliderDotRect.width * m_MaxSliderDots) / 2;
+void PauseScreen::CalculateSliderRect(Rectf& sliderRect)
+{
+	sliderRect.bottom *= m_YScalar;
+
+	sliderRect.width = m_pSliderTexture->GetWidth() / 2 * m_XScalar;
+	sliderRect.height = m_pSliderTexture->GetHeight() * m_YScalar;
+
+	sliderRect.left = (m_WindowRect.width - sliderRect.width * m_MaxSliderDots) / 2;
 }
 
 void PauseScreen::AddPowerPanelTexture(const std::string& filePath)
@@ -105,13 +114,13 @@ void PauseScreen::DrawPanel()
 	}
 }
 
-void PauseScreen::DrawMusicSlider()
+void PauseScreen::DrawSlider(const Rectf& sliderRect, int dots) const
 {
 	Rectf srcRect{ 0.f, m_pSliderTexture->GetHeight(), m_pSliderTexture->GetWidth() / 2, m_pSliderTexture->GetHeight() };
-	Rectf dstRect{ m_MusicSliderDotRect.left, m_MusicSliderDotRect.bottom, m_MusicSliderDotRect.width, m_MusicSliderDotRect.height };
+	Rectf dstRect{ sliderRect.left, sliderRect.bottom, sliderRect.width, sliderRect.height };
 	for (int i{}; i < m_MaxSliderDots; ++i)
 	{
-		if (i < m_MusicDots)
+		if (i < dots)
 		{
 			srcRect.left = m_pSliderTexture->GetWidth() / 2;
 		}
@@ -134,8 +143,13 @@ void PauseScreen::CalculateScalingVars()
 {
 	CalculateScalars();
 	CalculatePanelRect();
-	CalculateMusicSliderRect();
-	CalculateMusicToggleRect(); // Always after music slider because it requires data of the music slider rect
+
+	CalculateSliderRect(m_MusicSliderDotRect);
+	CalculateSliderRect(m_FXSliderDotRect);
+
+	// Toggles always after sliders because it requires data of the music slider rect
+	CalculateToggleRect(m_FXToggleRect, m_FXSliderDotRect, m_pFXTexture);
+	CalculateToggleRect(m_MusicToggleRect, m_MusicSliderDotRect, m_pNoteTexture);
 }
 
 void PauseScreen::InitializeTextures()
@@ -143,6 +157,7 @@ void PauseScreen::InitializeTextures()
 	m_pMainTexture = new Texture("resources/ui/pausescreen.png");
 	m_pSliderTexture = new Texture("resources/sprites/hud_health.png");
 	m_pNoteTexture = new Texture("resources/ui/note_toggle.png");
+	m_pFXTexture = new Texture("resources/ui/fx_toggle.png");
 
 	AddPowerPanelTexture("resources/ui/pause_normal.png");
 	AddPowerPanelTexture("resources/ui/pause_fire.png");
@@ -150,22 +165,29 @@ void PauseScreen::InitializeTextures()
 	AddPowerPanelTexture("resources/ui/pause_stone.png");
 }
 
-void PauseScreen::DrawMusicToggle()
+void PauseScreen::DrawToggle(const Rectf& toggleRect, Texture* toggleTexture, bool muteBool)
 {
-	Rectf srcRect{ 0.f, m_pNoteTexture->GetHeight(), m_pNoteTexture->GetWidth() / 2, m_pNoteTexture->GetHeight()};
-	if (m_IsMusicMuted)
+	Rectf srcRect{ 0.f, toggleTexture->GetHeight(), toggleTexture->GetWidth() / 2, toggleTexture->GetHeight() };
+	if (muteBool)
 	{
 		srcRect.left += srcRect.width;
 	}
-	m_pNoteTexture->Draw(m_MusicToggleRect, srcRect);
+	toggleTexture->Draw(toggleRect, srcRect);
 }
 
-void PauseScreen::CalculateMusicToggleRect()
+void PauseScreen::ResumeFX()
 {
-	m_MusicToggleRect.width = m_pNoteTexture->GetWidth() / 2 * m_XScalar;
-	m_MusicToggleRect.height = m_pNoteTexture->GetHeight() * m_YScalar;
-	m_MusicToggleRect.left = m_MusicSliderDotRect.left - m_MusicToggleRect.width;
-	m_MusicToggleRect.bottom = m_MusicSliderDotRect.bottom;
+	SoundFXManager::SetVolume(m_FXDots * (m_MaxVolume / m_MaxSliderDots));
+	SoundFXManager::Play("jump");
+	m_IsFXMuted = false;
+}
+
+void PauseScreen::CalculateToggleRect(Rectf& toggleRect, Rectf& relatedSliderRect, Texture* texture)
+{
+	toggleRect.width = texture->GetWidth() / 2 * m_XScalar;
+	toggleRect.height = texture->GetHeight() * m_YScalar;
+	toggleRect.left = relatedSliderRect.left - toggleRect.width;
+	toggleRect.bottom = relatedSliderRect.bottom;
 }
 
 void PauseScreen::ResumeMusic()
@@ -179,6 +201,7 @@ void PauseScreen::CheckSliderInput(const Point2f& mousePos)
 {
 	for (int i{}; i < m_MaxSliderDots; ++i)
 	{
+		// MUSIC SLIDER
 		Rectf sliderRect{ m_MusicSliderDotRect };
 		sliderRect.left += sliderRect.width * i;
 		if (utils::IsPointInRect(mousePos, sliderRect))
@@ -188,11 +211,22 @@ void PauseScreen::CheckSliderInput(const Point2f& mousePos)
 			ResumeMusic();
 			return;
 		}
+		// FX SLIDER
+		sliderRect = m_FXSliderDotRect;
+		sliderRect.left += sliderRect.width * i;
+		if (utils::IsPointInRect(mousePos, sliderRect))
+		{
+			const int sliderValue{ i + 1 }; // i goes from 0-7 instead of 1-8, so correct by 1 for true slider value
+			m_FXDots = sliderValue;
+			ResumeFX();
+			return;
+		}
 	}
 }
 
 void PauseScreen::CheckToggleInput(const Point2f& mousePos)
 {
+	// MUSIC TOGGLE
 	if (utils::IsPointInRect(mousePos, m_MusicToggleRect))
 	{
 		if (m_IsMusicMuted)
@@ -202,7 +236,21 @@ void PauseScreen::CheckToggleInput(const Point2f& mousePos)
 		else
 		{
 			SoundStream::Pause();
+			SoundStream::SetVolume(0);
 			m_IsMusicMuted = true;
+		}
+	}
+	// FX TOGGLE
+	if (utils::IsPointInRect(mousePos, m_FXToggleRect))
+	{
+		if (m_IsFXMuted)
+		{
+			ResumeFX();
+		}
+		else
+		{
+			SoundFXManager::SetVolume(0);
+			m_IsFXMuted = true;
 		}
 	}
 }

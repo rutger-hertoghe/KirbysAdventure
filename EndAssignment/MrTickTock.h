@@ -2,6 +2,9 @@
 #include "Actor.h"
 #include "Kirby.h"
 
+class SoundWave;
+class Note;
+
 class MrTickTock final : public Actor
 {
 public:
@@ -23,15 +26,22 @@ private:
 		moveToDestination,
 		hopping,
 		ringing,
-		ringingWithNotes,
+		// ringingWithNotes, 
+		// Had to disable this because it causes a game crashing error that I couldn't figure out
+		// Uncomment at your own peril
+		shuffleStep,
+		END_OF_SELECTABLE_ACTIONS, 
+		// Actions that can be selected while idle should be above this element of the enum, other action states should be below
 		dead,
-		idle,
-		shuffleStep
+		idle
 	};
 
 
 	const int m_MaxLives;
 	int m_Lives;
+
+	int m_NotesShot;
+	int m_TimesShuffleStepped;
 	bool m_GotDamaged;
 
 	float m_InvulnerabilityTimer;
@@ -42,19 +52,35 @@ private:
 	Rectf m_RingingZone;
 
 	ActionState m_ActionState;
+	ActionState m_PreviousSelectedState;
 
 	Kirby* m_pKirby;
 
+	std::vector<SoundWave*> m_pSoundWaves;
+	std::vector<Note*> m_pNotes;
+
 	void InitializeSprites();
+	void InitializeNotes();
 	void Kill();
 	void UpdateInvulnerability(float elapsedSec);
+	
+	void SetState(ActionState state);
+
+	void DoStateAction(float elapsedSec);
 	void DoMoveToKirby();
 	void DoHops();
 	void Hop();
 	void SelectNewAction();
 	void DoIdle(float elapsedSec);
-	void SetState(ActionState state);
 	void DoRinging();
+	void DoRingingWithNotes();
+	void DoShuffleStep();
 	void SlowDown(float elapsedSec);
+
+	void InitializeSoundWaves();
+	void UpdateSoundWaves(float elapsedSec);
+	void DrawSoundWaves() const;
+	void ClearSoundWaves();
+	void ActivateSoundWaves();
 };
 

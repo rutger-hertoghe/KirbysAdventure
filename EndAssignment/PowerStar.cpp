@@ -18,9 +18,18 @@ void PowerStar::Update(float elapsedSec)
 
 	UpdateStarFlicker();
 	
-	ChangeDirectionOnBump();
+	if (ChangeDirectionOnBump())
+	{
+		SoundFXManager::Play("chirp3");
+	}
 	
 	SetIsOnGround();
+	if (m_IsOnGround)
+	{
+		m_Velocity.y = m_BaseVelocity.y;
+		SoundFXManager::Play("chirp3");
+	}
+
 	UpdateSprite(elapsedSec);
 	ApplyVelocities(elapsedSec, m_XDirection * m_Velocity.x, m_Velocity.y);
 	ApplyGravity(elapsedSec);
@@ -58,10 +67,5 @@ void PowerStar::UpdateStarFlicker()
 	else if (m_ArbitraryTimer > flickerTime && int(m_ArbitraryTimer * slowInstabilityCoefficient) % 2 == 0)
 	{
 		m_NeedsToBeDrawn = !m_NeedsToBeDrawn;
-	}
-
-	if (m_IsOnGround)
-	{
-		m_Velocity.y = m_BaseVelocity.y;
 	}
 }

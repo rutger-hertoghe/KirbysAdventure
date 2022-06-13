@@ -195,6 +195,15 @@
     <ClCompile Include="PauseScreen.cpp">
       <Filter>Game Files\UI</Filter>
     </ClCompile>
+    <ClCompile Include="SoundFXManager.cpp">
+      <Filter>Game Files\Managers</Filter>
+    </ClCompile>
+    <ClCompile Include="Note.cpp">
+      <Filter>Game Files\GameObjects\Actors\Items</Filter>
+    </ClCompile>
+    <ClCompile Include="SoundWave.cpp">
+      <Filter>Game Files\GameObjects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -349,6 +358,15 @@
     </ClInclude>
     <ClInclude Include="PauseScreen.h">
       <Filter>Game Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="SoundFXManager.h">
+      <Filter>Game Files\Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="Note.h">
+      <Filter>Game Files\GameObjects\Actors\Items</Filter>
+    </ClInclude>
+    <ClInclude Include="SoundWave.h">
+      <Filter>Game Files\GameObjects</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

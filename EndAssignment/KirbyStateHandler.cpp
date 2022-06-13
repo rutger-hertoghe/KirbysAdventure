@@ -109,11 +109,12 @@ void KirbyStateHandler::CheckConditions(Action actionState, Macro macroState)
 	m_Conditions.isLoopDone = m_pKirby->HasLooped();
 	m_Conditions.isUsingPower = m_pKirby->HasPowerUp() ? m_pKirby->GetPowerUp()->IsActive() : false;
 
-	m_Conditions.isInflated = macroState == Kirby::MacroState::inflated;
-	m_Conditions.isDucking = macroState == Kirby::MacroState::ducking;
-	m_Conditions.isInhaling = macroState == Kirby::MacroState::inhalation;
-	m_Conditions.isBloated = macroState == Kirby::MacroState::bloated;
-	m_Conditions.isSliding = macroState == Kirby::MacroState::sliding;
+	// State bools (for clarity & consistency further on, not the most optimized way of working here)
+	m_Conditions.isInflated = (macroState == Kirby::MacroState::inflated);
+	m_Conditions.isDucking = (macroState == Kirby::MacroState::ducking);
+	m_Conditions.isInhaling = (macroState == Kirby::MacroState::inhalation);
+	m_Conditions.isBloated = (macroState == Kirby::MacroState::bloated);
+	m_Conditions.isSliding = (macroState == Kirby::MacroState::sliding);
 }
 
 void KirbyStateHandler::HandleIdle(Action actionState, Macro macroState)

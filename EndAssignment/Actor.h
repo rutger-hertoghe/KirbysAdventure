@@ -24,10 +24,6 @@ public:
 	bool HasPowerUp() const;
 	void DeletePowerUp();
 
-	Point2f GetLocation() const;
-	void SetLocation(const Point2f& location);
-	void SetLocation(float x, float y);
-
 	void AddVelocity(Vector2f velocity);
 	void AddVelocity(Point2f velocity);
 	void AddVelocity(float x, float y);
@@ -76,6 +72,6 @@ protected:
 	void Flicker(float timer, std::string& spriteName);
 	void CreateAltSprites();
 
-	void ChangeDirectionOnBump();
+	bool ChangeDirectionOnBump(); // Can return boolean value to trigger other actions on bump
 };
 

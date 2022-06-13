@@ -19,8 +19,6 @@ public:
 		sword
 	};
 
-	// TODO: Implement parasol & mike powerup (mike is lowest priority)
-
 	explicit PowerUp(PowerUpType type, Actor* pActor, bool hasStart, bool hasContinuous, bool hasEnd, bool hasCompleteSpriteSet = false);
 
 	virtual void OnKeyDownEvent()		= 0;

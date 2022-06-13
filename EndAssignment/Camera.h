@@ -7,22 +7,23 @@ class Kirby;
 class Camera final
 {
 public:
-	Camera(float startLocationX, float startLocationY, float windowWidth, float windowHeight, HUD* pHud);
-	Camera(const Point2f& location, float windowWidth, float windowHeight, HUD* pHud);
-
+	explicit Camera(float startLocationX, float startLocationY, float windowWidth, float windowHeight, HUD* pHud);
+	explicit Camera(const Point2f& location, float windowWidth, float windowHeight, HUD* pHud);
+	// No dynamically allocated memory so rule of five implementation is not needed, default copy/move constructors and destructor are fine 
+	
 	static void SetShake();
 
 	void Transform(float distanceFactor = 1.f);
 	void Update(float elapsedSec, Kirby* pKirby);
 
-	void TransformHUD();
+	void TransformHUD() const;
 	void UpdateBoundaries(const Rectf& levelBounds);
 	void SetLocked(const Point2f& lockLocation);
 	bool IsLocked() const;
 	void Unlock();
 
-	Point2f GetLocation();
-	Rectf GetVisibleArea();
+	Point2f GetLocation() const;
+	Rectf GetVisibleArea() const;
 
 private:
 	static bool m_IsShaking;

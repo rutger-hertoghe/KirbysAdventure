@@ -1,5 +1,4 @@
 #pragma once
-#include <unordered_map>
 #include "Vector2f.h"
 #include "Level.h"
 #include "Actor.h"
@@ -15,6 +14,7 @@ class KirbyStateHandler;
 class SoundEffect;
 class LevelManager;
 class ObjectManager;
+class SoundStream;
 
 class Kirby final : public Actor
 {
@@ -25,10 +25,9 @@ public:
 		inhalation,
 		bloated,
 		ducking,
-		sliding
+		sliding,
+		dead
 	};
-
-	// TODO: Finalize kirby states & movement, fix bugs & clean code
 
 	enum class ActionState {
 		idle,
@@ -54,7 +53,8 @@ public:
 		power_continuous,
 		power_end,
 		inflated_hurt,
-		hurt
+		hurt,
+		dead
 	};
 
 	explicit Kirby();
@@ -71,13 +71,11 @@ public:
 	void SetLevelManager(LevelManager* pLevelManager);
 	void SetProjectileManager(ProjectileManager* pProjectileManager);
 
-	//void EnforceState();
-
 	int GetHealth() const;
+	int GetMaxHealth() const;
 	int GetLives() const;
-
-	//float GetJumptime() const;
-	//float GetMaxJumpTime() const;
+	int GetScore() const;
+	void AddScore(int score);
 
 	bool HasLooped() const;
 
@@ -86,11 +84,11 @@ public:
 	void FullyHeal();
 
 	virtual void Draw() const override;
-	// bool IsInhaling() const;
 	Rectf GetInhalationZone() const;
 
 	bool IsBloated() const;
 	bool IsInvulnerable() const;
+	bool IsDead() const;
 
 	void SetBloated();
 
@@ -118,17 +116,20 @@ private:
 	bool m_HasReleasedJump;
 	bool m_HasReleasedR;
 
+	bool m_WentThroughDoor;
+
 	bool m_CanSpitStar;
 
 	int m_Health;
 	int m_Lives;
+	int m_Score;
 
 	float m_ElapsedSec;
 	float m_JumpTime;
 
 	// Pointers
 	KirbyStateHandler* m_pStateHandler;
-	std::unordered_map<std::string, SoundEffect*> m_pSounds;
+	SoundStream* m_pDeathSound;
 
 	// Non-Primitves
 	Rectf m_SuctionZone;
@@ -138,12 +139,7 @@ private:
 	// Functions
 	void Initialize();
 	void InitializeSprites();
-	void InitializeSounds();
-	// void InitializeHurtSprites();
 	void DeleteSprites();
-	void DeleteSounds();
-
-	void AddSoundEffect(std::string fileName);
 
 	void UpdateState();
 	void ProcessInput(float elapsedSec);
@@ -168,6 +164,7 @@ private:
 	void ExpelPower();
 	void ToggleRockMode();
 	void KillKirby();
+	void ResetKirby();
 	void CheckForShakeCommand(bool isAlreadyOnGround);
 
 	void DoEDownActions();

@@ -12,7 +12,7 @@ public:
 	RemovalFX& operator=(const RemovalFX&) = delete;
 	RemovalFX(RemovalFX&& other) = delete;
 	RemovalFX& operator=(RemovalFX&& other) = delete;
-	virtual ~RemovalFX() override;
+	~RemovalFX() override;
 
 	virtual void Update(float elapsedSec) override;
 	bool IsReadyToDestroy() const;

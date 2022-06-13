@@ -18,7 +18,6 @@ void HealthBug::Update(float elapsedSec)
 	ApplyVelocities(elapsedSec, m_Velocity.x, m_Velocity.y);
 	if (m_IsBeingInhaled) return;
 	UpdateSprite(elapsedSec);
-	ApplyGravity(elapsedSec);
 	HandleLevelCollisions();
 	SetIsOnGround();
 }

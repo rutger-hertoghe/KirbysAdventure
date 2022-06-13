@@ -38,7 +38,5 @@ protected:
 	void Jump(float jumpStrength);
 
 	float GetSquaredDistanceToActor(Actor* actor);
-
-	// TODO: Implement parasol enemy, implement rock enemy
 };
 

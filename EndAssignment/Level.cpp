@@ -7,11 +7,18 @@
 #include "SVGParser.h"
 #include <fstream>
 
-Level::Level(std::string levelName, std::string musicPath)
+Level::Level(const std::string& levelName, const std::string& musicPath)
 	: m_Name{levelName}
 	, m_pLevelMusic{ new SoundStream{ musicPath } }
-	, m_pForeground{ nullptr }
 	, m_StartLocation{24.f, 72.f}
+{
+	Initialize();
+}
+
+Level::Level(const std::string& levelName, SoundStream* music)
+	: m_Name{levelName}
+	, m_pLevelMusic{music}
+	, m_StartLocation{ 24.f, 72.f }
 {
 	Initialize();
 }
@@ -32,14 +39,10 @@ Level::~Level()
 	
 	delete m_pFarBackground;
 	m_pFarBackground = nullptr;
-
-	delete m_pLevelMusic;
-	m_pLevelMusic = nullptr;
 }
 
 void Level::Initialize()
 {
-	m_pLevelMusic->Play(true);
 	InitializeVertices();
 	InitializeTextures();
 	LoadDoorsFromFile();
@@ -152,6 +155,16 @@ bool Level::IsOnGround(const Rectf& actorShape) const
 		}
 	}
 	return false;
+}
+
+void Level::PlayMusic() const
+{
+	m_pLevelMusic->Play(true);
+}
+
+SoundStream* Level::GetLevelMusic() const
+{
+	return m_pLevelMusic;
 }
 
 std::string Level::GetName() const

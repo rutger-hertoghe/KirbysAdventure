@@ -5,8 +5,6 @@
 class Sprite;
 class LevelManager;
 
-// TODO: Add rule of 5 to all projectiles
-
 class Projectile : public GameObject
 {
 public:
@@ -15,10 +13,12 @@ public:
 		star,
 		puff,
 		spark,
-		throwingStar
+		throwingStar,
+		soundwave
 	};
 
 	explicit Projectile(Actor* pOwner, LevelManager* pLevelMngr, ProjectileType type, const Rectf& projectileRect, const Vector2f& velocity);
+	// No dynamically allocated memory so rule of five implementation is not needed, default copy/move constructors and destructor are fine 
 
 	virtual void Update(float elapsedSec) = 0;
 	void SetSprite(Sprite* spritePtr);

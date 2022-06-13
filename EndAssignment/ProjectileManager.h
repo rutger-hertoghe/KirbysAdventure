@@ -9,7 +9,7 @@ class Actor;
 class ProjectileManager final
 {
 public:
-	ProjectileManager();
+	explicit ProjectileManager();
 	ProjectileManager(const ProjectileManager& other) = delete;
 	ProjectileManager& operator=(const ProjectileManager& other) = delete;
 	ProjectileManager(ProjectileManager&& other) = delete;

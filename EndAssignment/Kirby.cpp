@@ -15,9 +15,7 @@
 #include "PowerStar.h"
 #include "ObjectManager.h"
 #include "Camera.h"
-
-// TODO: Fix bug where power is also triggered upon exhaling
-// TODO: Fix bug where spit star doesn't happen fast enough after button press/is sometimes ignored
+#include "SoundStream.h"
 
 Kirby::Kirby()
 	: Actor{nullptr, nullptr}
@@ -36,6 +34,8 @@ Kirby::Kirby()
 	, m_HasReleasedJump{true}
 	, m_HasReleasedR{true}
 	, m_IsInvulnerable{ false }
+	, m_Score{142730}
+	, m_pDeathSound{ new SoundStream{"resources/music/miss.wav"} }
 {
 	m_Health = m_MaxHealth;
 	Initialize();
@@ -44,18 +44,17 @@ Kirby::Kirby()
 Kirby::~Kirby()
 {
 	DeleteSprites();
-	DeleteSounds();
 
 	delete m_pStateHandler;
 	m_pStateHandler = nullptr;
+
+	delete m_pDeathSound;
 }
 
 void Kirby::Initialize()
 {
 	InitializeSprites();
-	InitializeSounds();
 
-	// InitializeHurtSprites();
 	m_pCurrentSprite = GetSpritePtr("kirby_idle");
 	SetDimsFromSprite();
 
@@ -115,6 +114,7 @@ void Kirby::InitializeSprites()
 	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_inflating" });
 	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_deflating" });
 	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_spitting" });
+	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_dead" });
 	animationSpeed = 0.7f;
 	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_walking" });
 	m_pSprites.push_back(new Sprite{ nrFrames, animationSpeed, "kirby_ability_walking" });
@@ -128,19 +128,6 @@ void Kirby::InitializeSprites()
 	CreateAltSprites();
 }
 
-void Kirby::InitializeSounds()
-{
-	AddSoundEffect("spitstar");
-	AddSoundEffect("inflate");
-	AddSoundEffect("exhale");
-	AddSoundEffect("inhale");
-}
-
-void Kirby::AddSoundEffect(std::string fileName)
-{
-	std::string path{ "resources/sounds/" + fileName + ".wav" };
-	m_pSounds.insert(std::pair<std::string, SoundEffect*>(fileName, new SoundEffect{ path }));
-}
 
 void Kirby::DeleteSprites()
 {
@@ -152,21 +139,6 @@ void Kirby::DeleteSprites()
 		}
 	}
 	m_pSprites.clear();
-}
-
-void Kirby::DeleteSounds()
-{
-	std::unordered_map<std::string, SoundEffect*>::iterator it = m_pSounds.begin();
-
-	while (it != m_pSounds.end())
-	{
-		if (it->second)
-		{
-			delete it->second;
-		}
-		m_pSounds.erase(it);
-		it = m_pSounds.begin();
-	}
 }
 
 void Kirby::Draw() const
@@ -182,8 +154,21 @@ void Kirby::Draw() const
 
 void Kirby::Update(float elapsedSec)
 {
-	UpdateDamaged(elapsedSec);
 	UpdateSprite(elapsedSec);
+
+	// Clean up this part of function
+	if (m_MacroState == MacroState::dead)
+	{
+		ApplyVelocities(elapsedSec, 0.f, m_Velocity.y);
+		ApplyGravity(elapsedSec);
+		if (SoundStream::IsPlaying() == false) // Reset Kirby when death song stops playing
+		{
+			ResetKirby();
+		}
+		return;
+	}
+
+	UpdateDamaged(elapsedSec);
 	SetIsOnGround();
 	ProcessInput(elapsedSec);
 	UpdateState();
@@ -219,6 +204,11 @@ void Kirby::SetIsOnGround()
 	if (m_IsOnGround && m_HasReleasedJump)
 	{
 		m_JumpTime = 0.f;
+	}
+
+	if (m_IsOnGround == true && isAlreadyOnGround == false && m_MacroState != MacroState::inflated)
+	{
+		SoundFXManager::Play("land");
 	}
 
 	CheckForShakeCommand(isAlreadyOnGround);
@@ -281,7 +271,7 @@ void Kirby::LockToLevel()
 	if (kirbyLeft < boundaries.left) kirbyLeft = boundaries.left;
 	else if (kirbyRight > boundaries.width) kirbyLeft = boundaries.width - m_Shape.width;
 
-	if (kirbyBottom + m_Shape.height < 0.f)
+	if (kirbyBottom + 2 * m_Shape.height < 0.f)
 	{
 		KillKirby();
 	}
@@ -290,9 +280,12 @@ void Kirby::LockToLevel()
 
 #pragma region InputHandling
 
-// TODO: Change all "R" key code to "E" key code
 void Kirby::ProcessInput(float elapsedSec)
 {
+	if (m_MacroState == MacroState::dead)
+	{
+		return;
+	}
 	const Uint8* pStates = SDL_GetKeyboardState(nullptr);
 	const bool isUsingPower{ HasPowerUp() ? GetPowerUp()->IsActive() : false};
 	const bool isImmobile{
@@ -306,7 +299,7 @@ void Kirby::ProcessInput(float elapsedSec)
 	const bool leftKeysDown{  pStates[SDL_SCANCODE_LEFT]  || pStates[SDL_SCANCODE_A] };
 	const bool upKeysDown{ (pStates[SDL_SCANCODE_UP] || pStates[SDL_SCANCODE_W]) };
 	const bool downKeysDown{ pStates[SDL_SCANCODE_DOWN] || pStates[SDL_SCANCODE_S] };
-	
+
 	if (leftKeysDown)
 	{
 		DoLeftHeldActions(isImmobile, elapsedSec);		
@@ -342,6 +335,10 @@ void Kirby::ProcessInput(float elapsedSec)
 
 void Kirby::ProcessKeyUp(const SDL_KeyboardEvent& e)
 {
+	if (m_MacroState == MacroState::dead)
+	{
+		return;
+	}
 	switch (e.keysym.sym)
 	{
 	case SDLK_z:
@@ -359,6 +356,10 @@ void Kirby::ProcessKeyUp(const SDL_KeyboardEvent& e)
 
 void Kirby::ProcessKeyDown(const SDL_KeyboardEvent& e)
 {
+	if (m_MacroState == MacroState::dead)
+	{
+		return;
+	}
 	switch (e.keysym.sym)
 	{
 	case SDLK_r:
@@ -441,14 +442,12 @@ void Kirby::DoUpHeldActions(bool isImmobile, float elapsedSec)
 {
 	if (isImmobile) return;
 
-	// TODO: Fix bug where bloated kirby can in rare cases double jump on apex of jump
-
 	if (m_MacroState != MacroState::bloated)
 	{
 		if (m_MacroState != MacroState::inflated)
 		{
 			m_MacroState = MacroState::inflated;
-			m_pSounds["inflate"]->Play(0);
+			SoundFXManager::Play("inflate");
 		}
 		Flap();
 	}
@@ -468,6 +467,7 @@ void Kirby::DoEDownActions()
 	if (info.GetExitLevelName() != "")
 	{
 		m_pLevelManager->LoadLevel(info.GetExitLevelName());
+		SoundFXManager::Play("door");
 		SetLocation(info.GetExitLocation());
 	}
 	else if (m_MacroState == MacroState::inflated)
@@ -496,7 +496,7 @@ void Kirby::DoEDownActions()
 	// Inhale; if all above conditions are not met, and Kirby has no powerup
 	else if (HasPowerUp() == false)
 	{
-		m_pSounds["inhale"]->Play(0);
+		SoundFXManager::Play("inhale");
 		m_MacroState = MacroState::inhalation;
 	}
 	m_HasReleasedR = false;
@@ -534,6 +534,10 @@ void Kirby::DoSpaceDownActions()
 	{
 		m_Velocity.x = 180.f * m_XDirection;
 		m_MacroState = MacroState::sliding;
+	}
+	else if (!isUsingPower && (m_MacroState == MacroState::basic || m_MacroState == MacroState::bloated) && m_IsOnGround)
+	{
+		SoundFXManager::Play("jump");
 	}
 }
 
@@ -607,7 +611,7 @@ void Kirby::SpitStar()
 {
 	SetState(ActionState::spitting);
 	m_MacroState = MacroState::basic;
-	m_pSounds["spitstar"]->Play(0);
+	SoundFXManager::Play("spitstar");
 
 	// Copy shape first to manipulate copied shape properties underneath, then offset to match sprite center and not spawn inside Kirby
 	Rectf spawnRect{ m_Shape };																
@@ -627,7 +631,7 @@ void Kirby::SpawnPuff()
 	Rectf spawnLocation{ 0.f, m_Shape.bottom, m_Shape.width, m_Shape.height };
 	spawnLocation.left = m_Shape.left + (m_XDirection > 0.f ? m_Shape.width : -m_Shape.width);
 	m_pProjectileManager->Add(new Puff{this, spawnLocation, m_XDirection});
-	m_pSounds["exhale"]->Play(0);
+	SoundFXManager::Play("puff");
 }
 
 void Kirby::ExpelPower()
@@ -675,9 +679,15 @@ bool Kirby::IsInvulnerable() const
 	return m_IsInvulnerable;
 }
 
+bool Kirby::IsDead() const
+{
+	return m_MacroState == MacroState::dead;
+}
+
 void Kirby::SetBloated()
 {
 	SoundEffect::StopAll();
+	SoundFXManager::Play("bloat");
 	SetState(ActionState::bloat);
 	m_MacroState = MacroState::bloated;
 }
@@ -788,7 +798,7 @@ std::string Kirby::GetSpriteNameFromState(const ActionState& state) const
 	case ActionState::deflating:
 		spriteName.append("deflating");
 		break;
-	// STATES ONLY ACCESSIBLE WHEN NO POWER
+		// STATES ONLY ACCESSIBLE WHEN NO POWER
 	case ActionState::swallowing:
 		spriteName = "kirby_swallowing";
 		break;
@@ -813,7 +823,7 @@ std::string Kirby::GetSpriteNameFromState(const ActionState& state) const
 	case ActionState::spitting:
 		spriteName = "kirby_spitting";
 		break;
-	// POWER STATES
+		// POWER STATES
 	case ActionState::power_start:
 		if (HasPowerUp() && !(GetPowerUp()->HasCompleteSpriteSet()))
 		{
@@ -844,6 +854,10 @@ std::string Kirby::GetSpriteNameFromState(const ActionState& state) const
 		{
 			spriteName = "kirby_hurt";
 		}
+		break;
+	case ActionState::dead:
+		spriteName = "kirby_dead";
+		break;
 	}
 	return spriteName;
 }
@@ -854,20 +868,25 @@ int Kirby::GetHealth() const
 	return m_Health;
 }
 
+int Kirby::GetMaxHealth() const
+{
+	return m_MaxHealth;
+}
+
 int Kirby::GetLives() const
 {
 	return m_Lives;
 }
 
-//float Kirby::GetJumptime() const
-//{
-//	return m_JumpTime;
-//}
-//
-//float Kirby::GetMaxJumpTime() const
-//{
-//	return m_MaxJumpTime;
-//}
+int Kirby::GetScore() const
+{
+	return m_Score;
+}
+
+void Kirby::AddScore(int score)
+{
+	m_Score += score;
+}
 
 bool Kirby::HasLooped() const
 {
@@ -882,6 +901,7 @@ void Kirby::IncrementLives()
 void Kirby::DecrementHealth(float direction)
 {
 	if (m_IsInvulnerable) return;
+	SoundFXManager::Play("damage1");
 
 	SetState(ActionState::hurt);
 	BounceOffInDirection(direction);
@@ -933,6 +953,17 @@ void Kirby::SetVulnerable(std::string spriteName)
 
 void Kirby::KillKirby()
 {
+	const float impulseStrength{ 300.f };
+	m_MacroState = MacroState::dead;
+	SetState(ActionState::dead);
+	m_IsInvulnerable = true;
+	m_Velocity.y = impulseStrength;
+	SoundFXManager::Play("snare2");
+	m_pDeathSound->Play(false);
+}
+
+void Kirby::ResetKirby()
+{
 	--m_Lives;
 	m_Health = m_MaxHealth;
 	SetLocation(m_pLevelManager->GetCurrentLevel()->GetStartLocation());
@@ -943,6 +974,15 @@ void Kirby::KillKirby()
 	m_IsInvulnerable = false;
 	m_ActionState = ActionState::idle;
 	m_MacroState = MacroState::basic;
+	if (m_Lives < 0)
+	{
+		m_pLevelManager->LoadLevel("part1");
+		m_Lives = 4;
+	}
+	else
+	{
+		m_pLevelManager->LoadLevel(m_pLevelManager->GetCurrentLevel()->GetName());
+	}
 }
 
 void Kirby::CheckForShakeCommand(bool isAlreadyOnGround)
@@ -964,20 +1004,6 @@ void Kirby::BounceOffInDirection(float bounceDirection)
 {
 	SetVelocity(Vector2f{ 150.f * bounceDirection, 50.f });
 }
-
-//bool Kirby::IsInhaling() const
-//{
-//	if (m_MacroState == MacroState::inhalation)
-//	{
-//		return true;
-//	}
-//	return false;
-//}
-
-//void Kirby::EnforceState()
-//{
-//	SetState(m_ActionState);
-//}
 
 void Kirby::SetPowerState()
 {

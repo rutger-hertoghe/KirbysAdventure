@@ -2,8 +2,9 @@
 #include <iostream>
 #include "SoundEffect.h"
 
-SoundEffect::SoundEffect( const std::string& path )
-	:m_pMixChunk{ Mix_LoadWAV( path.c_str( ) ) }
+SoundEffect::SoundEffect( const std::string& path, float volumeScalar)
+	: m_pMixChunk{ Mix_LoadWAV( path.c_str( ) ) }
+	, m_VolumeScalar{volumeScalar}
 {
 	if ( m_pMixChunk == nullptr )
 	{
@@ -11,6 +12,7 @@ SoundEffect::SoundEffect( const std::string& path )
 		std::cerr << errorMsg;
 	}
 }
+
 SoundEffect::~SoundEffect( )
 {
 	Mix_FreeChunk( m_pMixChunk );
@@ -42,7 +44,7 @@ void SoundEffect::SetVolume( int value )
 {
 	if ( m_pMixChunk != nullptr )
 	{
-		Mix_VolumeChunk( m_pMixChunk, value );
+		Mix_VolumeChunk( m_pMixChunk, int(value * m_VolumeScalar) ); // Changed functionality to scale with relative volumes
 	}
 }
 

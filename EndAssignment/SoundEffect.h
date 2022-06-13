@@ -4,7 +4,7 @@
 class SoundEffect final
 {
 public:
-	explicit SoundEffect( const std::string& path );
+	explicit SoundEffect( const std::string& path, float volumeScalar = 1.f);
 	~SoundEffect( );
 	SoundEffect(const SoundEffect& other) = delete;
 	SoundEffect& operator=(const SoundEffect& rhs) = delete;
@@ -21,4 +21,6 @@ public:
 
 private:
 	Mix_Chunk* m_pMixChunk;
+
+	float m_VolumeScalar; // Added this to scale volume relatively to other soundeffects
 };

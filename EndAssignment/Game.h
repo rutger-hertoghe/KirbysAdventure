@@ -1,4 +1,5 @@
 #pragma once
+#include "SoundFXManager.h"
 class Kirby;
 class HUD;
 class Camera;
@@ -50,6 +51,7 @@ private:
 	ObjectManager* m_pObjectManager;
 	ProjectileManager* m_pProjectileManager;
 	LevelManager* m_pLevelManager;
+	SoundFXManager m_SoundFXManager;
 
 	// FUNCTIONS
 	void Initialize( );

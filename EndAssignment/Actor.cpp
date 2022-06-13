@@ -64,17 +64,6 @@ void Actor::DeletePowerUp()
 	m_pPowerUp = nullptr;
 }
 
-void Actor::SetLocation(const Point2f& location)
-{
-	m_Shape.left = location.x;
-	m_Shape.bottom = location.y;
-}
-
-void Actor::SetLocation(float x, float y)
-{
-	m_Shape.left = x;
-	m_Shape.bottom = y;
-}
 
 void Actor::AddVelocity(Vector2f velocity)
 {
@@ -113,11 +102,6 @@ void Actor::SetVelocity(float x, float y)
 Vector2f Actor::GetVelocity() const
 {
 	return m_Velocity;
-}
-
-Point2f Actor::GetLocation() const
-{
-	return Point2f(m_Shape.left, m_Shape.bottom);
 }
 
 PowerUp* Actor::GetPowerUp() const
@@ -250,10 +234,12 @@ void Actor::CreateAltSprites()
 	}
 }
 
-void Actor::ChangeDirectionOnBump()
+bool Actor::ChangeDirectionOnBump()
 {
 	if (m_pLevelManager->GetCurrentLevel()->IsAgainstWall(m_Shape, m_XDirection))
 	{
 		ChangeDirection();
+		return true;
 	}
+	return false;
 }

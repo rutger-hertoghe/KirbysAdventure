@@ -1,4 +1,6 @@
 #pragma once
+#include "SoundFXManager.h" // Include here to have the manager accessible in any game object without having to add the header to every derived class
+
 class Sprite;
 
 class GameObject
@@ -15,8 +17,15 @@ public:
 	virtual void Update(float elapsedSec) = 0;
 
 	Rectf GetShape() const;
+	Point2f GetCenter() const;
 	float GetDirection() const;
+	Point2f GetLocation() const;
+
+	void SetLocation(const Point2f& location);
+	void SetLocation(float x, float y);
+
 	bool IsOnScreen() const;
+	float GetRelativeDirection(GameObject* other) const;
 
 protected:
 	Rectf m_Shape;
@@ -27,9 +36,7 @@ protected:
 	
 	float m_XDirection;
 
-	// TODO: sprite info terug in sprites steken en projectile management fixen OF ervoor zorgen dat sprite ALTIJD gereset wordt
 	Sprite* m_pCurrentSprite;
-
 
 	std::vector<Sprite*> m_pSprites;
 

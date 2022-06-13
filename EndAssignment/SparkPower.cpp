@@ -32,6 +32,7 @@ void SparkPower::ContinuousKeyEvent()
 	if (m_CanSpawn)
 	{
 		m_pProjectileManager->Add(new Spark{m_pOwner, spawnRect, spawnVelocities});
+		SoundFXManager::Play("shock");
 		m_CanSpawn = false;
 	}
 }

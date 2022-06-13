@@ -65,7 +65,7 @@ void Sprite::SetDimensions()
 	m_FrameDimensions.y = m_pTexture->GetHeight() / m_Rows;
 }
 
-std::string Sprite::GenerateSpritePath()
+std::string Sprite::GenerateSpritePath() const
 {
 	std::string path{ "resources/sprites/" };
 	path.append(m_Name);
@@ -104,7 +104,7 @@ void Sprite::Draw(const Rectf& dstRect, int frame) const
 	m_pTexture->Draw(newRect, srcRect);
 }
 
-std::string Sprite::GetName() const
+const std::string& Sprite::GetName() const
 {
 	return m_Name;
 }

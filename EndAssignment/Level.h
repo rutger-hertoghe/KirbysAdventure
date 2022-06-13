@@ -11,9 +11,12 @@ class Camera;
 class Level final
 {
 public:
-	Level(std::string levelName, std::string musicPath);
+	explicit Level(const std::string& levelName, const std::string& musicPath);
+	explicit Level(const std::string& levelName, SoundStream* music);
 	Level(const Level& other) = delete;
 	Level& operator=(const Level& other) = delete;
+	Level(Level&& other) = delete;
+	Level& operator=(Level&& other) = delete;
 	~Level();
 
 	void DrawFull() const;
@@ -27,6 +30,8 @@ public:
 	bool IsOnGround(const Rectf& actorShape) const;
 	bool IsAgainstWall(const Rectf& actorShape, float actorDirection) const;
 
+	void PlayMusic() const;
+	SoundStream* GetLevelMusic() const;
 	std::string GetName() const;
 	Rectf GetBoundaries() const;
 	Point2f GetStartLocation() const;

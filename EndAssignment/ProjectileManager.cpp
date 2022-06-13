@@ -36,9 +36,9 @@ void ProjectileManager::Draw() const
 void ProjectileManager::Update(float elapsedSec)
 {
 	int idx{};
-	if (m_pProjectiles.size() > 0)
+	if (int(m_pProjectiles.size()) > 0)
 	{
-		while (idx < m_pProjectiles.size())
+		while (idx < int(m_pProjectiles.size()))
 		{
 			UpdateProjectile(elapsedSec, idx);
 			++idx;

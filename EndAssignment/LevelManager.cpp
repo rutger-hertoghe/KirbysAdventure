@@ -4,12 +4,13 @@
 #include "ObjectManager.h"
 #include "Camera.h"
 #include "Kirby.h"
-
-// LevelManager* LevelManager::m_pLevelManager{ nullptr };
+#include "SoundStream.h"
 
 LevelManager::LevelManager(Kirby* pKirby, Camera* pCamera)
 	: m_pKirby(pKirby)
 	, m_pCamera{ pCamera }
+	, m_pMusic{ new SoundStream{"resources/music/stagemusic1.mp3"} }
+	, m_pCurrentLevel{nullptr}
 {
 
 	Initialize();
@@ -17,24 +18,26 @@ LevelManager::LevelManager(Kirby* pKirby, Camera* pCamera)
 
 LevelManager::~LevelManager()
 {
-	for (Level* pLevel : m_pLevels)
+	for (auto pLevel : m_pLevels)
 	{
-		delete pLevel;
+		delete pLevel.second;
 	}
+	delete m_pMusic;
 }
 
 void LevelManager::Initialize()
 {
-	// m_pLevels.push_back(new Level{ "testlevel", "resources/music/stagemusic1.mp3" });
-	m_pLevels.push_back(new Level{ "part1", "resources/music/stagemusic1.mp3" });
-	m_pLevels.push_back(new Level{ "part2", "resources/music/stagemusic1.mp3" });
-	m_pLevels.push_back(new Level{ "part3", "resources/music/stagemusic1.mp3" });
-	// m_pLevels.push_back(new Level{ "part4", "resources/music/stagemusic1.mp3" });
-	// m_pLevels.push_back(new Level{ "part5", "resources/music/stagemusic1.mp3" });
-	// m_pLevels.push_back(new Level{ "part6", "resources/music/stagemusic1.mp3" });
+	AddLevel("part1", m_pMusic);
+	AddLevel("part2", m_pMusic);
+	AddLevel("part3", m_pMusic);
 }
 
-void LevelManager::LoadLevel(std::string levelName)
+void LevelManager::AddLevel(const std::string& levelName, SoundStream* music)
+{
+	m_pLevels.insert(std::pair<std::string, Level*>(levelName, new Level{ levelName, music }));
+}
+
+void LevelManager::LoadLevel(const std::string& levelName)
 {	
 	ObjectManager* pObjectMngr{ ObjectManager::GetObjectMngr() };;
 	if (levelName == "")
@@ -45,16 +48,23 @@ void LevelManager::LoadLevel(std::string levelName)
 
 	if (pObjectMngr) pObjectMngr->Clear();
 
-	for (Level*& pLevel : m_pLevels)
+	SoundStream* pCurrentSong{};
+	if (m_pCurrentLevel)
 	{
-		if (pLevel->GetName() == levelName)
-		{
-			m_pCurrentLevel = pLevel;
-		}
+		pCurrentSong = m_pCurrentLevel->GetLevelMusic();
 	}
 
+	m_pCurrentLevel = m_pLevels[levelName];
+
 	m_pCamera->UpdateBoundaries(m_pCurrentLevel->GetBoundaries());
+
 	if (pObjectMngr) pObjectMngr->LoadObjectsByLevelName(levelName);
+
+	if (pCurrentSong != m_pCurrentLevel->GetLevelMusic() || !SoundStream::IsPlaying())
+	{
+		SoundStream::Stop();
+		m_pCurrentLevel->PlayMusic();
+	}
 }
 
 Level* LevelManager::GetCurrentLevel()

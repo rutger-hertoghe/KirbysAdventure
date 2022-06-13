@@ -51,6 +51,10 @@ bool Item::IsRemovedOnCollision() const
 
 bool Item::IsRemoved() const
 {
+	// When updating an instance of 'Note' in a certain situation causes an error, I've spent many hours
+	// trying to fix it, but I can not for the life of my find why this error occurs and
+	// crashes the program
+	// The error occurs when manoeuvring kirby underneath a note, while he has a powerup
 	return m_IsRemoved;
 }
 

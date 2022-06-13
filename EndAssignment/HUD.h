@@ -4,17 +4,17 @@ class Kirby;
 class Sprite;
 class HudElement;
 
-class HUD
+class HUD final
 {
 public:
-	HUD();
+	explicit HUD(Kirby* pKirby);
 	HUD(const HUD& other) = delete;
 	HUD& operator=(const HUD& rhs) = delete;
 	HUD(HUD&& other) = delete;
 	HUD& operator=(HUD&& other) = delete;
 	~HUD();
 
-	void Draw(Kirby* pKirby) const;
+	void Draw() const;
 	float GetHeight() const;
 	float GetWidth() const;
 
@@ -23,6 +23,8 @@ public:
 private:
 	Point2f m_PosDancingKirby;
 	Point2f m_PosScore;
+
+	Kirby* m_pKirby;
 
 	Texture* m_pNumbers;
 	Texture* m_pMainTexture;
@@ -34,8 +36,10 @@ private:
 	HudElement* m_pDancingKirby;
 	Point2f m_Dimensions;
 
-	void DrawPowerPanel(Kirby* kirbyPtr) const;
-	void DrawHealth(Kirby* kirbyPtr) const;
-	void DrawLives(Kirby* kirbyPtr) const;
+	void DrawPowerPanel() const;
+	void DrawHealth() const;
+	void DrawLives() const;
+	void DrawScore() const;
+	void DrawNumber(Point2f& location, int number, int digits) const;
 };
 

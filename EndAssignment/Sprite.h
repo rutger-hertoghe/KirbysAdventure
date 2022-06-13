@@ -5,7 +5,7 @@ class Texture;
 class Sprite
 {
 public:
-	Sprite(int nrFrames, float loopTime, const std::string& textureName, int rows = 1, bool invulnerabilitySprite = false);
+	explicit Sprite(int nrFrames, float loopTime, const std::string& textureName, int rows = 1, bool invulnerabilitySprite = false);
 	Sprite(const Sprite& other) = delete;
 	Sprite& operator=(const Sprite& other) = delete;
 	Sprite(Sprite&& other) noexcept;
@@ -16,7 +16,7 @@ public:
 	void Draw(const Point2f& location, int frame) const;
 	void Draw(const Rectf& dstRect, int frame) const;
 
-	std::string GetName() const;
+	const std::string& GetName() const;
 	Point2f GetFrameDimensions() const;
 	float GetLoopTime() const;
 	int GetNrOfFrames() const;
@@ -37,6 +37,6 @@ private:
 
 	void SetDimensions();
 
-	std::string GenerateSpritePath();
+	std::string GenerateSpritePath() const;
 };
 

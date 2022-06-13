@@ -163,6 +163,7 @@
     <ClCompile Include="LaserBall.cpp" />
     <ClCompile Include="LevelManager.cpp" />
     <ClCompile Include="MrTickTock.cpp" />
+    <ClCompile Include="Note.cpp" />
     <ClCompile Include="ObjectManager.cpp" />
     <ClCompile Include="Fireball.cpp" />
     <ClCompile Include="FirePower.cpp" />
@@ -194,7 +195,9 @@
     <ClCompile Include="RemovalFX.cpp" />
     <ClCompile Include="Rocky.cpp" />
     <ClCompile Include="SoundEffect.cpp" />
+    <ClCompile Include="SoundFXManager.cpp" />
     <ClCompile Include="SoundStream.cpp" />
+    <ClCompile Include="SoundWave.cpp" />
     <ClCompile Include="Spark.cpp" />
     <ClCompile Include="SparkPower.cpp" />
     <ClCompile Include="Sparky.cpp" />
@@ -222,6 +225,7 @@
     <ClInclude Include="LaserBall.h" />
     <ClInclude Include="LevelManager.h" />
     <ClInclude Include="MrTickTock.h" />
+    <ClInclude Include="Note.h" />
     <ClInclude Include="ObjectManager.h" />
     <ClInclude Include="Fireball.h" />
     <ClInclude Include="FirePower.h" />
@@ -247,7 +251,9 @@
     <ClInclude Include="RemovalFX.h" />
     <ClInclude Include="Rocky.h" />
     <ClInclude Include="SoundEffect.h" />
+    <ClInclude Include="SoundFXManager.h" />
     <ClInclude Include="SoundStream.h" />
+    <ClInclude Include="SoundWave.h" />
     <ClInclude Include="Spark.h" />
     <ClInclude Include="SparkPower.h" />
     <ClInclude Include="Sparky.h" />

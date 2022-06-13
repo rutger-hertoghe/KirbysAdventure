@@ -178,6 +178,7 @@ void Bounder::ThrowStar()
 	spawnRect.width = dimSize;
 	spawnRect.height = dimSize;
 	m_pProjectileManager->Add(new ThrowingStar{this, spawnRect, m_XDirection});
+	SoundFXManager::Play("chirp3");
 }
 
 void Bounder::JumpTowardsKirby()

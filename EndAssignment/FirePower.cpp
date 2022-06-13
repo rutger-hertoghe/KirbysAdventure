@@ -41,7 +41,10 @@ void FirePower::ContinuousKeyEvent()
 		}
 		else std::cout << "PROJECTILE MANAGER NOT FOUND\n";
 		m_CanSpawn = false;
+
+		SoundFXManager::StopAll();
 	}
+	SoundFXManager::Play("fire");
 }
 
 void FirePower::OnKeyUpEvent()

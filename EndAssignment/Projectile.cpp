@@ -54,6 +54,7 @@ void Projectile::DestroyOnCollision()
 	{
 		m_IsReadyToDestroy = true;
 		ObjectManager::GetObjectMngr()->AddRemovalFX(Point2f{ m_Shape.left, m_Shape.bottom }, RemovalFX::FXType::item);
+		SoundFXManager::Play("ProjectileHitsWall");
 	}
 }
 

@@ -6,12 +6,10 @@
 #include "PowerUp.h"
 #include "HudElement.h"
 
-// TODO: Add dancing kirby + score counter
-
-HUD::HUD()
-	: m_PosDancingKirby{ 187.f, 32.f }
+HUD::HUD(Kirby* pKirby)
+	: m_PosDancingKirby{ 193.5f, 32.f }
 	, m_PosScore{ 15.f, 23.f }
-	, m_pDancingKirby{nullptr}
+	, m_pKirby{ pKirby }
 {
 	m_pMainTexture = new Texture{ "resources/UI/HUD_Normal.png" };
 	m_pPowerTextures = new Texture{ "resources/UI/HUD_Powers.png"};
@@ -31,6 +29,11 @@ HUD::HUD()
 	spritePtr = new Sprite{ nrFrames, animationSpeed, "hud_health" };
 	m_pHealth = new HudElement{ spritePtr };
 
+	nrFrames = 4; 
+	animationSpeed = 1.0f;
+	spritePtr = new Sprite{ nrFrames, animationSpeed, "hud_dancing_kirby" };
+	m_pDancingKirby = new HudElement{ spritePtr };
+
 	nrFrames = 4;
 	animationSpeed = 1.0f;
 }
@@ -49,8 +52,8 @@ HUD::~HUD()
 	delete m_pScore;
 	m_pScore = nullptr;
 
-	// delete m_pDancingKirby;
-	// m_pDancingKirby = nullptr;
+	delete m_pDancingKirby;
+	m_pDancingKirby = nullptr;
 
 	delete m_pHealthLost;
 	m_pHealthLost = nullptr;
@@ -61,22 +64,25 @@ HUD::~HUD()
 
 void HUD::Update(float elapsedSec)
 {
-	// m_pDancingKirby->Update(elapsedSec);
+	const float danceSpeedScalar{float(m_pKirby->GetMaxHealth()) / (m_pKirby->GetHealth() + 1)}; // +1 to make the dancing kirby less hyper active at 1 health
+	m_pDancingKirby->Update(elapsedSec * danceSpeedScalar);
 	m_pHealth->Update(elapsedSec);
 
 }
 
-void HUD::Draw(Kirby* kirbyPtr) const
+void HUD::Draw() const
 {
 	m_pMainTexture->Draw();
 	m_pScore->Draw(m_PosScore);
-	// m_pDancingKirby->Draw();
-	DrawPowerPanel(kirbyPtr);
-	DrawHealth(kirbyPtr);
-	DrawLives(kirbyPtr);
+	m_pDancingKirby->SetPosition(m_PosDancingKirby);
+	m_pDancingKirby->Draw();
+	DrawPowerPanel();
+	DrawHealth();
+	DrawLives();
+	DrawScore();
 }
 
-void HUD::DrawPowerPanel(Kirby* pKirby) const
+void HUD::DrawPowerPanel() const
 {
 	const float panelWidth{ 32.f };
 	const float panelHeight{ 40.f };
@@ -85,20 +91,26 @@ void HUD::DrawPowerPanel(Kirby* pKirby) const
 	const Point2f hudLocation{ 144.f, 16.f };
 	const Rectf panelRect{ hudLocation.x, hudLocation.y, panelWidth, panelHeight };
 
-	PowerUp* power{ pKirby->GetPowerUp() };
+	PowerUp* power{ m_pKirby->GetPowerUp() };
 	int panel{ 0 };
 
-	if (power && pKirby->IsBloated() == false)
+	if (m_pKirby->IsDead())
+	{
+		panel = 11;
+	}
+	else if (power && m_pKirby->IsBloated() == false)
 	{
 		panel = power->GetPowerPanelSlot();
 	}
-	else if (pKirby->IsInvulnerable())
+	else if (m_pKirby->IsInvulnerable())
 	{
 		panel = 10;
 	}
+
 	const int panelCol{ panel % panelsPerRow };
 	const int panelRow{ panel / panelsPerRow + 1 };
-	Rectf srcRect{
+	Rectf srcRect
+	{
 			panel * panelWidth,
 			m_pPowerTextures->GetHeight() - panelRow * panelHeight,
 			panelWidth,
@@ -107,9 +119,9 @@ void HUD::DrawPowerPanel(Kirby* pKirby) const
 	m_pPowerTextures->Draw(panelRect, srcRect);
 }
 
-void HUD::DrawHealth(Kirby* kirbyPtr) const
+void HUD::DrawHealth() const
 {
-	const int health{ kirbyPtr->GetHealth() };
+	const int health{ m_pKirby->GetHealth() };
 	const int maxHealth{ 6 };
 	Point2f location{76.f, 37.f};
 	for (int currentHealthSprite{}; currentHealthSprite < maxHealth; ++currentHealthSprite)
@@ -128,30 +140,41 @@ void HUD::DrawHealth(Kirby* kirbyPtr) const
 	}
 }
 
-void HUD::DrawLives(Kirby* kirbyPtr) const
+void HUD::DrawLives() const
 {
-	const int lives{ kirbyPtr->GetLives() };
-	const int tens{ lives / 10 };
-	const int units{ lives % 10 };
-	const int decimalNumbers{ 10 };
-	
 	Point2f location{ 208.f, 32.f };
+	DrawNumber(location, m_pKirby->GetLives(), 2);
+}
 
-	Rectf tensSrcRect{}, unitsSrcRect{};
-	tensSrcRect.width = m_pNumbers->GetWidth() / 10;
-	tensSrcRect.height = m_pNumbers->GetHeight();
-	tensSrcRect.bottom = tensSrcRect.height;
-	tensSrcRect.left = tens * tensSrcRect.width;
+void HUD::DrawScore() const
+{
+	Point2f location{ 72.f, 24.f };
+	DrawNumber(location, m_pKirby->GetScore(), 7);
 	
-	unitsSrcRect.width = tensSrcRect.width;
-	unitsSrcRect.height = tensSrcRect.height;
-	unitsSrcRect.bottom = unitsSrcRect.height;
-	unitsSrcRect.left = units * unitsSrcRect.width;
+}
 
-	m_pNumbers->Draw(location, tensSrcRect);
+void HUD::DrawNumber(Point2f& location, int number, int digits) const
+{
+	int divisionResult{};
+	int score{  };
+	Rectf srcRect{};
+	srcRect.width = m_pNumbers->GetWidth() / 10;
+	srcRect.height = m_pNumbers->GetHeight();
+	srcRect.bottom = srcRect.height;
 
-	location.x += tensSrcRect.width;
-	m_pNumbers->Draw(location, unitsSrcRect);
+	for (int i{}; i < digits; ++i) 
+	{
+		int currentExponent{ digits - i - 1}; // -1 because 10 to the amount of digits will result in a number that's on digit longer
+		int currentPower{ int(pow(10, currentExponent)) };
+		divisionResult = number / currentPower;
+		score %= currentPower;
+
+		srcRect.left = divisionResult * srcRect.width;
+
+		m_pNumbers->Draw(location, srcRect);
+
+		location.x += srcRect.width;
+	}
 }
 
 float HUD::GetHeight() const

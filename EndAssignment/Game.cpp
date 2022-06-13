@@ -8,6 +8,7 @@
 #include "ProjectileManager.h"
 #include "LevelManager.h"
 #include "PauseScreen.h"
+#include "SoundFXManager.h"
 // CLEANED INCLUDES
 
 Game::Game( const Window& window ) 
@@ -25,11 +26,9 @@ Game::~Game( )
 }
 
 void Game::Initialize( )
-{
-	// TODO: Implement boss enemy
-	//
+{	
 	m_pKirby = new Kirby{};
-	m_pHUD = new HUD{};
+	m_pHUD = new HUD{m_pKirby};
 	m_pPauseScreen = new PauseScreen{m_Window, m_pKirby};
 	m_pCamera = new Camera{ m_pKirby->GetLocation(), m_Window.width, m_Window.height, m_pHUD };
 	m_pProjectileManager = new ProjectileManager{};
@@ -37,7 +36,8 @@ void Game::Initialize( )
 	m_pObjectManager = new ObjectManager{ m_pKirby, m_pLevelManager, m_pProjectileManager };
 	// The reason I opted to use a singleton pattern for the object manager is because every game object uses the objectmanager to determine
 	// whether they are on screen, but they aren't actually managed by the object manager. An object manager pointer in every game object
-	// might thus make another developer think that every game object is managed by this manager, which is not the case (only enemies, items and the boss but
+	// might thus make another developer think that every game object is managed by this manager or has some functionality for this pointer,
+	// which is not the case (only enemies, items and the boss are managed by it, kirby, projectiles, and ui element management are outside of the object manager's scope).
 	// I actually find passing along these manager pointers a lot messier than using the singleton pattern
 	// Now I have these long trails of pointers being passed along that actually make it unclear where everything is needed
 	// These managers are sometimes only needed once within a class and it demands some weird code for my powerups to work such as a method
@@ -50,7 +50,7 @@ void Game::Initialize( )
 	m_pKirby->SetLevelManager(m_pLevelManager);
 	m_pKirby->SetProjectileManager(m_pProjectileManager);
 
-	m_pLevelManager->LoadLevel("part3");
+	m_pLevelManager->LoadLevel("part1");
 	m_pKirby->SetLocation(m_pLevelManager->GetCurrentLevel()->GetStartLocation());
 }
 
@@ -198,7 +198,7 @@ void Game::DrawPlay() const
 	// UI AREA
 	glPushMatrix();
 	m_pCamera->TransformHUD();
-	m_pHUD->Draw(m_pKirby);
+	m_pHUD->Draw();
 	glPopMatrix();
 }
 

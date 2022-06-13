@@ -4,6 +4,7 @@
 #include "HUD.h"
 #include "ObjectManager.h"
 #include "Kirby.h"
+#include "SoundFXManager.h"
 
 bool Camera::m_IsShaking{ false };
 
@@ -36,6 +37,7 @@ Camera::Camera(const Point2f& location, float windowWidth, float windowHeight, H
 void Camera::SetShake()
 {
 	m_IsShaking = true;
+	SoundFXManager::Play("shake");
 }
 
 void Camera::Transform(float distanceFactor)
@@ -200,7 +202,7 @@ void Camera::MoveBackToKirby(float elapsedSec, Kirby* pKirby)
 	}
 }
 
-void Camera::TransformHUD()
+void Camera::TransformHUD() const
 {
 	glScalef(m_ScalingFactor.x, m_ScalingFactor.y, 1.f); // Scaling to fit window
 }
@@ -228,12 +230,12 @@ void Camera::Unlock()
 	m_IsUnlocking = true;
 }
 
-Point2f Camera::GetLocation()
+Point2f Camera::GetLocation() const
 {
 	return m_Location;
 }
 
-Rectf Camera::GetVisibleArea()
+Rectf Camera::GetVisibleArea() const
 {
 	return m_VisibleArea;
 }
